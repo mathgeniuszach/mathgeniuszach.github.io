@@ -24,6 +24,7 @@ aside {
     display: flex;
     flex-direction: column;
     border: 1px solid lightgray;
+    background-color: #f9f9f9;
 }
 aside a {
     text-decoration: none;
