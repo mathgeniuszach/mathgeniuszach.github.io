@@ -11,7 +11,7 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 section {
-    margin: 96px 220px 61px 220px;
+    margin: 96px 250px 61px 250px;
 }
 
 /* Sidebar */
@@ -19,7 +19,7 @@ aside {
     position: fixed;
     margin: 96px 20px 61px 20px;
     padding: 5px;
-    width: 170px;
+    width: 200px;
     
     display: flex;
     flex-direction: column;
