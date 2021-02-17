@@ -1,0 +1,19 @@
+section {
+    margin: 96px 20px 61px 220px;
+}
+
+aside {
+    height: 100%;
+    max-height: calc(100% - 167px);
+}
+aside select {
+    height: 100%;
+    margin-top: 8px;
+}
+
+.iitem {
+    width: 150px;
+    text-align: right;
+    display: inline-block;
+    padding-bottom: 10px;
+}
