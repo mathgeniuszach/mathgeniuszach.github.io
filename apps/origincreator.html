@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
     <script src="/js/main.js"></script>
     <script src="origincreator.js"></script>
     
@@ -20,19 +21,18 @@
 <body>
     <header></header>
     <aside>
-        <div class="side-head">Unnamed Pack</div>
+        <div class="side-head">My Origins</div>
         <select id="content-box" size=2>
-            <option value="metadata">Metadata</option>
-            <optgroup label="Layers">
-                <option value="default">Default</option>
+            <option value="meta">Metadata</option>
+            <optgroup id="layers-group" label="Layers">
+                <option value="layer-origins:origin">origins:origin</option>
             </optgroup>
-            <optgroup label="Origins">
-            </optgroup>
-            <optgroup label="Powers">
-            </optgroup>
+            <optgroup id="origins-group" label="Origins"></optgroup>
+            <optgroup id="powers-group" label="Powers"></optgroup>
         </select>
         <div class="button-group">
             <button id="btn-delete">Delete</button>
+            <button id="btn-save">Save</button>
             <button id="btn-reset">Reset</button>
             <button id="btn-help">Help</button>
         </div>
@@ -61,7 +61,7 @@
             
             <p>If you already have a datapack or mod you want to edit, press the "Import" button in the bottom left and select the item you want to edit on your Computer.</p>
             
-            <p>After adding metadata, you can add data items by using the "Layer", "Origin", and "Power" buttons at the bottom left of the page. After adding anything, click on it in the left box to select and edit it. Whatever page you are on will then be replaced by an editor for that item. You can also press the "Delete" button to delete the item you have selected (other than the "Default" layer or the "Metadata" item), or the "Reset" button to delete all your progress and return to this page.</p>
+            <p>After adding metadata, you can add data items by using the "Layer", "Origin", and "Power" buttons at the bottom left of the page. After adding anything, click on it in the left box to select and edit it. Whatever page you are on will then be replaced by an editor for that item. You can also press the "Delete" button to delete the item you have selected (other than the "Metadata" item), or the "Reset" button to delete all your progress and return to this page.</p>
             
             <p>When you are finished editing, you can press the "Datapack" button to export your work to a datapack or the "Mod" button to export it to a mod. </p>
             
@@ -69,7 +69,7 @@
             <p>Creating a good origin can be difficult, so here's a few tips.</p>
             <ul>
                 <li>If you aren't sure what something does, hover over the label. A tooltip will provide a short description of what that entry is for.</li>
-                <li>This page auto-saves to a cookie on your computer, so refreshing the page won't lose your progress.</li>
+                <li>This page auto-saves to a cookie on your computer everytime a field loses focus, so refreshing or closing the page won't lose your progress. There's a save button in the bottom left too if you feel unsure. If you want to remove your progress and delete the cookie, press "Reset."</li>
                 <li>Check out the official <a href="https://github.com/apace100/origins-fabric/wiki">wiki</a> for more information.</li>
                 <li>Check out the #origin-ideas chat in the official <a href="https://discord.gg/4mTMHu3"> Origins Discord</a></li>
                 <li>Test things out! If you aren't sure something will work, test it out in Minecraft! Failure is an important step in creativity.</li>
@@ -78,7 +78,7 @@
                     <ul>
                         <li><b>Simple</b> - A good origin is easy to understand and doesn't have too many powers. Staying under six is a good idea and helps you make the most of each power. You can get around this by grouping powers together (e.g., if you can't touch water, this includes both water and rain).</li>
                         
-                        <li><b>Unique</b> - An origin should provide a gameplay experience unique to itself. Copying a different origin in a slightly different way can get dull and old. This doesn't mean you can't take inspiration from places like mobs or other people's origins, it just means that people should be able to get a special experience using your origin.</li> 
+                        <li><b>Unique</b> - An origin should provide a gameplay experience and look and feel unique to itself. Copying a different origin in a slightly different way can get dull and old. This doesn't mean you can't take inspiration from places like mobs or other people's origins, it just means that people should be able to get a special experience using your origin.</li> 
                         
                         <li><b>Inspiring</b> - A good origin enables you to be creative with how you play the game, even if it's in a small way. Take for example the Merling; you must play underwater for most of the game, which requires the player to concoct new and interesting ways of doing things that would've been simple without the origin (e.g., how do you survive in the Nether?). You don't have to have a high-impact origin to do this (consider the Avian)</li>
                         
@@ -89,14 +89,10 @@
                 </li>
             </ul>
         </div>
-        <hr>
-        <div class="content" id="div-meta"></div>
-        <hr>
-        <div class="content" id="div-layer"></div>
-        <hr>
-        <div class="content" id="div-origin"></div>
-        <hr>
-        <div class="content" id="div-power"></div>
+        <div class="content" id="div-meta" hidden=true></div>
+        <div class="content" id="div-layer" hidden=true></div>
+        <div class="content" id="div-origin" hidden=true></div>
+        <div class="content" id="div-power" hidden=true></div>
     </section>
     <footer></footer>
 </body>

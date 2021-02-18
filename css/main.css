@@ -1,3 +1,9 @@
+:root {
+    --box-color: #f6f6f6;
+    --box-border-color: lightgray;
+    --box-border-width: 2px;
+}
+
 html {
     scroll-padding-top: 96px;
 }
@@ -23,8 +29,8 @@ aside {
     
     display: flex;
     flex-direction: column;
-    border: 1px solid lightgray;
-    background-color: #f9f9f9;
+    border: var(--box-border-width) solid var(--box-border-color);
+    background-color: var(--box-color);
 }
 aside a {
     text-decoration: none;
@@ -32,7 +38,7 @@ aside a {
     margin-top: 8px;
 }
 aside .side-head {
-    border: 1px solid lightgray;
+    border: var(--box-border-width) solid var(--box-border-color);
     padding: 10px 0px;
     font-weight: bold;
     text-align: center;
@@ -128,8 +134,8 @@ footer {
 /* Navigation drop-down menus */
 .nav-dropdown {
     display: none;
-    border: 1px solid lightgray;
-    background-color: #f9f9f9;
+    border: var(--box-border-width) solid var(--box-border-color);
+    background-color: var(--box-color);
     position: absolute;
     margin-left: 5px;
     margin-top: 49px;
@@ -148,6 +154,15 @@ footer {
 /* containers */
 .content {
     width: 100%;
+}
+.iblock {
+    display: inline-block;
+}
+.panel {
+    border: var(--box-border-width) solid var(--box-border-color);
+    background-color: var(--box-color);
+    padding: 5px;
+    display: inline-block;
 }
 
 /* content modification */
