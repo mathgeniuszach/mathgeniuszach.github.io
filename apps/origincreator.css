@@ -9,22 +9,32 @@ aside {
 aside select {
     height: 100%;
     margin-top: 8px;
+    overflow-x: auto;
+    overflow-y: auto;
 }
 
 .iitem {
     width: 120px;
     text-align: right;
     display: inline-block;
-    padding-bottom: 10px;
-    padding-right: 5px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    vertical-align: top;
 }
+input.ientry[type="file"] {
+    margin-bottom: 3px;
+}
+
 .panel {
     margin-bottom: 10px;
+    vertical-align: top;
 }
 
 .zlist select {
     width: 100%;
     min-width: 285px;
+    overflow-x: auto;
+    overflow-y: auto;
 }
 .zlist div {
     text-align: center;
