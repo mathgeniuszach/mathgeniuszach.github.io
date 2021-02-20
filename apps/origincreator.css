@@ -29,17 +29,15 @@ input.ientry[type="file"] {
     margin-bottom: 10px;
     vertical-align: top;
 }
+.m {
+    margin-top: 10px;
+    margin-bottom: 0px;
+}
+.mb {
+    margin-bottom: 10px;
+}
 
-.zlist select {
-    width: 100%;
-    min-width: 285px;
-    overflow-x: auto;
-    overflow-y: auto;
-}
-.zlist div {
-    text-align: center;
-}
-.zlist button {
-    height: 25px;
+.zlist-button {
     width: 25px;
+    height: 25px;
 }

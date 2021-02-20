@@ -70,26 +70,65 @@ function loadData(ocd) {
     save();
 }
 
+// Find an element's datapath (which is dynamic thanks to lists... yuck. Oh well)
+function getPath(elem, selfish) {
+    var nList = [];
+    if (selfish) nList.push(elem.getAttribute("name"));
+    
+    var l = elem.parentElement;
+    while (l) { // Do while "could" be better, but I really don't know
+        if (l.tagName != "DIV") break;
+        nList.push(l.getAttribute("name"));
+        l = l.parentElement;
+    };
+    nList.reverse();
+    return nList.join("--");
+};
+// Find an item based on a datapath/element id
+function findItem(...datapaths) {
+    return $("._"+datapaths.join(">._").replace(/--/g, ">._").replace(":", "-_-"));
+}
+function findChildItem(parent, ...datapaths) {
+    return parent.find(">._"+datapaths.join(">._").replace(/--/g, ">._").replace(":", "-_-"))
+}
+
 function locateForm(datapath, id) {
+    //console.log(datapath);
     var spath = datapath.split("--");
     // Find starting location
     var formloc = forms[spath[0]];
     
     // Finish finding form location
     for (let i = 1; i < spath.length; i++) {
-        let newFormLoc = formloc[spath[i].replace("-_-", ":").replace("-", "")];
+        let path = spath[i].replace("-_-", ":");
+        if (path[0] == "-") path = path.substring(1);
+        
+        if (!isNaN(path)) continue;
+        
+        //console.log(spath[i], formloc);
+        let newFormLoc = formloc[path];
+        if (!newFormLoc) continue;
         if (newFormLoc.type == "more") {
-            let v = $("#"+spath.slice(0, i).join("--")+"-"+newFormLoc.parent).val();
+            let v = spath[i+1].replace("-_-", ":");
+            //if (!v) findItem(spath.slice(0, i).join("--"), newFormLoc.parent).val();
             formloc = newFormLoc.data[v];
+            i++;
         } else {
             formloc = newFormLoc.data;
         }
     }
-    return formloc[id].data;
+    if (id) {
+        var pid = id;
+        if (id[0] == "-") pid = id.substring(1);
+        
+        if (!formloc[pid]) return null;
+        else return formloc[pid].data;
+    }
+    else return formloc;
 }
 
 function locateData(datapath) {
-    var spath = datapath.split("--");
+    var spath = datapath.replace("-_-", ":").split("--");
     // Find starting location
     var loc = data[spath[0]];
     if (spath[0] != "meta") { // Necessary because meta doesn't have named subitems
@@ -97,17 +136,32 @@ function locateData(datapath) {
     }
     // Finish finding location (here because maybe meta has a panel)
     for (let i = 1; i < spath.length; i++) {
-        if (spath[i][0] === "-") { // Handle lists
+        if (spath[i][0] === "_") { // Skip things that don't want to be stored
+            i++;
+        } else if (spath[i][0] === "-") { // Handle lists
             let newLoc = loc[spath[i].substring(1)];
+            // If the list doesn't exist, it needs to be created
             if (!newLoc) {
-                loc = null;
-                break;
+                newLoc = [];
+                loc[spath[i].substring(1)] = newLoc;
             }
+            
             // You got to figure out the selected element in order to get the right index
-            // TODO: that
-            loc = newLoc;
+            i++;
+            let index = parseInt(spath[i]);
+            if (isNaN(index)) {
+                // Without a valid index, the list itself becomes the next location
+                loc = newLoc;
+            } else {
+                if (newLoc.length < index+1) { // List needs to be brought up to size
+                    for (let j = newLoc.length; j < index+1; j++) newLoc[j] = {};
+                }
+
+                loc = newLoc[index];
+            }
         } else {
             let newLoc = loc[spath[i]];
+            // If the location doesn't exist, it needs to be created
             if (!newLoc) {
                 newLoc = {};
                 loc[spath[i]] = newLoc;
@@ -125,8 +179,9 @@ function locateData(datapath) {
 //    - key - Place in the dictionary to insert the value.
 //    - type - The type of entry field this is
 //    - item - A place where "this" in the onchange is sent through the function. Use this.value to get the value.
-function insertData(datapath, key, type, item, extra) {
+function insertData(key, type, item, extra) {
     "use strict";
+    var datapath = getPath(item);
     var loc = locateData(datapath);
     var v = item.value;
     var elem;
@@ -135,10 +190,11 @@ function insertData(datapath, key, type, item, extra) {
     if (type === "options") { // Options need to change the visible "more" panel
         if (loc) loc[key] = v;
         if (extra) {
-            $("#"+datapath+"--"+extra+" > div").addClass("nodisplay")
-            $("#"+datapath+"--"+extra+"-"+jqns(v)).removeClass("nodisplay");
+            findItem(datapath, extra).find(" > div").addClass("nodisplay")
+            findItem(datapath, extra, jqns(v)).removeClass("nodisplay");
             if (loc) delete loc[extra];
         }
+        save();
         return;
     }
     if (!loc) return;
@@ -149,7 +205,7 @@ function insertData(datapath, key, type, item, extra) {
             $("#side-main-head").text(v);
             $("#div-meta h2").text("pack - " + v);
             break;
-        case "id": // IDs need to be handled in a particular way because they modify other elements.
+        case "id": // IDs need to be handled in a particular way because they unique define the subscreen.
             // Start by getting normalized id
             v = ns(v);
             // Make sure the id is unique
@@ -181,7 +237,7 @@ function insertData(datapath, key, type, item, extra) {
                     // Grab the source information
                     var output = ctx.canvas.toDataURL("image/png");
                     
-                    $("#i"+datapath+"-"+key).attr("src", output);
+                    findItem(datapath).find(">.i_"+key).attr("src", output);
                     loc[key] = output;
                     
                     // Delete the element
@@ -195,8 +251,8 @@ function insertData(datapath, key, type, item, extra) {
             reader.readAsDataURL(item.files[0]);
             break;
         case "cimage": // For clearing images
-            $("#i"+datapath+"-"+key).attr("src", "");
-            $("#"+datapath+"-"+key).val("");
+            findItem(datapath).find(">.i_"+key).attr("src", "");
+            findItem(datapath, key).val("");
             delete loc[key];
         case "checkbox":
             v = item.checked;
@@ -229,15 +285,35 @@ function insertData(datapath, key, type, item, extra) {
 //    - data - Dictionary containing the values to insert into the form.
 //    - form - Dictionary of a form containing the metadata of how to insert values.
 //    - id - id of the dictionary, necessary for filling in "id" types.
-function loadEntries(rootid, data, form, id) {
+function loadEntries(rootElem, data, form, id) {
     "use strict";
     if (form) {
         for (const [itemID, item] of Object.entries(form)) {
-            let elem = $("#" + rootid + "-" + itemID);
+            let elem = findChildItem(rootElem, itemID);
             switch (item.type) {
                 case "list": // Fill in lists
+                    let list = data[itemID];
+                    if (list) {
+                        elem = findChildItem(rootElem, "-"+itemID);
+                        let elems = elem.find(">div");
+                        // Create or remove elements to match length
+                        let cl = elems.length;
+                        if (cl < list.length) { // Add elements if too few
+                            let btn = elem.find(">.zlist-button").get(0);
+                            for (let i = cl; i < list.length; i++) addListItem(btn);
+                        } else if (cl > list.length) { // Remove elements if too many
+                            for (let i = cl-1; i > list.length-1; i--) removeListItem_(elems.eq(i));
+                        }
+                        
+                        // Iterate over elements and load each individually
+                        elems = elem.find(">div");
+                        for (let i = 0; i < list.length; i++) {
+                            loadEntries(elems.eq(i), list[i], form[itemID].data)
+                        }
+                    }
                     break;
                 case "sub": // Fill in sub-forms
+                    loadEntries(elem, data[itemID], form[itemID].data);
                     break;
                 case "dict": // AW no. At least not right now.
                     break;
@@ -245,19 +321,29 @@ function loadEntries(rootid, data, form, id) {
                     break;
                 case "options": // Load option and more
                     let v = data[itemID] || item.default || "";
-                    elem.val(v);
                     // Load more
                     if (item.more) {
-                        $(`#${rootid}--${item.more}-${jqns(v)}`).removeClass("nodisplay");
                         if (!data[item.more]) data[item.more] = {};
-                        loadEntries(rootid+"--"+item.more, data[item.more], form[item.more].data[v]);
+                        if (!v) v = Object.keys(form[item.more].data)[0];
+                        
+                        let more = findChildItem(rootElem, item.more, jqns(v));
+                        more.removeClass("nodisplay");
+                        
+                        // Load entries correctly if data isn't stored
+                        if (item.more[0] == "_") {
+                            loadEntries(more, data, form[item.more].data[v]);
+                        } else {
+                            loadEntries(more, data[item.more][v], form[item.more].data[v]);
+                        }
+                        
                     }
+                    if (v) elem.val(v);
                     break;
                 case "id": // ID values are not based on the dictionary, but rather a unique value.
                     elem.val(id || item.default);
                     break;
                 case "image":
-                    $("#i" + rootid + "-" + itemID).attr("src", data[itemID]);
+                    elem.prevAll("img").first().attr("src", data[itemID]);
                     break;
                 case "checkbox":
                     elem.prop("checked", data[itemID]);
@@ -271,8 +357,7 @@ function loadEntries(rootid, data, form, id) {
 }
 
 // Function to generate and insert html into the page based on the dictionary
-function insertForm(loc, header, form, datapath) {
-    "use strict";
+function insertForm(loc, header, form, datapath, level=0) {
     if (header) {
         loc.append(header);
     }
@@ -280,7 +365,9 @@ function insertForm(loc, header, form, datapath) {
         // Get element id from id and key
         let elemID = datapath + "-" + itemID;
         // Append Div for item and description
-        loc.append(`<span class="iitem" title="${item.desc}">${item.name}:</span>`);
+        if (item.name) {
+            loc.append(`<span class="iitem" title="${item.desc}">${item.name}:</span>`);
+        }
         
         // Get default value if available
         let itemval;
@@ -296,26 +383,26 @@ function insertForm(loc, header, form, datapath) {
             case "ns":
             case "id":
             case "text":
-                loc.append(`<input class="ientry" id="${elemID}" onchange='insertData("${datapath}", "${itemID}", "${item.type}", this)' value="${itemval}">`);
+                loc.append(`<input name="${itemID}" class="ientry _${itemID}" onchange='insertData("${itemID}", "${item.type}", this)' value="${itemval}">`);
                 break;
             case "int":
-                loc.append(`<input class="ientry" type="number" id="${elemID}" onchange='insertData("${datapath}", "${itemID}", "${item.type}", this)' value="${itemval}">`);
+                loc.append(`<input name="${itemID}" class="ientry _${itemID}" type="number" onchange='insertData("${itemID}", "${item.type}", this)' value="${itemval}">`);
                 break;
             case "double":
-                loc.append(`<input class="ientry" type="number" step="0.0001" id="${elemID}" onchange='insertData("${datapath}", "${itemID}", "${item.type}", this)' value="${itemval}">`);
+                loc.append(`<input name="${itemID}" class="ientry _${itemID}" type="number" step="0.0001" onchange='insertData("${itemID}", "${item.type}", this)' value="${itemval}">`);
                 break;
             case "checkbox":
-                loc.append(`<input class="ientry" type="checkbox" id="${elemID}" onchange='insertData("${datapath}", "${itemID}", "${item.type}", this)' value="${itemval}">`);
+                loc.append(`<input name="${itemID}" class="ientry _${itemID}" type="checkbox" onchange='insertData("${itemID}", "${item.type}", this)' value="${itemval}">`);
                 break;
             case "image":
-                loc.append(`<img id="i${elemID}" src=""><br><div class="iitem"></div><button onclick='insertData("${datapath}", "${itemID}", "cimage", this)'>Clear</button><input class="ientry" type="file" id="${elemID}" onchange='insertData("${datapath}", "${itemID}", "${item.type}", this)' value="${itemval}" accept="image/*">`);
+                loc.append(`<img class="i_${itemID}" src=""><br><div class="iitem"></div><button onclick='insertData("${itemID}", "cimage", this)'>Clear</button><input name="${itemID}" class="ientry _${itemID}" type="file" onchange='insertData("${itemID}", "${item.type}", this)' value="${itemval}" accept="image/*">`);
                 break;
             case "textarea":
-                loc.append(`<textarea class="ientry" id="${elemID}" onchange='insertData("${datapath}", "${itemID}", "${item.type}", this)'>${itemval}</textarea>`);
+                loc.append(`<textarea name="${itemID}" class="ientry _${itemID}" onchange='insertData("${itemID}", "${item.type}", this)'>${itemval}</textarea>`);
                 break;
             case "options":
                 let items = [];
-                items.push(`<select class="ientry" id="${elemID}" onchange='insertData("${datapath}", "${itemID}", "${item.type}", this, "${item.more || ""}")' value="${itemval}">`);
+                items.push(`<select name="${itemID}" class="ientry _${itemID}" onchange='insertData("${itemID}", "${item.type}", this, "${item.more || ""}")' value="${itemval}">`);
                 for (const v of (item.options || Object.keys(form[item.more].data))) {
                     items.push(`<option value="${v}">${v}</option>`);
                 }
@@ -323,68 +410,97 @@ function insertForm(loc, header, form, datapath) {
                 loc.append(items.join());
                 break;
             default:
-                // If it's not any of the above options, it has a panel, and we wait to create fields for it until the user expands it. If we didn't do this, we would have infinite recursion problems.
+                // If it's not any of the above options, it has a panel, and we wait to create fields for it until the user expands it (except in more's case). If we didn't do this, we would have infinite recursion problems.
                 elemID = datapath + "--" + itemID;
                 
                 if (item.type === "more") {
-                    loc.append(`<div class="iblock" id="${elemID}"></div>`);
-                    var pnl = $("#"+elemID);
+                    loc.append(`<div name="${itemID}" class="iblock _${itemID}"></div>`);
+                    var pnl = findItem(elemID);
                     
                     // Creating multiple panels is necessary
                     for (const [option, odata] of Object.entries(item.data)) {
                         let jqop = jqns(option);
                         // Create panel
-                        pnl.append(`<div class="panel nodisplay" id="${elemID}-${jqop}"></div>`);
-                        let spnl = $(`#${elemID}-${jqop}`);
+                        pnl.append(`<div name="${jqop}" class="nodisplay _${jqop}"></div>`);
+                        let spnl = findItem(elemID, jqop);
 
                         // Then call recursively
-                        insertForm(spnl, "", odata, elemID);
+                        insertForm(spnl, "", odata, elemID+"--"+jqop, level);
                     }
                 } else {
-                    if (item.type === "list") elemID = datapath + "---" + itemID;
+                    let lID = itemID;
+                    if (item.type === "list") {
+                        lID = "-" + itemID;
+                        elemID = datapath + "---" + itemID;
+                    }
                     
-                    loc.append(`<div class="panel" id="${elemID}"><button onclick='insertPanel("${elemID}", "${datapath}", "${itemID}", "${item.type}")'>S</button></div>`);
+                    let cs = "panel";
+                    if (level % 2 == 1) {
+                        cs = "panel panel-dark";
+                    }
+                    
+                    if (item.hidden) { // protect against infinite recursion in the laziest way possible
+                        loc.append(`<div name="${lID}" class="${cs} _${lID}"><button onclick='insertPanel(this, "${lID}", "${item.type}", ${level+1})'>S</button></div>`);
+                    } else {
+                        loc.append(`<div name="${lID}" class="${cs} _${lID}"><button onclick='removePanel(this, "${lID}", "${item.type}", ${level+1})'>H</button></div>`);
+                    }
+                    
+                    var pnl = findItem(elemID);
+                    switch (item.type) {
+                        case "list": // Lists just need to have an add button added, as loadEntries handles the rest of it
+                            pnl.append(`<br><button level=${level+1} class="m zlist-button" onclick='addListItem(this)'>+</button><button class="m zlist-button" onclick='clearList(this, "${itemID}")'>C</button>`);
+                            break;
+                        case "sub":
+                            pnl.addClass("subop");
+                            pnl.append("<br>")
+                            insertForm(pnl, "", item.data, elemID, level+1);
+                            break;
+                        case "dict":
+                            // TODO: dictionary editor (I'mma wait to actually implement this)
+                            pnl.append('<div class="zdict"></div>');
+                    }
                 }
                 
         }
-        loc.append("<br>\n\n");
+        if (item.name) loc.append("<br>\n\n");
     }
 };
 
-function insertPanel(elemID, datapath, itemID, type) {
+function insertPanel(btn, itemID, type, level) {
     "use strict";
     // Create some variables
-    var pnl = $("#"+elemID);
-    var formloc = locateForm(datapath, itemID);
-    var loc = locateData(datapath);
+    var datapath = getPath(btn.parentElement);
+    var elemID = datapath + "--" + itemID;
+    var pnl = findItem(datapath, itemID);
     
     // Change button to "hide"
     var btn = pnl.find(">button");
     btn.text("H");
-    btn.attr("onclick", `removePanel("${elemID}", "${datapath}", "${itemID}", "${type}")`);
+    btn.attr("onclick", `removePanel(this, "${itemID}", "${type}", ${level})`);
     
     switch (type) {
-        case "list":
-            pnl.attr("id", elemID);
-
-            pnl.append('<div class="zlist"><select size=7></select><div><button>+</button><button>-</button><button>˄</button><button>˅</button></div></div><br>');
-
-            // Create Item sub-form
-            insertForm(pnl, "", formloc, elemID);
+        case "list": // Lists just need to have an add button added, as loadEntries handles the rest of it
+            pnl.append(`<br><button level=${level+1} class="m zlist-button" onclick='addListItem(this)'>+</button><button class="m zlist-button" onclick='clearList(this, "${itemID.substring(1)}")'>C</button>`);
             break;
         case "sub":
             pnl.addClass("subop");
-            insertForm(pnl, "", formloc, elemID);
+            insertForm(pnl, "<br>", locateForm(datapath, itemID), elemID, level);
             break;
         case "dict":
             // TODO: dictionary editor (I'mma wait to actually implement this)
             pnl.append('<div class="zdict"></div>')
+            break;
     }
+    
+    //var loc = locateData(datapath);
     // After inserting panel, load entries
-    if (loc) loadEntries(elemID, loc, formloc);
+    if (/*loc && */subscreen != "help" && subscreen != "raw") {
+        //loadEntries(pnl, loc, locateForm(datapath, itemID));
+        changeScreen(fullscreen); // HACK: This is just laziness, loading just the changed panel is all that's necessary.
+    }
 }
-function removePanel(elemID, datapath, itemID, type) {
-    $("#"+elemID).html(`<button onclick='insertPanel("${elemID}", "${datapath}", "${itemID}", "${type}")'>S</button>`);
+function removePanel(btn, itemID, type, level) {
+    $(btn.parentElement).html(`<button onclick='insertPanel(this, "${itemID}", "${type}", ${level})'>S</button>`);
 }
 
 // Generate a unique id of a layer, origin, or power based on the type and n.

@@ -75,7 +75,7 @@ function changeScreen(s) {
     
     // Load data into entry fields
     if (active) {
-        loadEntries(screen, active, forms[screen], subscreen);
+        loadEntries(activeElem, active, forms[screen], subscreen);
     }
 }
 // Ensure that the proper item in the list box is shown (on refocus)

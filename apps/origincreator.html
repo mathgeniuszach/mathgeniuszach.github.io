@@ -5,6 +5,7 @@
     <!--<script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>-->
     <script src="/js/main.js"></script>
     <script src="origincreator-io.js"></script>
+    <script src="origincreator-z.js"></script>
     <script src="origincreator-form.js"></script>
     <script src="origincreator-data.js"></script>
     <script src="origincreator.js"></script>
@@ -79,7 +80,7 @@
                 <li>If you aren't sure what something does, hover over the label. A tooltip will provide a short description of what that entry is for.</li>
                 <li>This page auto-saves to a cookie on your computer everytime a field loses focus, so refreshing or closing the page won't lose your progress. There's a save button in the bottom left too if you feel unsure. If you want to remove your progress and delete the cookie, press "Reset."</li>
                 <li>IDs can be specified without a namespace. On export, these will be namespaced with your pack's id, not "origins".</li>
-                <li>Lists, when added, take on all of the properties of the fields below them; therefore, it's good to type in a name/id for the field first, then press the add button. Lists will also autosave to whatever is selected, and will switch fields when a new item is selected.</li>
+                <li>If you select "none" as a condition in a place where a condition is required, it will check if it is daytime or if it is not daytime, making it true all the time.</li>
                 <li>Check out the official <a href="https://github.com/apace100/origins-fabric/wiki">wiki</a> for more information on what each thing does.</li>
                 <li>Check out the #origin-ideas chat in the official <a href="https://discord.gg/4mTMHu3"> Origins Discord</a></li>
                 <li>Test things out! If you aren't sure something will work, test it out in Minecraft! Failure is an important step in creativity.</li>
@@ -99,10 +100,10 @@
                 </li>
             </ul>
         </div>
-        <div class="content nodisplay" id="div-meta"></div>
-        <div class="content nodisplay" id="div-layer"></div>
-        <div class="content nodisplay" id="div-origin"></div>
-        <div class="content nodisplay" id="div-power"></div>
+        <div name="meta" class="content nodisplay _meta" id="div-meta"></div>
+        <div name="layer" class="content nodisplay _layer" id="div-layer"></div>
+        <div name="origin" class="content nodisplay _origin" id="div-origin"></div>
+        <div name="power" class="content nodisplay _power" id="div-power"></div>
         <div class="content nodisplay" id="div-raw">
             <br>
             <button id="btn-load-raw">Load</button>

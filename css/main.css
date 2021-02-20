@@ -1,6 +1,10 @@
 :root {
     --box-color: #f6f6f6;
-    --box-border-color: lightgray;
+    --box-color-dark: #e7e7e7;
+    --box-color-darkest: #d8d8d8;
+    --box-border-color: #cccccc;
+    --box-border-color-dark: #bbbbbb;
+    --box-border-color-darkest: #aaaaaa;
     --box-border-width: 2px;
 }
 
@@ -164,6 +168,15 @@ footer {
     padding: 5px;
     display: inline-block;
 }
+.panel-dark {
+    border: var(--box-border-width) solid var(--box-border-color-dark);
+    background-color: var(--box-color-dark);
+}
+.panel-darkest {
+    border: var(--box-border-width) solid var(--box-border-color-darkest);
+    background-color: var(--box-color-darkest);
+}
+
 .hidden {
     position: absolute;
     left: -9999px;

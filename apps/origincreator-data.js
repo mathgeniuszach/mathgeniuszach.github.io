@@ -1,32 +1,44 @@
-var condition = {
-    "name": "Condition",
+var condition_data = {}
+condition_data.type = {
+    "name": "Type",
     "type": "options",
-    "desc": "ID of a player condition that this thing depends on in order to work. Check the wiki for more information.",
-    "more": "condition_options"
+    "desc": "The most important field in the condition. Specifies an ID of a condition to check for.",
+    "more": "_type_options"
 };
-var condition_options = {};
-condition_options.name = "";
-condition_options.type = "more";
-condition_options.desc = "Options specific to the type of player condition.";
-condition_options.parent = "condition";
-condition_options.data = {
-    "none": {},
-    "origins:and": {
-        "inverted": {
-            "name": "Inverted",
-            "type": "checkbox",
-            "desc": "If set to true, Origins will instead check that this condition is NOT fulfilled."
+condition_data.inverted = {
+    "name": "Inverted",
+    "type": "checkbox",
+    "desc": "If set to true, Origins will instead check that this condition is NOT fulfilled."
+};
+condition_data._type_options = {
+    "type": "more",
+    "parent": "type",
+    "data": {
+        "none": {},
+        "origins:and": {
+            "conditions": {
+                "name": "Conditions",
+                "type": "list",
+                "desc": "All of these need to evaluate to true in order for the whole condition to be true.",
+                "data": condition_data
+            }
         },
-        "conditions": {
-            "name": "Conditions",
-            "type": "list",
-            "desc": "All of these need to evaluate to true in order for the whole condition to be true.",
-            "data": {
-                "condition": condition,
-                "condition_options": condition_options
+        "origins:or": {
+            "conditions": {
+                "name": "Conditions",
+                "type": "list",
+                "desc": "At least one of these need to evaluate to true in order for the whole condition to be true.",
+                "data": condition_data
             }
         }
     }
+};
+
+var condition = {
+    "name": "Condition",
+    "type": "sub",
+    "desc": "A player condition that this thing depends on in order to work. Check the wiki for more information.",
+    "data": condition_data
 };
 
 var tick_rate = {
@@ -41,18 +53,15 @@ var subforms = {
         "id": {
             "name": "ID",
             "type": "ns",
-            "desc": "Namespaced ID of the origin for use.",
-            "default": "myorigins:cool_origin"
+            "desc": "Namespaced ID of the origin for use."
         },
-        "condition": condition,
-        "condition_options": condition_options
+        "condition": condition
     },
     "power-id": {
-        "ID": {
+        "id": {
             "name": "ID",
             "type": "text",
-            "desc": "Namespaced ID of the power for use.",
-            "default": "myorigins:cool_power"
+            "desc": "Namespaced ID of the power for use."
         }
     },
     "upgrade": {
@@ -232,9 +241,9 @@ var forms = {
             "name": "Type",
             "type": "options",
             "desc": "The most important field. ID of a power type, defining how this power behaves and which other fields are required. Check the wiki for more information.",
-            "more": "type_options"
+            "more": "_type_options"
         },
-        "type_options": {
+        "_type_options": {
             "name": "",
             "type": "more",
             "desc": "Options specific to the type of power.",
@@ -266,7 +275,6 @@ var forms = {
                 },
                 "origins:conditioned_attribute": {
                     "condition": condition,
-                    "condition_options": condition_options,
                     "tick_rate": tick_rate,
                     "modifiers": {
                         "name": "AA Modifiers",
