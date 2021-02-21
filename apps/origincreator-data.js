@@ -1,5 +1,4 @@
 var condition_data = {};
-
 condition_data.type = {
     "name": "Type",
     "type": "options",
@@ -175,6 +174,9 @@ condition_data._type_options = {
                 "type": "double",
                 "desc": "Which value to compare the saturation level against."
             }
+        },
+        "origins:on_block": {
+            "block_condition": block_condition
         }
     }
 };
@@ -191,6 +193,15 @@ var tick_rate = {
     "desc": "The frequency (in ticks) with which to check the condition. Lower values mean the condition changes are detected more quickly, but this comes at a potentially huge performance cost.",
     "default": 20
 };
+
+var block_condition = {
+    "name": "Block Condition",
+    "type": "sub",
+    "desc": "A block condition that this thing depends on in order to work. Check the wiki for more information.",
+    "data": {
+
+    }
+}
 
 var aamodifier = {
     "attribute": {
