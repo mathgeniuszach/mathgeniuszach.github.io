@@ -1,4 +1,5 @@
-var condition_data = {}
+var condition_data = {};
+
 condition_data.type = {
     "name": "Type",
     "type": "options",
@@ -30,6 +31,150 @@ condition_data._type_options = {
                 "desc": "At least one of these need to evaluate to true in order for the whole condition to be true.",
                 "data": condition_data
             }
+        },
+        "origins:block_collision": {
+            "offset_x": {
+                "name": "Offset X",
+                "type": "double",
+                "desc": "By how much of the bounding box size should the box be offset in the X direction (e.g.: 0 = no offset, 1 = offset of exact width, 2 = offset of twice the width of the bounding box)"
+            },
+            "offset_y": {
+                "name": "Offset Y",
+                "type": "double",
+                "desc": "By how much of the bounding box size should the box be offset in the Y direction (e.g.: 0 = no offset, 1 = offset of exact width, 2 = offset of twice the width of the bounding box)"
+            },
+            "offset_z": {
+                "name": "Offset Z",
+                "type": "double",
+                "desc": "By how much of the bounding box size should the box be offset in the Z direction (e.g.: 0 = no offset, 1 = offset of exact width, 2 = offset of twice the width of the bounding box)"
+            }
+        },
+        "origins:brightness": {
+            "comparison": {
+                "name": "Comparison",
+                "type": "options",
+                "desc": 'How to compare the brightness against the specified value.',
+                "options": ["<", ">", ">=", "<=", "=="]
+            },
+            "compare_to": {
+                "name": "Brightness",
+                "type": "double",
+                "desc": "Which value to compare the brightness against."
+            }
+        },
+        "origins:daytime": {},
+        "origins:fall_flying": {},
+        "origins:exposed_to_sun": {},
+        "origins:exposed_to_sky": {},
+        "origins:in_rain": {},
+        "origins:invisible": {},
+        "origins:on_fire": {},
+        "origins:sneaking": {},
+        "origins:sprinting": {},
+        "origins:power_active": {
+            "power": {
+                "name": "Power",
+                "type": "ns",
+                "desc": "ID of the power which will be checked for being active."
+            }
+        },
+        "origins:status_effect": {
+            "effect": {
+                "name": "Effect",
+                "type": "ns",
+                "desc": "ID of the status effect the player should have."
+            },
+            "min_amplifier": {
+                "name": "Min Amplifier",
+                "type": "int",
+                "desc": "The minimum amplifier the status effect should have in order to pass the check."
+            },
+            "max_amplifier": {
+                "name": "Max Amplifier",
+                "type": "int",
+                "desc": "The maximum amplifier the status effect should have in order to pass the check."
+            },
+            "min_duration": {
+                "name": "Min Duration",
+                "type": "int",
+                "desc": "The minimum duration in ticks the status effect should have in order to pass the check."
+            },
+            "max_duration": {
+                "name": "Max Duration",
+                "type": "int",
+                "desc": "The maximum duration in ticks the status effect should have in order to pass the check."
+            }
+        },
+        "origins:submerged_in": {
+            "fluid": {
+                "name": "Fluid",
+                "type": "ns",
+                "desc": "ID of the fluid tag that should be checked. Most important examples: minecraft:water and minecraft:lava."
+            }
+        },
+        "origins:fluid_height": {
+            "fluid": {
+                "name": "Fluid",
+                "type": "ns",
+                "desc": "ID of the fluid tag that should be checked. Most important examples: minecraft:water and minecraft:lava."
+            },
+            "comparison": {
+                "name": "Comparison",
+                "type": "options",
+                "desc": 'How the fluid height should be compared to the specified value.',
+                "options": ["<", ">", ">=", "<=", "=="]
+            },
+            "compare_to": {
+                "name": "Fluid Height",
+                "type": "double",
+                "desc": "Which value the fluid height should be compared to."
+            }
+        },
+        "origins:origin": {
+            "origin": {
+                "name": "Origin",
+                "type": "ns",
+                "desc": "ID of the origin the player needs to have to pass the check."
+            },
+            "layer": {
+                "name": "Layer",
+                "type": "ns",
+                "desc": "If set, will check only the layer with the provided ID for the origin. This is optional."
+            }
+        },
+        "origins:power": {
+            "power": {
+                "name": "Power",
+                "type": "ns",
+                "desc": "ID of the power the player needs to have to pass the check."
+            }
+        },
+        "origins:using_effective_tool": {},
+        "origins:food_level": {
+            "comparison": {
+                "name": "Comparison",
+                "type": "options",
+                "desc": 'How to compare the food level against the specified value.',
+                "options": ["<", ">", ">=", "<=", "=="]
+            },
+            "compare_to": {
+                "name": "Fool Level",
+                "type": "int",
+                "desc": "Which value to compare the food level against."
+            }
+        },
+        "origins:saturation_level": {
+            "comparison": {
+                "name": "Comparison",
+                "type": "options",
+                "desc": 'How to compare the saturation level against the specified value.',
+                "options": ["<", ">", ">=", "<=", "=="]
+            },
+            "compare_to": {
+                "name": "Saturation Level",
+                "type": "double",
+                "desc": "Which value to compare the saturation level against."
+            }
         }
     }
 };
@@ -40,7 +185,6 @@ var condition = {
     "desc": "A player condition that this thing depends on in order to work. Check the wiki for more information.",
     "data": condition_data
 };
-
 var tick_rate = {
     "name": "Tick Rate",
     "type": "int",
@@ -48,61 +192,27 @@ var tick_rate = {
     "default": 20
 };
 
-var subforms = {
-    "origin-id": {
-        "id": {
-            "name": "ID",
-            "type": "ns",
-            "desc": "Namespaced ID of the origin for use."
-        },
-        "condition": condition
+var aamodifier = {
+    "attribute": {
+        "name": "Attribute ID",
+        "type": "ns",
+        "desc": "ID of the attribute which will be modified by this modifier."
     },
-    "power-id": {
-        "id": {
-            "name": "ID",
-            "type": "text",
-            "desc": "Namespaced ID of the power for use."
-        }
+    "operation": {
+        "name": "Operation",
+        "type": "options",
+        "desc": "The operation which will be performed by this modifier.",
+        "options": ["addition", "multiply_base", "multiply_total"]
     },
-    "upgrade": {
-        "condition": {
-            "name": "Advancement",
-            "type": "text",
-            "desc": "Advancement condition on which to apply this upgrade."
-        },
-        "origin": {
-            "name": "Origin ID",
-            "type": "text",
-            "desc": "Origin to upgrade to when the advancement has been met."
-        },
-        "announcement": {
-            "name": "Announcement",
-            "type": "textarea",
-            "desc": "Message sent to chat when a player acquires this upgrade."
-        }
+    "value": {
+        "name": "Value",
+        "type": "double",
+        "desc": "The value with which to apply the operation to the attribute."
     },
-    "aamodifier": {
-        "attribute": {
-            "name": "Attribute ID",
-            "type": "ns",
-            "desc": "ID of the attribute which will be modified by this modifier."
-        },
-        "operation": {
-            "name": "Operation",
-            "type": "options",
-            "desc": "The operation which will be performed by this modifier.",
-            "options": ["addition", "multiply_base", "multiply_total"]
-        },
-        "value": {
-            "name": "Value",
-            "type": "double",
-            "desc": "The value with which to apply the operation to the attribute."
-        },
-        "name": {
-            "name": "Name",
-            "type": "text",
-            "desc": "A descriptive name for the modifier, describing where it comes from."
-        }
+    "name": {
+        "name": "Name",
+        "type": "text",
+        "desc": "A descriptive name for the modifier, describing where it comes from."
     }
 };
 
@@ -154,7 +264,14 @@ var forms = {
             "name": "Origins",
             "type": "list",
             "desc": "Origins to include in this layer.",
-            "data": subforms["origin-id"]
+            "data": {
+                "id": {
+                    "name": "ID",
+                    "type": "ns",
+                    "desc": "Namespaced ID of the origin for use."
+                },
+                "condition": condition
+            }
         }
     },
     "origin": {
@@ -192,7 +309,13 @@ var forms = {
             "name": "Powers",
             "type": "list",
             "desc": "A list of powers which this origin should have.",
-            "data": subforms["power-id"]
+            "data": {
+                "id": {
+                    "name": "ID",
+                    "type": "text",
+                    "desc": "Namespaced ID of the power for use."
+                }
+            }
         },
         "loading_priority": {
             "name": "Load Priority",
@@ -208,7 +331,23 @@ var forms = {
             "name": "Upgrades",
             "type": "list",
             "desc": "Defines origins this origin will change into when an advancement is reached by the player.",
-            "data": subforms["upgrade"]
+            "data": {
+                "condition": {
+                    "name": "Advancement",
+                    "type": "text",
+                    "desc": "Advancement condition on which to apply this upgrade."
+                },
+                "origin": {
+                    "name": "Origin ID",
+                    "type": "text",
+                    "desc": "Origin to upgrade to when the advancement has been met."
+                },
+                "announcement": {
+                    "name": "Announcement",
+                    "type": "textarea",
+                    "desc": "Message sent to chat when a player acquires this upgrade."
+                }
+            }
         }
     },
     "power": {
@@ -270,7 +409,7 @@ var forms = {
                         "name": "AA Modifiers",
                         "type": "list",
                         "desc": "If specified, these modifiers will be applied to their corresponding attributes.",
-                        "data": subforms["aamodifier"]
+                        "data": aamodifier
                     }
                 },
                 "origins:conditioned_attribute": {
@@ -280,7 +419,7 @@ var forms = {
                         "name": "AA Modifiers",
                         "type": "list",
                         "desc": "If specified, these modifiers will be applied to their corresponding attributes.",
-                        "data": subforms["aamodifier"]
+                        "data": aamodifier
                     }
                 },
                 "origins:burn": {

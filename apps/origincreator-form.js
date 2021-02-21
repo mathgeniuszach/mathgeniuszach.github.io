@@ -259,19 +259,29 @@ function insertData(key, type, item, extra) {
             loc[key] = v
             break;
         case "ns": // Normalized strings just need to be normalized
-            v = ns(v);
-            item.value = v;
-            loc[key] = v;
+            if (v == "") {
+                delete loc[key];
+            } else {
+                v = ns(v);
+                item.value = v;
+                loc[key] = v;
+            }
             break;
         case "int":
-            if (v) {
+            if (v == "") {
+                delete loc[key];
+            } else {
                 v = Math.round(v);
                 item.value = v;
+                loc[key] = v;
             }
-            loc[key] = v;
             break;
         default:
-            loc[key] = v;
+            if (v == "") {
+                delete loc[key];
+            } else {
+                loc[key] = v;
+            }
             break;
     }
     
@@ -323,7 +333,6 @@ function loadEntries(rootElem, data, form, id) {
                     let v = data[itemID] || item.default || "";
                     // Load more
                     if (item.more) {
-                        if (!data[item.more]) data[item.more] = {};
                         if (!v) v = Object.keys(form[item.more].data)[0];
                         
                         let more = findChildItem(rootElem, item.more, jqns(v));
@@ -333,6 +342,7 @@ function loadEntries(rootElem, data, form, id) {
                         if (item.more[0] == "_") {
                             loadEntries(more, data, form[item.more].data[v]);
                         } else {
+                            if (!data[item.more]) data[item.more] = {};
                             loadEntries(more, data[item.more][v], form[item.more].data[v]);
                         }
                         
@@ -407,7 +417,7 @@ function insertForm(loc, header, form, datapath, level=0) {
                     items.push(`<option value="${v}">${v}</option>`);
                 }
                 items.push("</select>");
-                loc.append(items.join());
+                loc.append(items.join(""));
                 break;
             default:
                 // If it's not any of the above options, it has a panel, and we wait to create fields for it until the user expands it (except in more's case). If we didn't do this, we would have infinite recursion problems.

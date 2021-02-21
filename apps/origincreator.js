@@ -1,3 +1,9 @@
+// Current list of TODOs:
+// Setup the rest of data
+// Setup export system
+// Setup customized dictionary editing system
+// Setup built-in wiki
+
 // Function to normalize strings
 function ns(str) {
     "use strict";
@@ -152,5 +158,5 @@ function loadRaw() {
 function resetRaw() {
     "use strict";
     $("#raw-err").text("");
-    $("#raw-data-textarea").val(JSON.stringify(data));
+    $("#raw-data-textarea").val(JSON.stringify(data, null, 4));
 }
