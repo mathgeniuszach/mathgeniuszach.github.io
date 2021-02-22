@@ -4,10 +4,14 @@
 // Setup customized dictionary editing system
 // Setup built-in wiki
 
+// Possible performace improvements
+// Transition things off of findItem to findChildItem
+// Make lists only load the panel instead of the whole page
+
 // Function to normalize strings
 function ns(str) {
     "use strict";
-    return str.replace(/\s+/g, '_').replace(/[^\w:]+/g, '').toLowerCase();
+    return str.replace(/\s+/g, '_').replace(/[^\w:./]+/g, '').toLowerCase();
 }
 // CSS selectors are dumb so this exists
 function jqns(str) {
@@ -19,8 +23,8 @@ function jqns(str) {
 $(document).ready(function() {
     insertForm($("#div-meta"), "<h2>pack - My Origins</h2>\n", forms.meta, "meta");
     insertForm($("#div-layer"), "<h2>layer - origins:origin</h2>\n", forms.layer, "layer");
-    insertForm($("#div-origin"), "<h2>origin - New Origin</h2>\n", forms.origin, "origin");
-    insertForm($("#div-power"), "<h2>power - New Power</h2>\n", forms.power, "power");
+    insertForm($("#div-origin"), "<h2>origin - myorigins:origin</h2>\n", forms.origin, "origin");
+    insertForm($("#div-power"), "<h2>power - myorigins:power</h2>\n", forms.power, "power");
     
     $("#btn-up").click(itemUp);
     $("#btn-down").click(itemDown);
@@ -81,7 +85,7 @@ function changeScreen(s) {
     
     // Load data into entry fields
     if (active) {
-        loadEntries(activeElem, active, forms[screen], subscreen);
+        loadEntries(activeElem, active, forms[screen], true, subscreen);
     }
 }
 // Ensure that the proper item in the list box is shown (on refocus)
@@ -124,11 +128,11 @@ function newLayer() {
 }
 function newOrigin() {
     "use strict";
-    newItem("origin", {"name": "New Origin"}, "New Origin");
+    newItem("origin");
 }
 function newPower() {
     "use strict";
-    newItem("power", {"name": "New Power"}, "New Power");
+    newItem("power");
 }
 
 function importThing() {

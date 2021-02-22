@@ -2,6 +2,10 @@
     margin: 96px 20px 61px 250px;
 }*/
 
+body {
+    min-width: 1000px;
+}
+
 aside {
     height: 100%;
     max-height: calc(100% - 167px);
@@ -37,7 +41,7 @@ input.ientry[type="file"] {
     margin-bottom: 10px;
 }
 
-.zlist-button {
+.sbutton {
     width: 25px;
     height: 25px;
 }

@@ -1,6 +1,5 @@
 // Data that pretty much stores everything
 var data = {
-    "help": null,
     "meta": {
         "name": "My Origins",
         "id": "myorigins"
@@ -117,7 +116,7 @@ function locateForm(datapath, id) {
             formloc = newFormLoc.data;
         }
     }
-    if (id) {
+    if (id != undefined) {
         var pid = id;
         if (id[0] == "-") pid = id.substring(1);
         
@@ -127,7 +126,7 @@ function locateForm(datapath, id) {
     else return formloc;
 }
 
-function locateData(datapath) {
+function locateData(datapath, nosub) {
     var spath = datapath.replace("-_-", ":").split("--");
     // Find starting location
     var loc = data[spath[0]];
@@ -153,10 +152,14 @@ function locateData(datapath) {
                 // Without a valid index, the list itself becomes the next location
                 loc = newLoc;
             } else {
-                if (newLoc.length < index+1) { // List needs to be brought up to size
+                if (newLoc.length < index+1) {
+                    // List needs to be brought up to size
                     for (let j = newLoc.length; j < index+1; j++) newLoc[j] = {};
                 }
-
+                
+                // For non-dict items in lists
+                if (i == spath.length-1 && nosub) return [newLoc, index];
+                
                 loc = newLoc[index];
             }
         } else {
@@ -182,7 +185,7 @@ function locateData(datapath) {
 function insertData(key, type, item, extra) {
     "use strict";
     var datapath = getPath(item);
-    var loc = locateData(datapath);
+    var loc = locateData(datapath, !key);
     var v = item.value;
     var elem;
     
@@ -190,14 +193,20 @@ function insertData(key, type, item, extra) {
     if (type === "options") { // Options need to change the visible "more" panel
         if (loc) loc[key] = v;
         if (extra) {
-            findItem(datapath, extra).find(" > div").addClass("nodisplay")
+            findItem(datapath, extra).find(">div").addClass("nodisplay")
             findItem(datapath, extra, jqns(v)).removeClass("nodisplay");
-            if (loc) delete loc[extra];
+            changeScreen(fullscreen); // HACK: Only real way I can think of doing it
         }
         save();
         return;
     }
     if (!loc) return;
+    
+    // For lists without dictionaries
+    if (!key) {
+        key = loc[1];
+        loc = loc[0];
+    }
     
     switch (type) {
         case "main": // Main field needs to update the header and left panel side-main-head
@@ -292,19 +301,44 @@ function insertData(key, type, item, extra) {
 // Internal function called to load data from a dictionary into entries based on a form.
 // +loadEntries(str rootid, dict data, dict form)
 //    - rootid - First part of the ID of the html elements to insert into. It does not need to point to an existing element.
-//    - data - Dictionary containing the values to insert into the form.
+//    - data - Dictionary containing the values to insert into the form, and to clean.
 //    - form - Dictionary of a form containing the metadata of how to insert values.
 //    - id - id of the dictionary, necessary for filling in "id" types.
-function loadEntries(rootElem, data, form, id) {
+function loadEntries(rootElem, data, form, del, id) {
     "use strict";
-    if (form) {
+    if (data && form) {
+        var moreForms = [];
+
+        // Load data
         for (const [itemID, item] of Object.entries(form)) {
+            let v = data[itemID] || item.default || "";
+            if (itemID.length > 1) {
+                if (!data[itemID] && item.default) data[itemID] = v;
+            } else { // Yes this is hacky and no I don't care
+                if (typeof(data) == "object") {
+                    v = item.default || "";
+                } else {
+                    v = data || item.default || "";
+                }
+            }
+            
+            // Spaghetti code is TIGHT!
             let elem = findChildItem(rootElem, itemID);
+            if (item.type == "list") {
+                elem = findChildItem(rootElem, "-"+itemID);
+            }
+
+            // Make sure subpanels are expanded or hidden as needed
+            if (item.type == "list" || item.type == "sub" || item.type == "dict") {
+                var c = elem.children();
+                if (data[itemID] && c.length == 1 || (!data[itemID]) && c.length > 1) c.get(0).click();
+            }
+
             switch (item.type) {
+                case "info": break;
                 case "list": // Fill in lists
                     let list = data[itemID];
                     if (list) {
-                        elem = findChildItem(rootElem, "-"+itemID);
                         let elems = elem.find(">div");
                         // Create or remove elements to match length
                         let cl = elems.length;
@@ -314,54 +348,76 @@ function loadEntries(rootElem, data, form, id) {
                         } else if (cl > list.length) { // Remove elements if too many
                             for (let i = cl-1; i > list.length-1; i--) removeListItem_(elems.eq(i));
                         }
-                        
+
                         // Iterate over elements and load each individually
                         elems = elem.find(">div");
                         for (let i = 0; i < list.length; i++) {
-                            loadEntries(elems.eq(i), list[i], form[itemID].data)
+                            loadEntries(elems.eq(i), list[i], form[itemID].data, true)
                         }
                     }
                     break;
                 case "sub": // Fill in sub-forms
-                    loadEntries(elem, data[itemID], form[itemID].data);
+                    loadEntries(elem, data[itemID], form[itemID].data, true);
                     break;
                 case "dict": // AW no. At least not right now.
                     break;
                 case "more": // more doesn't load anything on it's own. This is the job of options
                     break;
                 case "options": // Load option and more
-                    let v = data[itemID] || item.default || "";
                     // Load more
                     if (item.more) {
-                        if (!v) v = Object.keys(form[item.more].data)[0];
-                        
-                        let more = findChildItem(rootElem, item.more, jqns(v));
-                        more.removeClass("nodisplay");
-                        
-                        // Load entries correctly if data isn't stored
-                        if (item.more[0] == "_") {
-                            loadEntries(more, data, form[item.more].data[v]);
-                        } else {
-                            if (!data[item.more]) data[item.more] = {};
-                            loadEntries(more, data[item.more][v], form[item.more].data[v]);
+                        if (!v) {
+                            v = Object.keys(form[item.more].data)[0];
                         }
+
+                        let mores = findChildItem(rootElem, item.more);
+                        mores.children().addClass("nodisplay");
                         
+                        let more = findChildItem(mores, jqns(v));
+                        if (more) {
+                            more.removeClass("nodisplay");
+
+                            // Load entries correctly if data isn't stored
+                            if (item.more[0] == "_") {
+                                moreForms.push(form[item.more].data[v])
+                                loadEntries(more, data, form[item.more].data[v], false);
+                            } else {
+                                if (!data[item.more]) data[item.more] = {};
+                                loadEntries(more, data[item.more][v], form[item.more].data[v], true);
+                            }
+                        }
                     }
+                    if (data[itemID] != v) data[itemID] = v;
                     if (v) elem.val(v);
                     break;
                 case "id": // ID values are not based on the dictionary, but rather a unique value.
-                    elem.val(id || item.default);
+                    elem.val(id);
                     break;
                 case "image":
-                    elem.prevAll("img").first().attr("src", data[itemID]);
+                    elem.prevAll("img").first().attr("src", v);
                     break;
                 case "checkbox":
-                    elem.prop("checked", data[itemID]);
+                    elem.prop("checked", v || false);
                 default:
                     // Every other element
-                    elem.val(data[itemID] || item.default || "");
+                    elem.val(v);
                     break;
             }
+        }
+
+        // Trash unused data
+        if (del && typeof(data) === "object") {
+            loopouter:
+            for (const key of Object.keys(data)) {
+                if (!(key in form)) {
+                    for (const mform of moreForms) {
+                        if (key in mform) continue loopouter;
+                    }
+                    // Data not found in form, so trash it
+                    delete data[key];
+                }
+            }
+            save();
         }
     }
 }
@@ -389,6 +445,9 @@ function insertForm(loc, header, form, datapath, level=0) {
         
         // Append custom input dependent on the type
         switch (item.type) {
+            case "info":
+                loc.append(item.info);
+                break;
             case "main":
             case "ns":
             case "id":
@@ -437,6 +496,9 @@ function insertForm(loc, header, form, datapath, level=0) {
                         // Then call recursively
                         insertForm(spnl, "", odata, elemID+"--"+jqop, level);
                     }
+                    
+                    // Display the first one.
+                    findItem(elemID, jqns(Object.keys(item.data)[0])).removeClass("nodisplay");
                 } else {
                     let lID = itemID;
                     if (item.type === "list") {
@@ -448,27 +510,32 @@ function insertForm(loc, header, form, datapath, level=0) {
                     if (level % 2 == 1) {
                         cs = "panel panel-dark";
                     }
-                    
-                    if (item.hidden) { // protect against infinite recursion in the laziest way possible
-                        loc.append(`<div name="${lID}" class="${cs} _${lID}"><button onclick='insertPanel(this, "${lID}", "${item.type}", ${level+1})'>S</button></div>`);
-                    } else {
-                        loc.append(`<div name="${lID}" class="${cs} _${lID}"><button onclick='removePanel(this, "${lID}", "${item.type}", ${level+1})'>H</button></div>`);
+                    if (level > 100) {
+                        console.log("Recursion depth max reached! Cannot make " + itemID);
+                        continue;
                     }
                     
-                    var pnl = findItem(elemID);
-                    switch (item.type) {
-                        case "list": // Lists just need to have an add button added, as loadEntries handles the rest of it
-                            pnl.append(`<br><button level=${level+1} class="m zlist-button" onclick='addListItem(this)'>+</button><button class="m zlist-button" onclick='clearList(this, "${itemID}")'>C</button>`);
-                            break;
-                        case "sub":
-                            pnl.addClass("subop");
-                            pnl.append("<br>")
-                            insertForm(pnl, "", item.data, elemID, level+1);
-                            break;
-                        case "dict":
-                            // TODO: dictionary editor (I'mma wait to actually implement this)
-                            pnl.append('<div class="zdict"></div>');
-                    }
+                    // FIXME: I'm more comfortable just letting everything be hidden for now. No need to deal with the other issues right now.
+                    //if (item.hidden) { // protect against infinite recursion in the laziest way possible
+                        loc.append(`<div name="${lID}" class="${cs} _${lID}"><button class="sbutton" onclick='insertPanel(this, "${lID}", "${item.type}", ${level+1})'>+</button></div>`);
+                    /*} else {
+                        loc.append(`<div name="${lID}" class="${cs} _${lID}"><button class="sbutton" onclick='removePanel(this, "${lID}", "${item.type}", ${level+1})'>-</button></div>`);
+                    
+                        var pnl = findItem(elemID);
+                        switch (item.type) {
+                            case "list": // Lists just need to have an add button added, as loadEntries handles the rest of it
+                                pnl.append(`<br><button level=${level+1} class="m zlist-button sbutton" onclick='addListItem(this)'>+</button><button class="m zlist-button sbutton" onclick='clearList(this, "${itemID}")'>C</button>`);
+                                break;
+                            case "sub":
+                                pnl.addClass("subop");
+                                pnl.append("<br>")
+                                insertForm(pnl, "", item.data, elemID, level+1);
+                                break;
+                            case "dict":
+                                // TODO: dictionary editor (I'mma wait to actually implement this)
+                                pnl.append('<div class="zdict"></div>');
+                        }
+                    }*/
                 }
                 
         }
@@ -481,20 +548,21 @@ function insertPanel(btn, itemID, type, level) {
     // Create some variables
     var datapath = getPath(btn.parentElement);
     var elemID = datapath + "--" + itemID;
+    var loc = locateData(elemID); // Populates data, is actually necessary
     var pnl = findItem(datapath, itemID);
     
     // Change button to "hide"
-    var btn = pnl.find(">button");
-    btn.text("H");
-    btn.attr("onclick", `removePanel(this, "${itemID}", "${type}", ${level})`);
+    var sbtn = pnl.find(">button");
+    sbtn.text("-");
+    sbtn.attr("onclick", `removePanel(this, "${itemID}", "${type}", ${level})`);
     
     switch (type) {
         case "list": // Lists just need to have an add button added, as loadEntries handles the rest of it
-            pnl.append(`<br><button level=${level+1} class="m zlist-button" onclick='addListItem(this)'>+</button><button class="m zlist-button" onclick='clearList(this, "${itemID.substring(1)}")'>C</button>`);
+            pnl.append(`<br><button level=${level} class="m zlist-button sbutton" onclick='addListItem(this)'>+</button><button class="m zlist-button sbutton" onclick='clearList(this, "${itemID.substring(1)}")'>C</button>`);
             break;
         case "sub":
             pnl.addClass("subop");
-            insertForm(pnl, "<br>", locateForm(datapath, itemID), elemID, level);
+            insertForm(pnl, "<br>", locateForm(datapath, itemID), elemID, level, true);
             break;
         case "dict":
             // TODO: dictionary editor (I'mma wait to actually implement this)
@@ -502,7 +570,6 @@ function insertPanel(btn, itemID, type, level) {
             break;
     }
     
-    //var loc = locateData(datapath);
     // After inserting panel, load entries
     if (/*loc && */subscreen != "help" && subscreen != "raw") {
         //loadEntries(pnl, loc, locateForm(datapath, itemID));
@@ -510,7 +577,15 @@ function insertPanel(btn, itemID, type, level) {
     }
 }
 function removePanel(btn, itemID, type, level) {
-    $(btn.parentElement).html(`<button onclick='insertPanel(this, "${itemID}", "${type}", ${level})'>S</button>`);
+    // Remove data from raw data
+    var spath = getPath(btn).replace("-_-", ":").split("--");
+    var key = spath[spath.length-1];
+    if (key[0] == "-") key = key.substring(1);
+    
+    delete locateData(spath.slice(0, -1).join("--"))[key];
+    
+    // Remove html
+    $(btn.parentElement).html(`<button class="sbutton" onclick='insertPanel(this, "${itemID}", "${type}", ${level})'>+</button>`);
 }
 
 // Generate a unique id of a layer, origin, or power based on the type and n.
@@ -524,25 +599,20 @@ function genID(type) {
     return l;
 }
 // Create a new item
-function newItem(type, content, name) {
+function newItem(type, content) {
     "use strict";
     // Create name
     var i = genID(type);
-    content.id = i;
     
     // Create item
-    if (name) {
-        content.name = name;
-    }
     $("#" + type + "s-group").append(`<option class="ocitem" value="${type}-${i}">${i}</option>`);
     // Create item data
-    data[type][i] = content;
+    data[type][i] = content || {};
+    save();
     
     // Select this item in the list
     document.querySelector(`option[value="${type}-${i}"]`).selected = true;
     changeScreen(type + "-" + i);
-    
-    save();
 }
 
 // Delete item

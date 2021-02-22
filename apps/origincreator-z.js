@@ -1,3 +1,8 @@
+// Function for deleting a submenu and hiding it
+function clearSub(btn) {
+    // 
+}
+
 function addListItem(btn) {
     var pnl = $(btn.parentElement);
     var lbtn = $(btn);
@@ -10,7 +15,7 @@ function addListItem(btn) {
     
     var i = pnl.find(">.panel").length;
     
-    lbtn.before(`<div name="${i}" class="${cs} m _${i}"><button class="mb zlist-button" onclick="copyListItem(this)">+</button><button class="mb zlist-button" onclick="removeListItem(this)">-</button><button class="mb zlist-button" onclick="listItemUp(this)">˄</button><button class="mb zlist-button" onclick="listItemDown(this)">˅</button><br></div><br>`);
+    lbtn.before(`<div name="${i}" class="${cs} m _${i}"><button class="mb zlist-button sbutton" onclick="copyListItem(this)">+</button><button class="mb zlist-button sbutton" onclick="removeListItem(this)">-</button><button class="mb zlist-button sbutton" onclick="listItemUp(this)">˄</button><button class="mb zlist-button sbutton" onclick="listItemDown(this)">˅</button><br></div><br>`);
     var ipanel = pnl.find(">._"+i);
     
     var iID = getPath(btn) + "--" + i;

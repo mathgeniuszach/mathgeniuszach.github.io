@@ -36,8 +36,8 @@ h1 {
 }
 h2 {
     font-size: 1.7em;
-    margin: 0;
     margin-top: 20px;
+    margin-bottom: 5px;
 }
 
 ul, ol {
