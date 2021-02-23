@@ -260,7 +260,7 @@ function insertData(key, type, item, extra) {
                 }
                 img.src = reader.result;
             };
-            reader.readAsDataURL(item.files[0]);
+            if (item.files.length) reader.readAsDataURL(item.files[0]);
             break;
         case "cimage": // For clearing images
             findItem(datapath).find(">.i_"+key).attr("src", "");
@@ -383,7 +383,8 @@ function loadEntries(rootElem, data, form, del, id) {
                             // TODO: else statement for custom things here
                             if (form[item.more].data[v]) {
                                 if (item.more[0] == "_") {
-                                    // Load entries correctly if data isn't stored moreForms.push(form[item.more].data[v])
+                                    // Load entries correctly if data isn't stored 
+                                    moreForms.push(form[item.more].data[v])
                                     loadEntries(more, data, form[item.more].data[v], false);
                                 } else {
                                     if (!data[item.more]) data[item.more] = {};

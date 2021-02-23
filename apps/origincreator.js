@@ -21,6 +21,8 @@ function jqns(str) {
 
 // Things to do when the document is done loading
 $(document).ready(function() {
+    block();
+    
     insertForm($("#div-meta"), '<h2>pack - My Origins</h2>\n', forms.meta, "meta");
     insertForm($("#div-layer"), '<h2>layer - origins:origin</h2><button class="btn-up">Up</button><button class="btn-down">Down</button><button class="btn-delete">Delete</button><br><br>\n', forms.layer, "layer");
     insertForm($("#div-origin"), '<h2>origin - myorigins:origin</h2><button class="btn-up">Up</button><button class="btn-down">Down</button><button class="btn-delete">Delete</button><br><br>\n', forms.origin, "origin");
@@ -35,7 +37,7 @@ $(document).ready(function() {
     $("#btn-help").click(help);
     
     $("#btn-import").click(function() {$("#ipt-import").click()});
-    $("#ipt-import").click(importThing);
+    $("#ipt-import").change(importThing);
     $("#btn-datapack").click(exportDatapack);
     $("#btn-mod").click(exportMod);
     
@@ -49,6 +51,8 @@ $(document).ready(function() {
     
     // Load data if possible
     loadData(window.localStorage.getItem("origin-creator-data"));
+    
+    unblock();
 });
 
 // Function to split screen into screen and subscreen

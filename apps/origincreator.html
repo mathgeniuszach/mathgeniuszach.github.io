@@ -12,6 +12,10 @@
     <script src="origincreator-data.js"></script>
     <script src="origincreator.js"></script>
     
+    <!-- Cheat by getting these files from another github.io site unlikely to go down -->
+    <script src="https://stuk.github.io/jszip/vendor/FileSaver.js"></script>
+    <script src="https://stuk.github.io/jszip/dist/jszip.min.js"></script>
+    
     <meta charset="UTF-8">
     <meta name="keywords" content="MGZ, xMGZx, mathgeniuszach, Zach K">
     <meta name="author" content="Zach K">
@@ -25,6 +29,7 @@
     <link rel="shortcut icon" href="/i/favicon.ico">
 </head>
 <body>
+    <div class="nodisplay" id="page-blocker"></div>
     <header></header>
     <aside>
         <div id="side-main-head" class="side-head">My Origins</div>
@@ -68,7 +73,7 @@
             
             <p>Before editing anything, you should add metadata to your work so people know it was you who made it. You can do this by clicking the "Metadata" item in the left box. This help page will then be replaced by an editor for metadata, and most of the entries in the editor are self-explanitory.</p>
             
-            <p>If you already have a datapack or mod you want to edit, press the "Import" button in the bottom left and select the item you want to edit on your Computer.</p>
+            <p>If you already have a datapack or mod you want to edit, press the "Import" button in the bottom left and select the item you want to edit on your Computer. Note that this button will <i>merge</i> all of the content from that item into your workspace, replacing anything that it can. Note that imports will NOT maintain tags, functions, or anything else besides layers, origins, and powers. You must add those in manually.</p>
             
             <p>After adding metadata, you can add data items by using the "+" option beneath one of the "Layers", "Origins", and "Powers" groups at the left of the page. After adding anything, it should select and open up an editor for that item. You can switch between items by clicking them in the left pane. You can also press the "Delete" button to delete the item you have selected, or the "Reset" button to delete all your progress and return to this page.</p>
             
@@ -79,7 +84,7 @@
                 <li><a href="https://github.com/apace100/origins-fabric/wiki/Defining-a-power-in-JSON">Powers</a><br><span class="tabbed">Abilities and Disabilities that origins can have. They are very versitile.</span></li>
             </ul>
             
-            <p>When you are finished editing, you can press the "Datapack" button to export your work to a datapack or the "Mod" button to export it to a mod. </p>
+            <p>When you are finished editing, you can press the "To Datapack" button to export your work to a datapack or the "To Mod" button to export it to a mod. </p>
             
             <h2>Tips</h2>
             <p>Creating a good origin can be difficult, so here's a few tips.</p>

@@ -464,7 +464,7 @@ block_condition_data._type_options = {
                 "type": "sub",
                 "desc": "The block condition that needs to be fulfilled by adjacent blocks to count towards this condition.",
                 "data": block_condition_data,
-                "hidden": true // Necessary to prevent infinite recursion
+                "hidden": true
             },
             "comparison": {
                 "name": "Comparison",
@@ -767,7 +767,7 @@ var hud_render = {
             "name": "Render",
             "type": "checkbox",
             "desc": "Whether the bar should actually be visible.",
-            "default": false
+            "default": true
         },
         "sprite_location": {
             "name": "Sprite",
@@ -782,46 +782,53 @@ var hud_render = {
         }
     }
 };
+var status_effect_data = {
+    "effect": {
+        "name": "Effect",
+        "type": "ns",
+        "desc": "ID of the status effect."
+    },
+    "duration": {
+        "name": "Duration",
+        "type": "int",
+        "desc": "Duration of the status effect in ticks.",
+        "default": 100
+    },
+    "amplifier": {
+        "name": "Amplifier",
+        "type": "int",
+        "desc": "Amplifier of the status effect.",
+        "default": 0
+    },
+    "is_ambient": {
+        "name": "Ambient",
+        "type": "checkbox",
+        "desc": "Whether the effect counts as an ambient effect."
+    },
+    "show_particles": {
+        "name": "Show Particles",
+        "type": "checkbox",
+        "desc": "Whether the status effect will spawn particles on the player.",
+        "default": true
+    },
+    "show_icon": {
+        "name": "Show Icon",
+        "type": "checkbox",
+        "desc": "Whether the status effect will show an icon on the HUD.",
+        "default": true
+    }
+}
+var status_effect = {
+    "name": "Status Effect",
+    "type": "sub",
+    "desc": "If set, this status effect will be applied.",
+    "data": status_effect_data
+};
 var status_effects = {
     "name": "Status Effects",
     "type": "list",
-    "desc": "A list of status effects to apply.",
-    "data": {
-        "effect": {
-            "name": "Effect",
-            "type": "ns",
-            "desc": "ID of the status effect."
-        },
-        "duration": {
-            "name": "Duration",
-            "type": "int",
-            "desc": "Duration of the status effect in ticks.",
-            "default": 100
-        },
-        "amplifier": {
-            "name": "Amplifier",
-            "type": "int",
-            "desc": "Amplifier of the status effect.",
-            "default": 0
-        },
-        "is_ambient": {
-            "name": "Ambient",
-            "type": "checkbox",
-            "desc": "Whether the effect counts as an ambient effect."
-        },
-        "show_particles": {
-            "name": "Show Particles",
-            "type": "checkbox",
-            "desc": "Whether the status effect will spawn particles on the player.",
-            "default": true
-        },
-        "show_icon": {
-            "name": "Show Icon",
-            "type": "checkbox",
-            "desc": "Whether the status effect will show an icon on the HUD.",
-            "default": true
-        }
-    }
+    "desc": "If set, all of these status effects will be applied.",
+    "data": status_effect_data
 };
 
 var damage_source_names = ['inFire', 'lightningBolt', 'onFire', 'lava', 'hotFloor', 'inWall', 'cramming', 'drown', 'starve', 'cactus', 'fall', 'flyIntoWall', 'outOfWorld', 'generic', 'magic', 'wither', 'anvil', 'fallingBlock', 'dragonBreath', 'dryout', 'sweetBerryBush', 'sting', 'mob', 'player', 'arrow', 'trident', 'fireworks', 'witherSkull', 'thrown', 'indirectMagic', 'thorns', 'explosion.player', 'explosion', 'badRespawnPoint'];
@@ -1001,6 +1008,7 @@ entity_action_data._type_options = {
             }
         },
         "origins:apply_effect": {
+            "effect": status_effect,
             "effects": status_effects
         },
         "origins:clear_effect": {
@@ -1089,6 +1097,7 @@ entity_action_data._type_options = {
                 "desc": "How many ticks to wait until the cloud takes effect.",
                 "default": 10
             },
+            "effect": status_effect,
             "effects": status_effects
         },
         "origins:extinguish": {},
@@ -1350,6 +1359,12 @@ var forms = {
             "name": "Description",
             "type": "textarea",
             "desc": "Description of your pack for use in a mod."
+        },
+        "pack_format": {
+            "name": "Pack Version",
+            "type": "int",
+            "desc": "When exporting to a datapack, this is the number that the pack.mcmeta file will use.",
+            "default": 6
         }
     },
     "layer": {
@@ -1511,7 +1526,6 @@ var forms = {
             "desc": "A player condition that this power has to match in order to work properly. Powers normally support this condition unless otherwise specified.",
             "data": condition_data
         },
-        "tick_rate": tick_rate,
         "type": {
             "name": "Type",
             "type": "options",
@@ -1535,6 +1549,12 @@ var forms = {
                     "key": key_form
                 },
                 "origins:attribute": {
+                    "modifier": {
+                        "name": "AA Modifier",
+                        "type": "sub",
+                        "desc": "If specified, this modifier will be applied to their corresponding attribute. DOES NOT SUPPORT CONDITION",
+                        "data": aamodifier
+                    },
                     "modifiers": {
                         "name": "AA Modifiers",
                         "type": "list",
@@ -1543,6 +1563,13 @@ var forms = {
                     }
                 },
                 "origins:conditioned_attribute": {
+                    "tick_rate": tick_rate,
+                    "modifier": {
+                        "name": "AA Modifier",
+                        "type": "sub",
+                        "desc": "If specified, this modifier will be applied to their corresponding attribute.",
+                        "data": aamodifier
+                    },
                     "modifiers": {
                         "name": "AA Modifiers",
                         "type": "list",
@@ -1569,6 +1596,11 @@ var forms = {
                     "hud_render": hud_render
                 },
                 "origins:effect_immunity": {
+                    "effect": {
+                        "name": "Effect",
+                        "type": "ns",
+                        "desc": "If specified, the effect with this ID can not be applied to the player."
+                    },
                     "effects": {
                         "name": "Effects",
                         "type": "list",
@@ -1729,6 +1761,12 @@ var forms = {
                 },
                 "origins:modify_break_speed": {
                     "block_condition": block_condition,
+                    "modifier": {
+                        "name": "AA Modifier",
+                        "type": "sub",
+                        "desc": "If set, this modifier will apply to the break speed.",
+                        "data": aamodifier
+                    },
                     "modifiers": {
                         "name": "Modifiers",
                         "type": "list",
@@ -1738,6 +1776,12 @@ var forms = {
                 },
                 "origins:modify_damage_dealt": {
                     "damage_condition": damage_condition,
+                    "modifier": {
+                        "name": "AA Modifier",
+                        "type": "sub",
+                        "desc": "IIf set, this modifier will apply to the damage dealt.",
+                        "data": aamodifier
+                    },
                     "modifiers": {
                         "name": "Modifiers",
                         "type": "list",
@@ -1747,6 +1791,12 @@ var forms = {
                 },
                 "origins:modify_damage_taken": {
                     "damage_condition": damage_condition,
+                    "modifier": {
+                        "name": "AA Modifier",
+                        "type": "sub",
+                        "desc": "If set, this modifier will apply to the damage taken.",
+                        "data": aamodifier
+                    },
                     "modifiers": {
                         "name": "Modifiers",
                         "type": "list",
@@ -1755,6 +1805,12 @@ var forms = {
                     }
                 },
                 "origins:modify_exhaustion": {
+                    "modifier": {
+                        "name": "AA Modifier",
+                        "type": "sub",
+                        "desc": "If set, this modifier will apply to the exhaustion recieved.",
+                        "data": aamodifier
+                    },
                     "modifiers": {
                         "name": "Modifiers",
                         "type": "list",
@@ -1772,6 +1828,12 @@ var forms = {
                     }
                 },
                 "origins:modify_jump": {
+                    "modifier": {
+                        "name": "AA Modifier",
+                        "type": "sub",
+                        "desc": "If set, this modifier will apply to the upwards jump velocity.",
+                        "data": aamodifier
+                    },
                     "modifiers": {
                         "name": "Modifiers",
                         "type": "list",
@@ -1780,6 +1842,12 @@ var forms = {
                     }
                 },
                 "origins:modify_swim_speed": {
+                    "modifier": {
+                        "name": "AA Modifier",
+                        "type": "sub",
+                        "desc": "If set, this modifier will apply to the swim speed.",
+                        "data": aamodifier
+                    },
                     "modifiers": {
                         "name": "Modifiers",
                         "type": "list",
@@ -1788,6 +1856,12 @@ var forms = {
                     }
                 },
                 "origins:modify_lava_speed": {
+                    "modifier": {
+                        "name": "AA Modifier",
+                        "type": "sub",
+                        "desc": "If set, this modifier will apply to the lava swim speed.",
+                        "data": aamodifier
+                    },
                     "modifiers": {
                         "name": "Modifiers",
                         "type": "list",
@@ -1953,6 +2027,7 @@ var forms = {
                         "type": "int",
                         "desc": "When the status effects are applied, their duration will be stacks * duration_per_stack in ticks."
                     },
+                    "effect": status_effect,
                     "effects": status_effects
                 },
                 "origins:toggle_night_vision": {
@@ -2087,6 +2162,12 @@ var forms = {
                     }
                 },
                 "origins:starting_equipment": {
+                    "stack": {
+                        "name": "Stack",
+                        "type": "sub",
+                        "desc": "If set, this item stack will be given to the player, optionally into the specified inventory slot.",
+                        "data": positioned_item_stack
+                    },
                     "stacks": {
                         "name": "Stacks",
                         "type": "list",
@@ -2139,10 +2220,22 @@ var forms = {
                         "desc": "If set, the modifiers will only apply to food items which satisfy this condition.",
                         "data": item_condition_data
                     },
+                    "food_modifier": {
+                        "name": "Food Modifier",
+                        "type": "sub",
+                        "desc": "If set, this modifier will apply to the food amount gained by eating.",
+                        "data": amodifier
+                    },
                     "food_modifiers": {
                         "name": "Food Modifiers",
                         "type": "list",
                         "desc": "If set, these modifiers will apply to the food amount gained by eating.",
+                        "data": amodifier
+                    },
+                    "saturation_modifier": {
+                        "name": "Saturation Modifier",
+                        "type": "sub",
+                        "desc": "If set, this modifier will apply to the saturation gained by eating.",
                         "data": amodifier
                     },
                     "saturation_modifiers": {
@@ -2160,7 +2253,13 @@ var forms = {
                 },
                 "origins:modify_xp_gain": {
                     "modifiers": {
-                        "name": "Experience Modifiers",
+                        "name": "XP Modifier",
+                        "type": "sub",
+                        "desc": "If set, this modifier will apply to the experience gained.",
+                        "data": amodifier
+                    },
+                    "modifiers": {
+                        "name": "XP Modifiers",
                         "type": "list",
                         "desc": "If set, these modifiers will apply to the experience gained.",
                         "data": amodifier
