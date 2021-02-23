@@ -393,7 +393,9 @@ function loadEntries(rootElem, data, form, del, id) {
                             }
                         }
                     }
-                    if (data[itemID] != v) data[itemID] = v;
+                    if (data[itemID] != v) {
+                        data[itemID] = v;
+                    }
                     if (v) elem.val(v);
                     break;
                 case "id": // ID values are not based on the dictionary, but rather a unique value.

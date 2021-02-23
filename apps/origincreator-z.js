@@ -23,6 +23,7 @@ function addListItem(btn) {
     
     // Find data location to create item (javascript is very nice at this)
     locateData(iID);
+    changeScreen(fullscreen); // HACK: only loading list item is necessary
     
     // Don't forget to save!
     save();
@@ -64,6 +65,8 @@ function copyListItem(btn) {
         jelem.removeClass("_"+String(j-1));
         jelem.addClass("_"+String(j));
     }
+    
+    changeScreen(fullscreen); // HACK: only loading list item is necessary
     
     // Don't forget to save!
     save();

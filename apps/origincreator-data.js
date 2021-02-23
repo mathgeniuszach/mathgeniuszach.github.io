@@ -922,7 +922,7 @@ var item_action = {
 entity_action_data.type = {
     "name": "Type",
     "type": "options",
-    "desc": "The type of entity condition.",
+    "desc": "The type of entity action.",
     "more": "_type_options"
 };
 entity_action_data._type_options = {
@@ -1156,7 +1156,7 @@ entity_action_data._type_options = {
 block_action_data.type = {
     "name": "Type",
     "type": "options",
-    "desc": "The type of block condition.",
+    "desc": "The type of block action.",
     "more": "_type_options"
 };
 block_action_data._type_options = {
@@ -1257,7 +1257,7 @@ block_action_data._type_options = {
 item_action_data.type = {
     "name": "Type",
     "type": "options",
-    "desc": "The type of item condition.",
+    "desc": "The type of item action.",
     "more": "_type_options"
 };
 item_action_data._type_options = {
