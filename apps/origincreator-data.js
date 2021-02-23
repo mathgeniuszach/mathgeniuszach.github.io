@@ -1520,7 +1520,6 @@ var forms = {
             "type": "checkbox",
             "desc": "If set to true, this power will not show up in the list of powers an origin has."
         },
-        "key": key_form,
         "condition": {
             "name": "Condition",
             "type": "sub",
@@ -1546,7 +1545,8 @@ var forms = {
                         "type": "checkbox",
                         "desc": "Whether this power starts in the on or off state.",
                         "default": true
-                    }
+                    },
+                    "key": key_form
                 },
                 "origins:attribute": {
                     "modifier": {
@@ -1593,7 +1593,8 @@ var forms = {
                 },
                 "origins:cooldown": {
                     "cooldown": cooldown,
-                    "hud_render": hud_render
+                    "hud_render": hud_render,
+                    "key": key_form
                 },
                 "origins:effect_immunity": {
                     "effect": {
@@ -1678,7 +1679,8 @@ var forms = {
                         "name": "Projectile NBT",
                         "type": "textarea",
                         "desc": "NBT data of the entity."
-                    }
+                    },
+                    "key": key_form
                 },
                 "origins:inventory": {
                     "name": {
@@ -1698,7 +1700,8 @@ var forms = {
                         "desc": "If this is set, only item stacks matching this condition will be dropped on death.",
                         "data": item_condition_data,
                         hidden: true
-                    }
+                    },
+                    "key": key_form
                 },
                 "origins:invisibility": {
                     "render_armor": {
@@ -1728,7 +1731,8 @@ var forms = {
                         "type": "ns",
                         "desc": "When defined, this is the ID of the sound event that will be played when the power is used."
                     },
-                    "hud_render": hud_render
+                    "hud_render": hud_render,
+                    "key": key_form
                 },
                 "origins:model_color": {
                     "red": {
@@ -2039,7 +2043,8 @@ var forms = {
                         "type": "double",
                         "desc": "How strong the night vision effect is. Range: 0 - 1.",
                         "default": 1.0
-                    }
+                    },
+                    "key": key_form
                 },
                 "origins:damage_over_time": {
                     "interval": {
@@ -2096,7 +2101,8 @@ var forms = {
                 "origins:active_self": {
                     "entity_action": entity_action,
                     "cooldown": cooldown,
-                    "hud_render": hud_render
+                    "hud_render": hud_render,
+                    "key": key_form
                 },
                 "origins:action_over_time": {
                     "entity_action": entity_action,
