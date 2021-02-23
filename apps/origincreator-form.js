@@ -288,6 +288,15 @@ function insertData(key, type, item, extra) {
                 loc[key] = v;
             }
             break;
+        case "double":
+            if (v == "") {
+                delete loc[key];
+            } else {
+                v = parseFloat(v);
+                item.value = v;
+                loc[key] = v;
+            }
+            break;
         default:
             if (v == "") {
                 delete loc[key];
