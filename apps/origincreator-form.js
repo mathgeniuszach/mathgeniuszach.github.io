@@ -377,7 +377,11 @@ function loadEntries(rootElem, data, form, del, id) {
                     break;
                 case "options": // Load option and more
                     // Load more
-                    if (item.more) {
+                    if (item.options) {
+                        if (!v) {
+                            v = item.options[0];
+                        }
+                    } else if (item.more) {
                         if (!v) {
                             v = Object.keys(form[item.more].data)[0];
                         }
@@ -402,7 +406,7 @@ function loadEntries(rootElem, data, form, del, id) {
                             }
                         }
                     }
-                    if (data[itemID] != v) {
+                    if (data[itemID] !== v) {
                         data[itemID] = v;
                     }
                     if (v) elem.val(v);
