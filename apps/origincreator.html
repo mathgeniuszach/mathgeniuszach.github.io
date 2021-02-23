@@ -31,33 +31,29 @@
         <div class="button-group">
             <button id="btn-help">Help</button>
             <button id="btn-raw-data">Raw Data</button>
+            <button id="btn-save">Save</button>
         </div>
         <select id="content-box" size=2>
             <option value="meta">Metadata</option>
             <optgroup id="layers-group" label="Layers">
                 <option class="ocitem" value="layer-origins:origin">origins:origin</option>
+                <option class="newitem" value="layer-+">+</option>
             </optgroup>
-            <optgroup id="origins-group" label="Origins"></optgroup>
-            <optgroup id="powers-group" label="Powers"></optgroup>
+            <optgroup id="origins-group" label="Origins">
+                <option class="newitem" value="origin-+">+</option>
+            </optgroup>
+            <optgroup id="powers-group" label="Powers">
+                <option class="newitem" value="power-+">+</option>
+            </optgroup>
         </select>
         <div class="button-group">
-            <button id="btn-up">Up</button>
-            <button id="btn-down">Down</button>
-            <button id="btn-delete">Delete</button>
-        </div>
-        <div class="button-group">
-            <button id="btn-save">Save</button>
+            <button id="btn-import">Import</button>
+            <input type="file" class="nodisplay" id="ipt-import" multiple>
             <button id="btn-reset">Reset</button>
         </div>
         <div class="button-group">
-            <button id="btn-new-layer">Layer</button>
-            <button id="btn-new-origin">Origin</button>
-            <button id="btn-new-power">Power</button>
-        </div>
-        <div class="button-group">
-            <button id="btn-import">Import</button>
-            <button id="btn-datapack">Datapack</button>
-            <button id="btn-mod">Mod</button>
+            <button id="btn-datapack">To Datapack</button>
+            <button id="btn-mod">To Mod</button>
         </div>
     </aside>
     <section>
@@ -65,7 +61,7 @@
         <div class="content" id="div-help">
             <p>This is a work-in-progress tool for creating custom Origins for the <a href="https://www.curseforge.com/minecraft/mc-mods/origins">Origins</a> mod in Minecraft.</p>
             
-            <p>Note that there may be bugs and performance issues (second-long loading times). I'm honestly just trying to get the thing working right now rather than worring about performance.</p>
+            <p>Note that there may be bugs and performance issues (second-long loading times). I'm honestly just trying to get the thing working right now rather than worring about performance. Report any bugs <a href="https://github.com/xMGZx/xmgzx.github.io/issues">here</a>.</p>
             
             <h2>Usage</h2>
             <p>You can click the "Help" button in the top left to return to this page at any time.</p>
@@ -74,7 +70,14 @@
             
             <p>If you already have a datapack or mod you want to edit, press the "Import" button in the bottom left and select the item you want to edit on your Computer.</p>
             
-            <p>After adding metadata, you can add data items by using the "Layer", "Origin", and "Power" buttons at the bottom left of the page. After adding anything, click on it in the left box to select and edit it. Whatever page you are on will then be replaced by an editor for that item. You can also press the "Delete" button to delete the item you have selected (other than the "Metadata" item), or the "Reset" button to delete all your progress and return to this page.</p>
+            <p>After adding metadata, you can add data items by using the "+" option beneath one of the "Layers", "Origins", and "Powers" groups at the left of the page. After adding anything, it should select and open up an editor for that item. You can switch between items by clicking them in the left pane. You can also press the "Delete" button to delete the item you have selected, or the "Reset" button to delete all your progress and return to this page.</p>
+            
+            <p>For information, here's what each of the different grouped items are:</p>
+            <ul>
+                <li><a href="https://github.com/apace100/origins-fabric/wiki/Defining-an-origin-in-JSON">Layers</a><br><span class="tabbed">Layers are groups of origins. Usually you will only need to use the origins:origin layer to enable people to select your origin when they first join a world. You can also make your own layers if you want to do additional things like <a href="https://github.com/apace100/origins-fabric/wiki/Origin-conditions-in-layers">coniditional origins</a>.</span></li>
+                <li><a href="https://github.com/apace100/origins-fabric/wiki/Defining-an-origin-in-JSON">Origins</a><br><span class="tabbed">Groups of powers that people can have and/or choose from, like the Blazeborn or the Enderian on the <a href="https://www.curseforge.com/minecraft/mc-mods/origins">Origins homepage</a>.</span></li>
+                <li><a href="https://github.com/apace100/origins-fabric/wiki/Defining-a-power-in-JSON">Powers</a><br><span class="tabbed">Abilities and Disabilities that origins can have. They are very versitile.</span></li>
+            </ul>
             
             <p>When you are finished editing, you can press the "Datapack" button to export your work to a datapack or the "Mod" button to export it to a mod. </p>
             
@@ -90,15 +93,15 @@
                 <li>
                     Here are some good design principles to make origins/powers interesting:
                     <ul>
-                        <li><b>Simple</b> - A good origin is easy to understand and doesn't have too many powers. Staying under six is a good idea and helps you make the most of each power. You can get around this by grouping powers together (e.g., if you can't touch water, this includes both water and rain).</li>
+                        <li><b>Simple</b><br><span class="tabbed">A good origin is easy to understand and doesn't have too many powers. Staying under six is a good idea and helps you make the most of each power. You can get around this by grouping powers together (e.g., if you can't touch water, this includes both water and rain).</span></li>
                         
-                        <li><b>Unique</b> - An origin should provide a gameplay experience and look and feel unique to itself. Copying a different origin in a slightly different way can get dull and old. This doesn't mean you can't take inspiration from places like mobs or other people's origins, it just means that people should be able to get a special experience using your origin.</li> 
+                        <li><b>Unique</b><br><span class="tabbed">An origin should provide a gameplay experience and look and feel unique to itself. Copying a different origin in a slightly different way can get dull and old. This doesn't mean you can't take inspiration from places like mobs or other people's origins, it just means that people should be able to get a special experience using your origin.</span></li> 
                         
-                        <li><b>Inspiring</b> - A good origin enables you to be creative with how you play the game, even if it's in a small way. Take for example the Merling; you must play underwater for most of the game, which requires the player to concoct new and interesting ways of doing things that would've been simple without the origin (e.g., how do you survive in the Nether?). You don't have to have a high-impact origin to do this (consider the Avian)</li>
+                        <li><b>Inspiring</b><br><span class="tabbed">A good origin enables you to be creative with how you play the game, even if it's in a small way. Take for example the Merling; you must play underwater for most of the game, which requires the player to concoct new and interesting ways of doing things that would've been simple without the origin (e.g., how do you survive in the Nether?). You don't have to have a high-impact origin to do this (consider the Avian)</span></li>
                         
-                        <li><b>Balanced</b> - A good origin provides a good balance of power and disabilities. Making something too difficult (like having only half a heart) is only fun for a very small amount of people, and giving an origin too much power can take away the challenge that people also enjoy.</li>
+                        <li><b>Balanced</b><br><span class="tabbed">A good origin provides a good balance of power and disabilities. Making something too difficult (like having only half a heart) is only fun for a very small amount of people, and giving an origin too much power can take away the challenge that people also enjoy.</span></li>
                         
-                        <li><b>Fun</b> - A good origin provides a fun/challenging experience to a large subset of players. The definition of "Fun" depends on the person, but normally you can use common sense</li>
+                        <li><b>Fun</b><br><span class="tabbed">A good origin provides a fun/challenging experience to a large subset of players. The definition of "Fun" depends on the person, but normally you can use common sense</span></li>
                     </ul>
                 </li>
             </ul>

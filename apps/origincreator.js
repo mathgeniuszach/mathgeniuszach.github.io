@@ -21,24 +21,21 @@ function jqns(str) {
 
 // Things to do when the document is done loading
 $(document).ready(function() {
-    insertForm($("#div-meta"), "<h2>pack - My Origins</h2>\n", forms.meta, "meta");
-    insertForm($("#div-layer"), "<h2>layer - origins:origin</h2>\n", forms.layer, "layer");
-    insertForm($("#div-origin"), "<h2>origin - myorigins:origin</h2>\n", forms.origin, "origin");
-    insertForm($("#div-power"), "<h2>power - myorigins:power</h2>\n", forms.power, "power");
+    insertForm($("#div-meta"), '<h2>pack - My Origins</h2>\n', forms.meta, "meta");
+    insertForm($("#div-layer"), '<h2>layer - origins:origin</h2><button class="btn-up">Up</button><button class="btn-down">Down</button><button class="btn-delete">Delete</button><br><br>\n', forms.layer, "layer");
+    insertForm($("#div-origin"), '<h2>origin - myorigins:origin</h2><button class="btn-up">Up</button><button class="btn-down">Down</button><button class="btn-delete">Delete</button><br><br>\n', forms.origin, "origin");
+    insertForm($("#div-power"), '<h2>power - myorigins:power</h2><button class="btn-up">Up</button><button class="btn-down">Down</button><button class="btn-delete">Delete</button><br><br>\n', forms.power, "power");
     
-    $("#btn-up").click(itemUp);
-    $("#btn-down").click(itemDown);
+    $(".btn-up").click(itemUp);
+    $(".btn-down").click(itemDown);
+    $(".btn-delete").click(deleteItem);
     
-    $("#btn-delete").click(deleteItem);
     $("#btn-save").click(save);
     $("#btn-reset").click(resetPack);
     $("#btn-help").click(help);
     
-    $("#btn-new-layer").click(newLayer);
-    $("#btn-new-origin").click(newOrigin);
-    $("#btn-new-power").click(newPower);
-    
-    $("#btn-import").click(importThing);
+    $("#btn-import").click(function() {$("#ipt-import").click()});
+    $("#ipt-import").click(importThing);
     $("#btn-datapack").click(exportDatapack);
     $("#btn-mod").click(exportMod);
     
@@ -70,22 +67,37 @@ function changeScreen(s) {
     // Get screens
     fullscreen = s;
     [screen, subscreen] = splitScreen(s);
-    var activeElem = $("#div-"+screen)
-    
-    // Switch screen
-    $(".content").addClass("nodisplay");
-    activeElem.removeClass('nodisplay');
-    
-    // Set header and variables
-    active = data[screen];
-    if (subscreen) {
-        active = active[subscreen];
-        activeElem.find(">h2").text(screen + " - " + subscreen);
-    }
-    
-    // Load data into entry fields
-    if (active) {
-        loadEntries(activeElem, active, forms[screen], true, subscreen);
+    if (subscreen == "+") {
+        // For new items
+        switch (screen) {
+            case "layer":
+                newItem("layer", {"replace": false, "origins": []});
+                break;
+            case "origin":
+                newItem("origin");
+                break;
+            case "power":
+                newItem("power");
+                break;
+        }
+    } else {
+        var activeElem = $("#div-"+screen)
+
+        // Switch screen
+        $(".content").addClass("nodisplay");
+        activeElem.removeClass('nodisplay');
+
+        // Set header and variables
+        active = data[screen];
+        if (subscreen) {
+            active = active[subscreen];
+            activeElem.find(">h2").text(screen + " - " + subscreen);
+        }
+
+        // Load data into entry fields
+        if (active) {
+            loadEntries(activeElem, active, forms[screen], true, subscreen);
+        }
     }
 }
 // Ensure that the proper item in the list box is shown (on refocus)
@@ -120,29 +132,6 @@ function resetPack() {
 function help() {
     "use strict";
     changeScreen("help");
-}
-
-function newLayer() {
-    "use strict";
-    newItem("layer", {"replace": false, "origins": []});
-}
-function newOrigin() {
-    "use strict";
-    newItem("origin");
-}
-function newPower() {
-    "use strict";
-    newItem("power");
-}
-
-function importThing() {
-    "use strict";
-}
-function exportDatapack() {
-    "use strict";
-}
-function exportMod() {
-    "use strict";
 }
 
 function openRawData() {

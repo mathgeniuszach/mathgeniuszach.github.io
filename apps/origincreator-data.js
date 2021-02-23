@@ -1404,7 +1404,7 @@ var forms = {
         "id": {
             "name": "ID",
             "type": "id",
-            "desc": "Namespaced ID of the origin. Use '/'s to define folders. If not specified, it will be based on the display name."
+            "desc": "Namespaced ID of the origin. Use '/'s to define folders."
         },
         "name": {
             "name": "Name",
@@ -1482,7 +1482,7 @@ var forms = {
         "id": {
             "name": "ID",
             "type": "id",
-            "desc": "Namepsaced ID of the power. Use '/'s to define folders. If not specified, it will be based on the display name."
+            "desc": "Namepsaced ID of the power. Use '/'s to define folders."
         },
         "name": {
             "name": "Name",

@@ -51,14 +51,17 @@ function loadData(ocd) {
     }
 
     // Create items in listbox
+    let item = $("#layers-group>.newitem");
     for (const itemid in data["layer"]) {
-        $("#layers-group").append(`<option class="ocitem" value="layer-${itemid}">${itemid}</option>`);
+        item.before(`<option class="ocitem" value="layer-${itemid}">${itemid}</option>`);
     }
+    item = $("#origins-group>.newitem");
     for (const itemid in data["origin"]) {
-        $("#origins-group").append(`<option class="ocitem" value="origin-${itemid}">${itemid}</option>`);
+        item.before(`<option class="ocitem" value="origin-${itemid}">${itemid}</option>`);
     }
+    item = $("#powers-group>.newitem");
     for (const itemid in data["power"]) {
-        $("#powers-group").append(`<option class="ocitem" value="power-${itemid}">${itemid}</option>`);
+        item.before(`<option class="ocitem" value="power-${itemid}">${itemid}</option>`);
     }
     
     // Change the header in the Metadata
@@ -376,14 +379,16 @@ function loadEntries(rootElem, data, form, del, id) {
                         let more = findChildItem(mores, jqns(v));
                         if (more) {
                             more.removeClass("nodisplay");
-
-                            // Load entries correctly if data isn't stored
-                            if (item.more[0] == "_") {
-                                moreForms.push(form[item.more].data[v])
-                                loadEntries(more, data, form[item.more].data[v], false);
-                            } else {
-                                if (!data[item.more]) data[item.more] = {};
-                                loadEntries(more, data[item.more][v], form[item.more].data[v], true);
+                            
+                            // TODO: else statement for custom things here
+                            if (form[item.more].data[v]) {
+                                if (item.more[0] == "_") {
+                                    // Load entries correctly if data isn't stored moreForms.push(form[item.more].data[v])
+                                    loadEntries(more, data, form[item.more].data[v], false);
+                                } else {
+                                    if (!data[item.more]) data[item.more] = {};
+                                    loadEntries(more, data[item.more][v], form[item.more].data[v], true);
+                                }
                             }
                         }
                     }
@@ -605,7 +610,7 @@ function newItem(type, content) {
     var i = genID(type);
     
     // Create item
-    $("#" + type + "s-group").append(`<option class="ocitem" value="${type}-${i}">${i}</option>`);
+    $("#" + type + "s-group>.newitem").before(`<option class="ocitem" value="${type}-${i}">${i}</option>`);
     // Create item data
     data[type][i] = content || {};
     save();
@@ -618,7 +623,7 @@ function newItem(type, content) {
 // Delete item
 function deleteItem() {
     "use strict";
-    if (screen && screen != "help" && screen != "meta" && screen != "raw") {
+    if (screen && screen != "help" && screen != "meta" && screen != "raw" && subscreen != "+") {
         // Delete from data
         delete data[screen][subscreen];
         // Delete from content box
