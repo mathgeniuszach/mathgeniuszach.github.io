@@ -1,37 +1,3 @@
-// Data that pretty much stores everything
-var data = {
-    "meta": {
-        "name": "My Origins",
-        "id": "myorigins"
-    },
-    "layer": {
-        "origins:origin": {
-            "replace": false,
-            "origins": []
-        }
-    },
-    "origin": {
-        
-    },
-    "power": {
-        
-    }
-};
-
-// Some useful global variables
-// Active JQuery screen
-var active = null;
-// Full text of the screen
-var fullscreen = "help"
-// Left side text of the screen (layer, origin, power, etc.)
-var screen = "help";
-// Right side text of the screen (user defined name)
-var subscreen = null;
-// Just a number to make layers
-var n = 0;
-// ID
-var pid = "myorigins";
-
 // Loads dictionary into html (creating options as necessary)
 function loadData(ocd) {
     "use strict";
@@ -42,13 +8,9 @@ function loadData(ocd) {
     // Delete any lingering items
     $('.ocitem').remove();
     delete data["layer"]["origins:origin"];
-    try {
-        // Load into data
-        data = JSON.parse(ocd);
-    } catch (e) {
-        console.log(e);
-        return e.message;
-    }
+
+    // Load into data
+    data = JSON.parse(ocd);
 
     // Create items in listbox
     let item = $("#layers-group>.newitem");
@@ -326,9 +288,12 @@ function loadEntries(level, rootElem, data, form, del, id) {
 
         // Load data
         for (const [itemID, item] of Object.entries(form)) {
-            let v = data[itemID] || item.default || "";
+            let v = data[itemID];
+            if (v == undefined) v = item.default;
+            if (v == undefined) v = "";
+
             if (itemID.length > 1) {
-                if (!data[itemID] && item.default) data[itemID] = v;
+                if (data[itemID] === undefined && item.default) data[itemID] = v;
             } else { // Yes this is hacky and no I don't care
                 if (typeof(data) == "object") {
                     v = item.default || "";
@@ -421,7 +386,11 @@ function loadEntries(level, rootElem, data, form, del, id) {
                     elem.prevAll("img").first().attr("src", v);
                     break;
                 case "checkbox":
-                    elem.prop("checked", v || false);
+                    if (v === "") {
+                        v = false;
+                        data[itemID] = v;
+                    }
+                    elem.prop("checked", v);
                 default:
                     // Every other element
                     elem.val(v);

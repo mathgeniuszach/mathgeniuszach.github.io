@@ -8,6 +8,45 @@
 // Transition things off of findItem to findChildItem
 // Make lists only load the panel instead of the whole page
 
+// Data that pretty much stores everything
+var data = {
+    "meta": {
+        "name": "My Origins",
+        "id": "myorigins"
+    },
+    "layer": {
+        "origins:origin": {
+            "replace": false,
+            "origins": []
+        }
+    },
+    "origin": {
+        
+    },
+    "power": {
+        
+    }
+};
+
+// Some useful global variables
+// Active JQuery screen
+var active = null;
+// Full text of the screen
+var fullscreen = "help"
+// Left side text of the screen (layer, origin, power, etc.)
+var screen = "help";
+// Right side text of the screen (user defined name)
+var subscreen = null;
+// Just a number to make layers
+var n = 0;
+// ID
+var pid = "myorigins";
+
+const urlArgs = new URLSearchParams(location.search);
+// Save location
+var saveLoc = urlArgs.get("save") || "";
+var extDataLoc = decodeURIComponent(urlArgs.get("data") || "");
+
 // Function to normalize strings
 function ns(str) {
     "use strict";
@@ -44,15 +83,33 @@ $(document).ready(function() {
     $("#btn-raw-data").click(openRawData);
     $("#btn-load-raw").click(loadRaw);
     $("#btn-reset-raw").click(resetRaw);
+    $("#btn-download").click(downloadRaw);
+
+    $("#ipt-save-loc").val(saveLoc);
+    $("#ipt-web-loc").val(extDataLoc);
+    $("#btn-grab").click(grabData);
     
     var contentBox = $("#content-box");
     contentBox.on("change", selectContent);
     contentBox.on("focus", ensureSelect);
     
-    // Load data if possible
-    loadData(window.localStorage.getItem("origin-creator-data"));
-    
-    unblock();
+    // If external data is available, try to load that first. If not, just load normal data.
+    if (extDataLoc) {
+        // This website is very helpful
+        $.get('https://api.allorigins.win/raw?url=' + encodeURIComponent(extDataLoc) + '&callback=?', function(data) {
+            try {
+                loadData(data);
+            } catch (err) {
+                console.error(err);
+                load();
+            }
+        }, "text")
+        .fail(function() {load()})
+        .always(function() {unblock()});
+    } else {
+        load();
+        unblock();
+    }
 });
 
 // Function to split screen into screen and subscreen
@@ -121,16 +178,19 @@ function selectContent() {
     }
 }
 
+function load() {
+    "use strict";
+    loadData(window.localStorage.getItem("origin-creator-data"+saveLoc));
+}
 // Save the webpage all into a cookie
 function save() {
     "use strict";
-    // 1000 days should be good enough
-    window.localStorage.setItem("origin-creator-data", JSON.stringify(data));
+    window.localStorage.setItem("origin-creator-data"+saveLoc, JSON.stringify(data));
 }
 // Reset the entire pack to default
 function resetPack() {
     "use strict";
-    window.localStorage.setItem("origin-creator-data", "");
+    window.localStorage.removeItem("origin-creator-data"+saveLoc);
     location.reload();
 }
 function help() {
@@ -156,4 +216,12 @@ function resetRaw() {
     "use strict";
     $("#raw-err").text("");
     $("#raw-data-textarea").val(JSON.stringify(data, null, 4));
+}
+
+function grabData() {
+    saveLoc = $("#ipt-save-loc").val();
+    extDataLoc = $("#ipt-web-loc").val();
+    
+    if (saveLoc && extDataLoc) location.replace("?save="+saveLoc+"&data="+encodeURIComponent(extDataLoc));
+    else location.replace("/apps/origincreator.html");
 }

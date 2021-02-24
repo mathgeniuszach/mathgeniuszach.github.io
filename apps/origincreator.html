@@ -73,7 +73,7 @@
             
             <p>Before editing anything, you should add metadata to your work so people know it was you who made it. You can do this by clicking the "Metadata" item in the left box. This help page will then be replaced by an editor for metadata, and most of the entries in the editor are self-explanitory.</p>
             
-            <p>If you already have a datapack or mod you want to edit, press the "Import" button in the bottom left and select the item you want to edit on your Computer. Note that this button will <i>merge</i> all of the content from that item into your workspace, replacing anything that it can. Note that imports will NOT maintain tags, functions, or anything else besides layers, origins, and powers. You must add those in manually.</p>
+            <p>If you already have a datapack or mod you want to edit, press the "Import" button in the bottom left and select the item you want to edit on your Computer. Note that this button will <i>merge</i> all of the content from that item into your workspace, replacing anything that it can. Note that imports will NOT maintain tags, functions, or anything else besides layers, origins, and powers. You must add those in manually to an exported datapack.</p>
             
             <p>After adding metadata, you can add data items by using the "+" option beneath one of the "Layers", "Origins", and "Powers" groups at the left of the page. After adding anything, it should select and open up an editor for that item. You can switch between items by clicking them in the left pane. You can also press the "Delete" button to delete the item you have selected, or the "Reset" button to delete all your progress and return to this page.</p>
             
@@ -90,8 +90,9 @@
             <p>Creating a good origin can be difficult, so here's a few tips.</p>
             <ul>
                 <li>If you aren't sure what something does, hover over the label. A tooltip will provide a short description of what that entry is for.</li>
-                <li>This page auto-saves on your computer everytime a field loses focus, so refreshing or closing the page won't lose your progress. There's a save button in the bottom left too if you feel unsure. If you want to reset the pack back do it's default state, press "Reset".</li>
+                <li>This page auto-saves on your computer everytime a field loses focus, so refreshing or closing the page won't lose your progress. There's a save button in the top left too if you feel unsure. If you want to reset the pack back do it's default state, press "Reset".</li>
                 <li>Pressing the "+" button in any subpanel will add content to that panel and change the button to a "-" button. Pressing this new button will remove any content (and data stored) in that panel.</li>
+                <li>Want to save multiple projects? Click the "Raw Data" button, type anything into the "Save" box, and press the "Load" button to the bottom right. The page will be reloaded and you will store data in a separate location.</li>
                 <li>Check out the official <a href="https://github.com/apace100/origins-fabric/wiki">wiki</a> for more information on what each thing does.</li>
                 <li>Check out the #origin-ideas chat in the official <a href="https://discord.gg/4mTMHu3"> Origins Discord</a></li>
                 <li>Test things out! If you aren't sure something will work, test it out in Minecraft! Failure is an important step in creativity.</li>
@@ -117,11 +118,15 @@
         <div name="power" class="content nodisplay _power" id="div-power"></div>
         <div class="content nodisplay" id="div-raw">
             <br>
-            <button id="btn-load-raw">Load</button>
-            <button id="btn-reset-raw">Refresh</button>
-            <span id="raw-err"></span>
+            <span class="iitem" title="Type anything you want and press load to load that new location. The default is a blank location.">Save:</span><input id="ipt-save-loc"><br>
+            <span class="iitem" title="URL of a webpage containing raw data in this format to load.">Webpage:</span><input id="ipt-web-loc"><button id="btn-grab">Load</button>
             <br>
             <textarea id="raw-data-textarea" style="width:400px;height:400px;margin-top:5px;"></textarea>
+            <br>
+            <button id="btn-load-raw">Load</button>
+            <button id="btn-reset-raw">Refresh</button>
+            <button id="btn-download">Download</button>
+            <span id="raw-err"></span>
         </div>
     </section>
     <footer></footer>

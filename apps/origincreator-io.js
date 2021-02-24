@@ -1,8 +1,9 @@
 
-function importThing(e) {
-    if (e.target.files.length) {
+function importThing(thing) {
+    if (thing.target.files.length) {
+        var file = thing.target.files[0];
         var zip = new JSZip();
-        zip.loadAsync(e.target.files[0]).then(function() {
+        zip.loadAsync(file).then(function() {
             // Honestly, screw async. People shouldn't be doing anything while importing.
             // Blocks an extra time to make time for this function to run fully.
             block(3, function() {
@@ -105,7 +106,7 @@ function importThing(e) {
                             }
                         }
                     } catch (err) {
-                        console.log("'" + file + "' IS NOT A VALID FILE");
+                        console.error("'" + file + "' IS NOT A VALID ZIP FILE");
                     } finally {
                         unblock();
                     }
@@ -114,9 +115,24 @@ function importThing(e) {
             
             // Unblock once to counteract extra block at beginning
             unblock();
-        }, function () {});
+        }, function () {
+            // Generally this means the file was an invalid zip file. So maybe it's a valid json file?
+            block();
+            var reader = new FileReader();
+            reader.onload = function(o) {
+                try {
+                    data = JSON.parse(o.target.result);
+                    save();
+                    location.reload();
+                } finally {
+                    unblock();
+                }
+            }
+            reader.onerror = function() {unblock()};
+            reader.readAsText(file);
+        });
     }
-    e.target.value = "";
+    thing.target.value = "";
 }
 
 function exportDatapack() {
@@ -218,4 +234,8 @@ function createData(dFolder) {
     for (const [id, lData] of Object.entries(data.power)) {
         createFile(dFolder, id, "powers", lData);
     }
+}
+
+function downloadRaw() {
+    saveAs(new Blob([JSON.stringify(data, null, 4)], {type: "text/plain;charset=utf-8"}), pid+".json");
 }
