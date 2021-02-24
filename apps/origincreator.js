@@ -100,7 +100,7 @@ function changeScreen(s) {
 
         // Load data into entry fields
         if (active) {
-            loadEntries(activeElem, active, forms[screen], true, subscreen);
+            loadEntries(0, activeElem, active, forms[screen], true, subscreen);
         }
     }
 }

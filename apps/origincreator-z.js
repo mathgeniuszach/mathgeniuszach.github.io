@@ -1,9 +1,4 @@
-// Function for deleting a submenu and hiding it
-function clearSub(btn) {
-    // 
-}
-
-function addListItem(btn) {
+function addListItem(btn, relevel=0) {
     var pnl = $(btn.parentElement);
     var lbtn = $(btn);
     
@@ -19,11 +14,13 @@ function addListItem(btn) {
     var ipanel = pnl.find(">._"+i);
     
     var iID = getPath(btn) + "--" + i;
-    insertForm(ipanel, "", locateForm(iID), iID, level+1);
+    var form = locateForm(iID);
+    insertForm(ipanel, "", form, iID, level+1);
     
     // Find data location to create item (javascript is very nice at this)
-    locateData(iID);
-    changeScreen(fullscreen); // HACK: only loading list item is necessary
+    var d = locateData(iID);
+    // Load list item specifically
+    loadEntries(relevel, ipanel, d, form);
     
     // Don't forget to save!
     save();

@@ -196,9 +196,11 @@ function insertData(key, type, item, extra) {
     if (type === "options") { // Options need to change the visible "more" panel
         if (loc) loc[key] = v;
         if (extra) {
-            findItem(datapath, extra).find(">div").addClass("nodisplay")
+            // For performace, removing hidden subpanels from the html might be a good idea.
+            var p = findItem(datapath, extra).find(">div");
+            p.addClass("nodisplay");
             findItem(datapath, extra, jqns(v)).removeClass("nodisplay");
-            changeScreen(fullscreen); // HACK: Only real way I can think of doing it
+            changeScreen(fullscreen); // HACK: this is lazy, but it's fine. I'll fix it like the others later.
         }
         save();
         return;
@@ -312,11 +314,12 @@ function insertData(key, type, item, extra) {
 
 // Internal function called to load data from a dictionary into entries based on a form.
 // +loadEntries(str rootid, dict data, dict form)
+//    - level - 
 //    - rootid - First part of the ID of the html elements to insert into. It does not need to point to an existing element.
 //    - data - Dictionary containing the values to insert into the form, and to clean.
 //    - form - Dictionary of a form containing the metadata of how to insert values.
 //    - id - id of the dictionary, necessary for filling in "id" types.
-function loadEntries(rootElem, data, form, del, id) {
+function loadEntries(level, rootElem, data, form, del, id) {
     "use strict";
     if (data && form) {
         var moreForms = [];
@@ -356,7 +359,7 @@ function loadEntries(rootElem, data, form, del, id) {
                         let cl = elems.length;
                         if (cl < list.length) { // Add elements if too few
                             let btn = elem.find(">.zlist-button").get(0);
-                            for (let i = cl; i < list.length; i++) addListItem(btn);
+                            for (let i = cl; i < list.length; i++) addListItem(btn, level);
                         } else if (cl > list.length) { // Remove elements if too many
                             for (let i = cl-1; i > list.length-1; i--) removeListItem_(elems.eq(i));
                         }
@@ -364,12 +367,12 @@ function loadEntries(rootElem, data, form, del, id) {
                         // Iterate over elements and load each individually
                         elems = elem.find(">div");
                         for (let i = 0; i < list.length; i++) {
-                            loadEntries(elems.eq(i), list[i], form[itemID].data, true)
+                            loadEntries(level+1, elems.eq(i), list[i], form[itemID].data, true)
                         }
                     }
                     break;
                 case "sub": // Fill in sub-forms
-                    loadEntries(elem, data[itemID], form[itemID].data, true);
+                    loadEntries(level+1, elem, data[itemID], form[itemID].data, true);
                     break;
                 case "dict": // AW no. At least not right now.
                     break;
@@ -398,10 +401,10 @@ function loadEntries(rootElem, data, form, del, id) {
                                 if (item.more[0] == "_") {
                                     // Load entries correctly if data isn't stored 
                                     moreForms.push(form[item.more].data[v])
-                                    loadEntries(more, data, form[item.more].data[v], false);
+                                    loadEntries(level+1, more, data, form[item.more].data[v], false);
                                 } else {
                                     if (!data[item.more]) data[item.more] = {};
-                                    loadEntries(more, data[item.more][v], form[item.more].data[v], true);
+                                    loadEntries(level+1, more, data[item.more][v], form[item.more].data[v], true);
                                 }
                             }
                         }
@@ -412,7 +415,7 @@ function loadEntries(rootElem, data, form, del, id) {
                     if (v) elem.val(v);
                     break;
                 case "id": // ID values are not based on the dictionary, but rather a unique value.
-                    elem.val(id);
+                    if (id !== undefined) elem.val(id); // IDs are only updated if provided.
                     break;
                 case "image":
                     elem.prevAll("img").first().attr("src", v);
@@ -593,8 +596,13 @@ function insertPanel(btn, itemID, type, level) {
     
     // After inserting panel, load entries
     if (/*loc && */subscreen != "help" && subscreen != "raw") {
-        //loadEntries(pnl, loc, locateForm(datapath, itemID));
-        changeScreen(fullscreen); // HACK: This is just laziness, loading just the changed panel is all that's necessary.
+        if (type == "list") {
+            loadEntries(level, pnl.parent(), locateData(datapath), locateForm(datapath), true); // Load list's parent only
+        } else {
+            loadEntries(level, pnl, loc, locateForm(datapath, itemID), true);
+        }
+        
+        //changeScreen(fullscreen); // HACK: This is just laziness, loading just the changed panel is all that's necessary.
     }
 }
 function removePanel(btn, itemID, type, level) {
