@@ -8,8 +8,9 @@ function importThing(thing) {
             // Blocks an extra time to make time for this function to run fully.
             block(3, function() {
                 save();
-                location.reload(); // FIXME: HACK: Lazy, but whatever.
+                //location.reload(); // FIXME: HACK: Lazy, but whatever.
             });
+            changeScreen("help");
             
             // Load metadata
             var mcmeta = zip.file("pack.mcmeta");
@@ -65,14 +66,23 @@ function importThing(thing) {
                     try {
                         var names = file.split(/[/.]/g);
                         
-                        if (names[0] == "data" && names.length > 2) {
-                            var idata = JSON.parse(o);
+                        if (names[0] == "data" && names.length > 2 && names[names.length-1]) {
                             var id = names[1] + ":" + names.slice(3, -1).join("/");
+                            var type = names[2].substring(0, names[2].length-1);
+
+                            var idata
+                            try {
+                                idata = JSON.parse(o);
+                            } catch (err) {
+                                loadOther(names, o);
+                                unblock();
+                                return;
+                            }
                             
                             switch (names[2]) {
                                 case "origin_layers":
                                     if (!data.layer[id]) {
-                                        $("#layers-group>.newitem").before(`<option class="ocitem" value="layer-${id}">${id}</option>`)
+                                        $("#layers-group>.newitem").before(`<option class="ocitem" value="layer-${id}">${id}</option>`);
                                     }
                                     
                                     let origins = [];
@@ -90,23 +100,40 @@ function importThing(thing) {
                                         }
                                     }
                                     break;
-                                case "origins":
-                                    if (!data.origin[id]) {
-                                        $("#origins-group>.newitem").before(`<option class="ocitem" value="layer-${id}">${id}</option>`)
+                                case "tags":
+                                    if (!data[type][id]) {
+                                        $("#" + type + "s-group>.newitem").before(`<option class="ocitem" value="${type}-${id}">${id}</option>`);
                                     }
                                     
-                                    data.origin[id] = idata;
-                                    break;
-                                case "powers":
-                                    if (!data.power[id]) {
-                                        $("#powers-group>.newitem").before(`<option class="ocitem" value="layer-${id}">${id}</option>`)
+                                    let values = [];
+                                    let rValues = [];
+                                    data.tag[id] = {
+                                        "replace": idata.replace,
+                                        "values": values,
+                                        "required_values": rValues
+                                    };
+                                    for (let v of idata.values) {
+                                        if (typeof(v) == "string") {
+                                            values.push(v);
+                                        } else {
+                                            rValues.push(v);
+                                        }
                                     }
-                                    data.power[id] = idata;
+                                    break;
+                                case "origins":
+                                case "powers":
+                                    if (!data[type][id]) {
+                                        $("#" + type + "s-group>.newitem").before(`<option class="ocitem" value="${type}-${id}">${id}</option>`);
+                                    }
+                                    data[type][id] = idata;
+                                    break;
+                                default:
+                                    loadOther(names, o);
                                     break;
                             }
                         }
                     } catch (err) {
-                        console.error("'" + file + "' IS NOT A VALID ZIP FILE");
+                        console.error(err);
                     } finally {
                         unblock();
                     }
@@ -133,6 +160,13 @@ function importThing(thing) {
         });
     }
     thing.target.value = "";
+}
+function loadOther(names, o) {
+    var id = names[1] + ":" + names.slice(0, -1).join("/") + "." + names[names.length-1];
+    if (!data.other[id]) {
+        $("#others-group>.newitem").before(`<option class="ocitem" value="other-${id}">${id}</option>`);
+    }
+    data.other[id] = {"data": o};
 }
 
 function exportDatapack() {
@@ -225,14 +259,22 @@ function createData(dFolder) {
         });
     }
     
-    // Create origins
-    for (const [id, lData] of Object.entries(data.origin)) {
-        createFile(dFolder, id, "origins", lData);
+    // Create a bunch of stuff
+    for (const type of ["origin", "power"]) {
+        for (const [id, lData] of Object.entries(data[type])) {
+            createFile(dFolder, id, type+"s", lData);
+        }
     }
-    
-    // Create powers
-    for (const [id, lData] of Object.entries(data.power)) {
-        createFile(dFolder, id, "powers", lData);
+
+    // Create tags
+    for (const [id, lData] of Object.entries(data.tag)) {
+        let values = lData.values;
+        if (lData.required_values) values = values.concat(lData.required_values);
+
+        createFile(dFolder, id, "tags", {
+            "replace": lData.replace || false,
+            "values": values
+        });
     }
 }
 

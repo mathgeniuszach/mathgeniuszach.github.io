@@ -12,6 +12,7 @@ function addListItem(btn, relevel=0) {
     
     lbtn.before(`<div name="${i}" class="${cs} m _${i}"><button class="mb zlist-button sbutton" onclick="copyListItem(this)">+</button><button class="mb zlist-button sbutton" onclick="removeListItem(this)">-</button><button class="mb zlist-button sbutton" onclick="listItemUp(this)">˄</button><button class="mb zlist-button sbutton" onclick="listItemDown(this)">˅</button><br></div><br>`);
     var ipanel = pnl.find(">._"+i);
+    ipanel.addClass("selectable");
     
     var iID = getPath(btn) + "--" + i;
     var form = locateForm(iID);
@@ -53,6 +54,7 @@ function copyListItem(btn) {
     // Clone element (and <br>)
     var clone = pnl.clone().insertAfter(pnl);
     clone.before("<br>");
+    clone.click(selectPanel);
     
     // Move all elements below down one (This is why the rewrite was required)
     var elems = pnlp.find(">div");

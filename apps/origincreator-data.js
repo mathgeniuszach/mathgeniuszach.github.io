@@ -46,7 +46,7 @@ condition_data.type = {
     "name": "Type",
     "type": "options",
     "desc": "The most important field in the condition. Specifies an ID of a condition to check for.",
-    "more": "_type_options"
+    "more": "__type_options"
 };
 condition_data.inverted = {
     "name": "Inverted",
@@ -54,7 +54,7 @@ condition_data.inverted = {
     "desc": "If set to true, Origins will instead check that this condition is NOT fulfilled.",
     "default": false
 };
-condition_data._type_options = {
+condition_data.__type_options = {
     "type": "more",
     "parent": "type",
     "data": {
@@ -403,14 +403,14 @@ block_condition_data.type = {
     "name": "Type",
     "type": "options",
     "desc": "The most important field in the condition. Specifies an ID of a condition to check for.",
-    "more": "_type_options"
+    "more": "__type_options"
 }
 block_condition_data.inverted = {
     "name": "Inverted",
     "type": "checkbox",
     "desc": "If set to true, Origins will instead check that this condition is NOT fulfilled."
 }
-block_condition_data._type_options = {
+block_condition_data.__type_options = {
     "type": "more",
     "parent": "type",
     "data": {
@@ -515,14 +515,14 @@ item_condition_data.type = {
     "name": "Type",
     "type": "options",
     "desc": "The most important field in the condition. Specifies an ID of a condition to check for.",
-    "more": "_type_options"
+    "more": "__type_options"
 }
 item_condition_data.inverted = {
     "name": "Inverted",
     "type": "checkbox",
     "desc": "If set to true, Origins will instead check that this condition is NOT fulfilled."
 }
-item_condition_data._type_options = {
+item_condition_data.__type_options = {
     "type": "more",
     "parent": "type",
     "data": {
@@ -617,14 +617,14 @@ damage_condition_data.type = {
     "name": "Type",
     "type": "options",
     "desc": "The most important field in the condition. Specifies an ID of a condition to check for.",
-    "more": "_type_options"
+    "more": "__type_options"
 }
 damage_condition_data.inverted = {
     "name": "Inverted",
     "type": "checkbox",
     "desc": "If set to true, Origins will instead check that this condition is NOT fulfilled."
 }
-damage_condition_data._type_options = {
+damage_condition_data.__type_options = {
     "type": "more",
     "parent": "type",
     "data": {
@@ -680,14 +680,14 @@ fluid_condition_data.type = {
     "name": "Type",
     "type": "options",
     "desc": "The most important field in the condition. Specifies an ID of a condition to check for.",
-    "more": "_type_options"
+    "more": "__type_options"
 }
 fluid_condition_data.inverted = {
     "name": "Inverted",
     "type": "checkbox",
     "desc": "If set to true, Origins will instead check that this condition is NOT fulfilled."
 }
-fluid_condition_data._type_options = {
+fluid_condition_data.__type_options = {
     "type": "more",
     "parent": "type",
     "data": {
@@ -923,9 +923,9 @@ entity_action_data.type = {
     "name": "Type",
     "type": "options",
     "desc": "The type of entity action.",
-    "more": "_type_options"
+    "more": "__type_options"
 };
-entity_action_data._type_options = {
+entity_action_data.__type_options = {
     "type": "more",
     "parent": "type",
     "data": {
@@ -1157,9 +1157,9 @@ block_action_data.type = {
     "name": "Type",
     "type": "options",
     "desc": "The type of block action.",
-    "more": "_type_options"
+    "more": "__type_options"
 };
-block_action_data._type_options = {
+block_action_data.__type_options = {
     "type": "more",
     "parent": "type",
     "data": {
@@ -1258,9 +1258,9 @@ item_action_data.type = {
     "name": "Type",
     "type": "options",
     "desc": "The type of item action.",
-    "more": "_type_options"
+    "more": "__type_options"
 };
-item_action_data._type_options = {
+item_action_data.__type_options = {
     "type": "more",
     "parent": "type",
     "data": {
@@ -1385,8 +1385,7 @@ var forms = {
             "desc": "IDs of origins to include in this layer.",
             "data": {
                 "": {
-                    "type": "ns",
-                    "desc": ""
+                    "type": "ns"
                 }
             }
         },
@@ -1407,8 +1406,7 @@ var forms = {
                     "desc": "IDs of origins to include in this layer conditionally.",
                     "data": {
                         "": {
-                            "type": "ns",
-                            "desc": ""
+                            "type": "ns"
                         }
                     }
                 }
@@ -1454,8 +1452,7 @@ var forms = {
             "desc": "A list of powers which this origin should have.",
             "data": {
                 "": {
-                    "type": "text",
-                    "desc": ""
+                    "type": "text"
                 }
             }
         },
@@ -1482,7 +1479,7 @@ var forms = {
                 },
                 "origin": {
                     "name": "Origin ID",
-                    "type": "text",
+                    "type": "ns",
                     "desc": "Origin to upgrade to when the advancement has been met."
                 },
                 "announcement": {
@@ -1530,9 +1527,9 @@ var forms = {
             "name": "Type",
             "type": "options",
             "desc": "The most important field. ID of a power type, defining how this power behaves and which other fields are required. Check the wiki for more information.",
-            "more": "_type_options"
+            "more": "__type_options"
         },
-        "_type_options": {
+        "__type_options": {
             "name": "",
             "type": "more",
             "desc": "Options specific to the type of power.",
@@ -1608,8 +1605,7 @@ var forms = {
                         "desc": "If specified, the effects with these IDs can not be applied to the player.",
                         "data": {
                             "": {
-                                "type": "ns",
-                                "desc": ""
+                                "type": "ns"
                             }
                         }
                     }
@@ -2267,6 +2263,56 @@ var forms = {
                     }
                 }
             }
+        }
+    },
+    "tag": {
+        "id": {
+            "name": "ID",
+            "type": "id",
+            "desc": "The namespace and id of this tag. Make sure it contains at least one folder; e.g. minecraft:functions/tick.json"
+        },
+        "replace": {
+            "name": "Replace",
+            "type": "checkbox",
+            "desc": "Whether to replace an already existing loaded tag."
+        },
+        "values": {
+            "name": "Values",
+            "type": "list",
+            "desc": "A list of things and other tags to include in this tag.",
+            "data": {
+                "": {
+                    "type": "ns"
+                }
+            }
+        },
+        "required_values": {
+            "name": "Required Values",
+            "type": "list",
+            "desc": "A list of required things and other tags to include in this tag. Required things differ in that they must be present in order for the entire tag to load.",
+            "data": {
+                "id": {
+                    "name": "ID",
+                    "type": "ns",
+                    "desc": "An id or another tag"
+                },
+                "required": {
+                    "name": "Required",
+                    "type": "checkbox",
+                    "desc": "Whether or not this thing is required.",
+                    "default": true
+                }
+            }
+        }
+    },
+    "other": {
+        "id": {
+            "name": "ID",
+            "type": "id",
+            "desc": "The ID of this other thing, with namespace, folders, and file extension."
+        },
+        "data": {
+            "type": "ace"
         }
     }
 };

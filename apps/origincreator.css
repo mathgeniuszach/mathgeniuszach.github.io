@@ -29,6 +29,10 @@ input.ientry[type="file"] {
     margin-bottom: 3px;
 }
 
+.content {
+    /* TODO: figure out a way to make the page expand with the content */
+}
+
 .panel {
     margin-bottom: 10px;
     vertical-align: top;
@@ -39,6 +43,9 @@ input.ientry[type="file"] {
 }
 .mb {
     margin-bottom: 10px;
+}
+.mb2 {
+    margin-bottom: 5px;
 }
 
 .sbutton {

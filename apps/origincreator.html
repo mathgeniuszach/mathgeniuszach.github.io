@@ -4,7 +4,8 @@
     <script data-ad-client="ca-pub-8932289367183622" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
     
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <!--<script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+
     <script src="/js/main.js"></script>
     <script src="origincreator-io.js"></script>
     <script src="origincreator-z.js"></script>
@@ -13,6 +14,7 @@
     <script src="origincreator.js"></script>
     
     <!-- Cheat by getting these files from another github.io site unlikely to go down -->
+    <!-- And if it does go down, my site is probably down too -->
     <script src="https://stuk.github.io/jszip/vendor/FileSaver.js"></script>
     <script src="https://stuk.github.io/jszip/dist/jszip.min.js"></script>
     
@@ -50,6 +52,12 @@
             <optgroup id="powers-group" label="Powers">
                 <option class="newitem" value="power-+">+</option>
             </optgroup>
+            <optgroup id="tags-group" label="Tags">
+                <option class="newitem" value="tag-+">+</option>
+            </optgroup>
+            <optgroup id="others-group" label="Other">
+                <option class="newitem" value="other-+">+</option>
+            </optgroup>
         </select>
         <div class="button-group">
             <button id="btn-import">Import</button>
@@ -73,9 +81,9 @@
             
             <p>Before editing anything, you should add metadata to your work so people know it was you who made it. You can do this by clicking the "Metadata" item in the left box. This help page will then be replaced by an editor for metadata, and most of the entries in the editor are self-explanitory.</p>
             
-            <p>If you already have a datapack or mod you want to edit, press the "Import" button in the bottom left and select the item you want to edit on your Computer. Note that this button will <i>merge</i> all of the content from that item into your workspace, replacing anything that it can. Note that imports will NOT maintain tags, functions, or anything else besides layers, origins, and powers. You must add those in manually to an exported datapack.</p>
+            <p>If you already have a datapack or mod you want to edit, press the "Import" button in the bottom left and select the item you want to edit on your Computer. Note that this button will <i>merge</i> all of the content from that item into your workspace, replacing anything that it can.</p>
             
-            <p>After adding metadata, you can add data items by using the "+" option beneath one of the "Layers", "Origins", and "Powers" groups at the left of the page. After adding anything, it should select and open up an editor for that item. You can switch between items by clicking them in the left pane. You can also press the "Delete" button to delete the item you have selected, or the "Reset" button to delete all your progress and return to this page.</p>
+            <p>After adding metadata, you can add data items by using the "+" option beneath one of the groups at the left of the page. After adding anything, it should select and open up an editor for that item. You can switch between items by clicking them in the left pane. You can also press the "Delete" button to delete the item you have selected, or the "Reset" button to delete all your progress and return to this page. One thing to note, if you are adding a <a href="https://minecraft.gamepedia.com/Tag">tag</a>, <i>MAKE SURE</i> you rename it to include at least one folder, otherwise minecraft will not detect it's type.</p>
             
             <p>For information, here's what each of the different grouped items are:</p>
             <ul>
@@ -112,22 +120,32 @@
                 </li>
             </ul>
         </div>
-        <div name="meta" class="content nodisplay _meta" id="div-meta"></div>
-        <div name="layer" class="content nodisplay _layer" id="div-layer"></div>
-        <div name="origin" class="content nodisplay _origin" id="div-origin"></div>
-        <div name="power" class="content nodisplay _power" id="div-power"></div>
         <div class="content nodisplay" id="div-raw">
             <br>
             <span class="iitem" title="Type anything you want and press load to load that new location. The default is a blank location.">Save:</span><input id="ipt-save-loc"><br>
-            <span class="iitem" title="URL of a webpage containing raw data in this format to load.">Webpage:</span><input id="ipt-web-loc"><button id="btn-grab">Load</button>
+            <span class="iitem" title="URL of a webpage containing raw data in this format to load.">Webpage:</span><input class="mb2" id="ipt-web-loc"><button id="btn-grab" style="position:relative;top:-11px;left:5px;">Load</button>
             <br>
-            <textarea id="raw-data-textarea" style="width:400px;height:400px;margin-top:5px;"></textarea>
-            <br>
-            <button id="btn-load-raw">Load</button>
+            <div class="ace mb2" id="raw-data-ace" style="width:600px;height:400px;"></div>
+            <button id="btn-load-raw">Save Raw</button>
             <button id="btn-reset-raw">Refresh</button>
             <button id="btn-download">Download</button>
             <span id="raw-err"></span>
         </div>
+        <div name="i-raw" class="content nodisplay" id="div-i-raw">
+            <button class="mb2" id="btn-toggle-i-raw">Toggle Raw</button>
+            <div class="nodisplay" id="div-i-raw-i">
+                <button class="mb2" id="btn-save-i-raw">Save Raw</button>
+                <button id="btn-reset-i-raw">Refresh</button>
+                <span id="i-raw-err"></span>
+                <div class="ace" id="i-raw-data-ace"></div>
+            </div>
+        </div>
+        <div name="meta" class="content nodisplay _meta" id="div-meta"></div>
+        <div name="layer" class="content nodisplay _layer" id="div-layer"></div>
+        <div name="origin" class="content nodisplay _origin" id="div-origin"></div>
+        <div name="power" class="content nodisplay _power" id="div-power"></div>
+        <div name="tag" class="content nodisplay _tag" id="div-tag"></div>
+        <div name="other" class="content nodisplay _other" id="div-other"></div>
     </section>
     <footer></footer>
 </body>

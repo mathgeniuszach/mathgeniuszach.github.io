@@ -7,23 +7,19 @@ function loadData(ocd) {
     
     // Delete any lingering items
     $('.ocitem').remove();
-    delete data["layer"]["origins:origin"];
 
     // Load into data
     data = JSON.parse(ocd);
 
     // Create items in listbox
-    let item = $("#layers-group>.newitem");
-    for (const itemid in data["layer"]) {
-        item.before(`<option class="ocitem" value="layer-${itemid}">${itemid}</option>`);
-    }
-    item = $("#origins-group>.newitem");
-    for (const itemid in data["origin"]) {
-        item.before(`<option class="ocitem" value="origin-${itemid}">${itemid}</option>`);
-    }
-    item = $("#powers-group>.newitem");
-    for (const itemid in data["power"]) {
-        item.before(`<option class="ocitem" value="power-${itemid}">${itemid}</option>`);
+    let item
+    for (const type of types) {
+        if (data[type]) {
+            item = $("#" + type + "s-group>.newitem");
+            for (const itemid of Object.keys(data[type])) {
+                item.before(`<option class="ocitem" value="${type}-${itemid}">${itemid}</option>`);
+            }
+        }
     }
     
     // Change the header in the Metadata
@@ -101,7 +97,7 @@ function locateData(datapath, nosub) {
     // Finish finding location (here because maybe meta has a panel)
     for (let i = 1; i < spath.length; i++) {
         if (spath[i][0] === "_") { // Skip things that don't want to be stored
-            i++;
+            if (spath[i][1] === "_") i++;
         } else if (spath[i][0] === "-") { // Handle lists
             let newLoc = loc[spath[i].substring(1)];
             // If the list doesn't exist, it needs to be created
@@ -310,8 +306,14 @@ function loadEntries(level, rootElem, data, form, del, id) {
 
             // Make sure subpanels are expanded or hidden as needed
             if (item.type == "list" || item.type == "sub" || item.type == "dict") {
-                var c = elem.children();
-                if (data[itemID] && c.length == 1 || (!data[itemID]) && c.length > 1) c.get(0).click();
+                let c = elem.children();
+                if (data[itemID] && c.length == 1) {
+                    // Panel needs to be added
+                    insertPanel(c.get(0));
+                } else if ((!data[itemID]) && c.length > 1) {
+                    // Panel needs to be removed
+                    removePanel(c.get(0));
+                }
             }
 
             switch (item.type) {
@@ -346,13 +348,12 @@ function loadEntries(level, rootElem, data, form, del, id) {
                 case "options": // Load option and more
                     // Load more
                     if (item.options) {
-                        if (!v) {
-                            v = item.options[0];
-                        }
+                        if (!v) v = item.options[0];
+                        if (!item.options.includes(v)) v = "???";
                     } else if (item.more) {
-                        if (!v) {
-                            v = Object.keys(form[item.more].data)[0];
-                        }
+                        let keys = Object.keys(form[item.more].data);
+                        if (!v) v = keys[0];
+                        if (!keys.includes(v)) v = "???";
 
                         let mores = findChildItem(rootElem, item.more);
                         mores.children().addClass("nodisplay");
@@ -364,9 +365,13 @@ function loadEntries(level, rootElem, data, form, del, id) {
                             // TODO: else statement for custom things here
                             if (form[item.more].data[v]) {
                                 if (item.more[0] == "_") {
-                                    // Load entries correctly if data isn't stored 
-                                    moreForms.push(form[item.more].data[v])
-                                    loadEntries(level+1, more, data, form[item.more].data[v], false);
+                                    if (item.more[1] == "_") {
+                                        // Load entries correctly if data isn't stored 
+                                        moreForms.push(form[item.more].data[v])
+                                        loadEntries(level+1, more, data, form[item.more].data[v], false);
+                                    } else {
+                                        // I don't need to deal with this case right now.
+                                    }
                                 } else {
                                     if (!data[item.more]) data[item.more] = {};
                                     loadEntries(level+1, more, data[item.more][v], form[item.more].data[v], true);
@@ -374,10 +379,13 @@ function loadEntries(level, rootElem, data, form, del, id) {
                             }
                         }
                     }
-                    if (data[itemID] !== v) {
+                    if (v != "???" && data[itemID] !== v) {
                         data[itemID] = v;
                     }
                     if (v) elem.val(v);
+                    break;
+                case "ace":
+                    ace.edit(elem.attr("id")).setValue(v, -1);
                     break;
                 case "id": // ID values are not based on the dictionary, but rather a unique value.
                     if (id !== undefined) elem.val(id); // IDs are only updated if provided.
@@ -390,11 +398,26 @@ function loadEntries(level, rootElem, data, form, del, id) {
                         v = false;
                         data[itemID] = v;
                     }
+                    //if (v === "") v = false;
+                    //if (item.default === undefined) {
+                        //if (v) data[itemID] = v;
+                        //else delete data[itemID];
+                    //} else {
+                        //if (v === item.default) data[itemID] = v;
+                        //else delete data[itemID];
+                    //}
                     elem.prop("checked", v);
                 default:
                     // Every other element
                     elem.val(v);
                     break;
+            }
+
+            // Make sure data is stored in the right format regardless.
+            if (item.type != "dict" && item.type != "sub" && item.type != "list" && item.type != "more") {
+                if (item.type != "options" || v != "???") {
+                    if (data[itemID] !== undefined && data[itemID] !== v) data[itemID] = v;
+                }
             }
         }
 
@@ -425,7 +448,11 @@ function insertForm(loc, header, form, datapath, level=0) {
         let elemID = datapath + "-" + itemID;
         // Append Div for item and description
         if (item.name) {
-            loc.append(`<span class="iitem" title="${item.desc}">${item.name}:</span>`);
+            if (item.desc) {
+                loc.append(`<span class="iitem" title="${item.desc}">${item.name}:</span>`);
+            } else {
+                loc.append(`<span class="iitem">${item.name}:</span>`);
+            }
         }
         
         // Get default value if available
@@ -471,6 +498,11 @@ function insertForm(loc, header, form, datapath, level=0) {
                 items.push("</select>");
                 loc.append(items.join(""));
                 break;
+            case "ace":
+                loc.append(`<div class="flex m mb2"><button onclick="saveAce(${xn}, '${itemID}')">Save</button>&nbsp;Autosave:&nbsp;<select onchange="changeAutosave(${xn}, '${itemID}', this.value)"><option value="0">focus lost only</option><option value="10">10 sec</option><option value="20">20 sec</option><option value="30">30 sec</option><option value="60">1 min</option></select></div><div id="ace-${xn}" name="${itemID}" class="iblock _${itemID} ace" onfocusout="saveAce(${xn}, '${itemID}')"></div><br><div class="iitem"></div>`);
+                setupAce("ace-"+xn, "ace/mode/text");
+                xn++;
+                break;
             default:
                 // If it's not any of the above options, it has a panel, and we wait to create fields for it until the user expands it (except in more's case). If we didn't do this, we would have infinite recursion problems.
                 elemID = datapath + "--" + itemID;
@@ -508,9 +540,9 @@ function insertForm(loc, header, form, datapath, level=0) {
                         continue;
                     }
                     
-                    // FIXME: I'm more comfortable just letting everything be hidden for now. No need to deal with the other issues right now.
+                    // I'm more comfortable just letting everything be hidden for now. No need to deal with the other issues right now.
                     //if (item.hidden) { // protect against infinite recursion in the laziest way possible
-                        loc.append(`<div name="${lID}" class="${cs} _${lID}"><button class="sbutton" onclick='insertPanel(this, "${lID}", "${item.type}", ${level+1})'>+</button></div>`);
+                        loc.append(`<div ttype="${item.type}" llevel=${level+1} name="${lID}" class="${cs} _${lID}"><button class="sbutton" onclick='insertPanel(this)'>+</button></div>`);
                     /*} else {
                         loc.append(`<div name="${lID}" class="${cs} _${lID}"><button class="sbutton" onclick='removePanel(this, "${lID}", "${item.type}", ${level+1})'>-</button></div>`);
                     
@@ -536,19 +568,26 @@ function insertForm(loc, header, form, datapath, level=0) {
     }
 };
 
-function insertPanel(btn, itemID, type, level) {
+function insertPanel(btn) {
     "use strict";
+    // Get important variables
+    var pnl = $(btn.parentElement);
+    var itemID = pnl.attr("name");
+    var type = pnl.attr("ttype");
+    var level = parseInt(pnl.attr("llevel"));
+
     // Create some variables
     var datapath = getPath(btn.parentElement);
     var elemID = datapath + "--" + itemID;
     var loc = locateData(elemID); // Populates data, is actually necessary
-    var pnl = findItem(datapath, itemID);
     
     // Change button to "hide"
-    var sbtn = pnl.find(">button");
+    var sbtn = $(btn);
     sbtn.text("-");
-    sbtn.attr("onclick", `removePanel(this, "${itemID}", "${type}", ${level})`);
+    sbtn.attr("onclick", `removePanel(this)`);
     
+    pnl.addClass("selectable");
+
     switch (type) {
         case "list": // Lists just need to have an add button added, as loadEntries handles the rest of it
             pnl.append(`<br><button level=${level} class="m zlist-button sbutton" onclick='addListItem(this)'>+</button><button class="m zlist-button sbutton" onclick='clearList(this, "${itemID.substring(1)}")'>C</button>`);
@@ -574,16 +613,19 @@ function insertPanel(btn, itemID, type, level) {
         //changeScreen(fullscreen); // HACK: This is just laziness, loading just the changed panel is all that's necessary.
     }
 }
-function removePanel(btn, itemID, type, level) {
+function removePanel(btn) {
     // Remove data from raw data
     var spath = getPath(btn).replace("-_-", ":").split("--");
     var key = spath[spath.length-1];
     if (key[0] == "-") key = key.substring(1);
     
     delete locateData(spath.slice(0, -1).join("--"))[key];
+    save();
     
     // Remove html
-    $(btn.parentElement).html(`<button class="sbutton" onclick='insertPanel(this, "${itemID}", "${type}", ${level})'>+</button>`);
+    var pnl = $(btn.parentElement);
+    pnl.removeClass("selectable");
+    pnl.html(`<button class="sbutton" onclick='insertPanel(this)'>+</button>`);
 }
 
 // Generate a unique id of a layer, origin, or power based on the type and n.
@@ -694,4 +736,25 @@ function itemDown() {
             save();
         }
     }
+}
+
+// Ace functions
+function saveAce(id, itemID) {
+    var e = $("#ace-"+id).get(0);
+    if (!e) window.clearInterval(editOptions[id].autosave);
+
+    var d = locateData(getPath(e));
+    d[itemID] = ace.edit(e.id).getValue();
+    save();
+}
+
+function changeAutosave(id, itemID, value) {
+    if (!editOptions[id]) {
+        editOptions[id] = {};
+    } else if (editOptions[id].autosave) {
+        window.clearInterval(editOptions[id].autosave);
+    }
+
+    var v = parseInt(value)*1000;
+    if (v) editOptions[id].autosave = window.setInterval(saveAce.bind(this, id, itemID), v);
 }

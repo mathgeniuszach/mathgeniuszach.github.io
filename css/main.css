@@ -2,9 +2,11 @@
     --box-color: #f6f6f6;
     --box-color-dark: #e7e7e7;
     --box-color-darkest: #d8d8d8;
+    --box-color-selected: #ccf6f6;
     --box-border-color: #cccccc;
     --box-border-color-dark: #bbbbbb;
     --box-border-color-darkest: #aaaaaa;
+    --box-border-color-selected: #99cccc;
     --box-border-width: 2px;
 }
 
@@ -36,7 +38,7 @@ h1 {
 }
 h2 {
     font-size: 1.7em;
-    margin-top: 20px;
+    margin-top: 10px;
     margin-bottom: 5px;
 }
 
@@ -68,6 +70,7 @@ aside {
     padding: 5px;
     width: 200px;
     
+    z-index: 10;
     display: flex;
     flex-direction: column;
     border: var(--box-border-width) solid var(--box-border-color);
@@ -100,7 +103,7 @@ aside .button-group {
 header {
     position: fixed;
     top: 0;
-    z-index: 1;
+    z-index: 15;
     width: 100%;
     height: 76px;
     display: block;
@@ -115,7 +118,7 @@ nav {
 }
 footer {
     position: fixed;
-    z-index: 1;
+    z-index: 10;
     bottom: 0;
     width: 100%;
     height: 41px;
@@ -192,6 +195,10 @@ footer {
 }
 
 /* containers */
+.flex {
+    display: flex;
+    align-items: center;
+}
 .content {
     width: 100%;
 }
@@ -212,6 +219,18 @@ footer {
     border: var(--box-border-width) solid var(--box-border-color-darkest);
     background-color: var(--box-color-darkest);
 }
+.panel-selected {
+    border: var(--box-border-width) solid var(--box-border-color-selected);
+    background-color: var(--box-color-selected);
+}
+
+.ace {
+    resize: both;
+    overflow: auto;
+    width: 500px; height: 175px;
+    /*margin-top: 5px;*/
+    border: var(--box-border-width) solid var(--box-border-color);
+}
 
 .hidden {
     position: absolute;
@@ -225,11 +244,11 @@ footer {
     left: 20px;
 }
 #page-blocker {
-    position: absolute;
+    position: fixed;
     left: 0px;
     top: 0px;
     width: 100%;
     height: 100%;
     background-color: #ffffff80;
-    z-index: 5;
+    z-index: 100;
 }
