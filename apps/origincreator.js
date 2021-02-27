@@ -166,7 +166,7 @@ function changeScreen(s) {
     fullscreen = s;
     [screen, subscreen] = splitScreen(s);
     if (subscreen == "+") {
-        if (!data[screen]) data[screen] = {}
+        if (!data[screen]) data[screen] = {};
         // For new items
         switch (screen) {
             case "layer":

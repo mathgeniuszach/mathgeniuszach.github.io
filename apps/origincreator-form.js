@@ -281,6 +281,7 @@ function loadEntries(level, rootElem, data, form, del, id) {
     "use strict";
     if (data && form) {
         var moreForms = [];
+        var nodel = false;
 
         // Load data
         for (const [itemID, item] of Object.entries(form)) {
@@ -349,11 +350,17 @@ function loadEntries(level, rootElem, data, form, del, id) {
                     // Load more
                     if (item.options) {
                         if (!v) v = item.options[0];
-                        if (!item.options.includes(v)) v = "???";
+                        if (!item.options.includes(v)) {
+                            v = "???";
+                            nodel = true;
+                        }
                     } else if (item.more) {
                         let keys = Object.keys(form[item.more].data);
                         if (!v) v = keys[0];
-                        if (!keys.includes(v)) v = "???";
+                        if (!keys.includes(v)) {
+                            v = "???";
+                            nodel = true;
+                        }
 
                         let mores = findChildItem(rootElem, item.more);
                         mores.children().addClass("nodisplay");
@@ -366,11 +373,12 @@ function loadEntries(level, rootElem, data, form, del, id) {
                             if (form[item.more].data[v]) {
                                 if (item.more[0] == "_") {
                                     if (item.more[1] == "_") {
-                                        // Load entries correctly if data isn't stored 
-                                        moreForms.push(form[item.more].data[v])
+                                        // Load entries correctly if data isn't stored
+                                        moreForms.push(form[item.more].data[v]);
                                         loadEntries(level+1, more, data, form[item.more].data[v], false);
                                     } else {
                                         // I don't need to deal with this case right now.
+                                        console.log("I SHOULD NOT RUN");
                                     }
                                 } else {
                                     if (!data[item.more]) data[item.more] = {};
@@ -422,7 +430,7 @@ function loadEntries(level, rootElem, data, form, del, id) {
         }
 
         // Trash unused data
-        if (del && typeof(data) === "object") {
+        if (!nodel && del && typeof(data) === "object") {
             loopouter:
             for (const key of Object.keys(data)) {
                 if (!(key in form)) {
@@ -605,12 +613,11 @@ function insertPanel(btn) {
     // After inserting panel, load entries
     if (/*loc && */subscreen != "help" && subscreen != "raw") {
         if (type == "list") {
-            loadEntries(level, pnl.parent(), locateData(datapath), locateForm(datapath), true); // Load list's parent only
+            loadEntries(level, pnl.parent(), locateData(datapath), locateForm(datapath)); // Load list's parent only.
+            // changeScreen(fullscreen); // this is unavailable and will cause infinite recursion errors.
         } else {
             loadEntries(level, pnl, loc, locateForm(datapath, itemID), true);
         }
-        
-        //changeScreen(fullscreen); // HACK: This is just laziness, loading just the changed panel is all that's necessary.
     }
 }
 function removePanel(btn) {
