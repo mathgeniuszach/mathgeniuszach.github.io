@@ -86,9 +86,7 @@ function importThing(thing) {
                 if (!mcmeta) {
                     for (let [file, filedata] of Object.entries(zip.files)) {
                         let slash = file.indexOf("/");
-                        console.log(file);
                         if (slash != -1 && file.substring(slash+1) == "pack.mcmeta") {
-                            console.log("found")
                             mcmeta = filedata;
                             break;
                         }
@@ -136,7 +134,6 @@ function importThing(thing) {
     thing.target.value = "";
 }
 function loadImportData(zip) {
-    console.log(page_blockers, Object.keys(zip.files).length-1);
     block(Object.keys(zip.files).length-1);
     for (let [file, filedata] of Object.entries(zip.files)) {
         filedata.async("text").then(function(o) {
@@ -232,7 +229,6 @@ function loadImportData(zip) {
             }
         }, function() {unblock()})
     }
-    unblock();
 }
 function putLoadedData(d, type, folders, id) {
     var loc = data;
