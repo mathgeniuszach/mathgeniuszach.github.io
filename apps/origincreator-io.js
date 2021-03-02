@@ -6,26 +6,58 @@ function importThing(thing) {
         zip.loadAsync(file).then(function() {
             // Honestly, screw async. People shouldn't be doing anything while importing.
             // Blocks an extra time to make time for this function to run fully.
-            block(3, function() {
+            block(2, function() {
                 save();
-                //location.reload(); // FIXME: HACK: Lazy, but whatever.
+                loadData(JSON.stringify(data));
+                //location.reload();
             });
-            changeScreen("help");
+            //changeScreen("help");
+
+            // Reset data
+            data = {
+                "$": 2, // Version number to know how to convert data
+                "meta": {
+                    "name": "My Pack",
+                    "id": "mypack"
+                },
+                "origin_layers/": {},
+                "origins/": {},
+                "powers/": {},
+                "tags/": {
+                    "blocks/": {},
+                    "entity_types/": {},
+                    "fluids/": {},
+                    "functions/": {},
+                    "items/": {}
+                },
+                "functions/": {}
+            }
+            
+            // Load icon (if available)
+            var icon = zip.file("pack.png");
+            if (!icon) {
+                // Do some digging to see if pack.png is inside a subfolder
+                for (let [file, filedata] of Object.entries(zip.files)) {
+                    let slash = file.indexOf("/");
+                    if (slash != -1 && file.substring(slash+1) == "pack.png") {
+                        icon = filedata;
+                        break;
+                    }
+                }
+            }
+            if (icon) {
+                block();
+                icon.async("base64").then(function (o) {
+                    data.meta.icon = "data:image/png;base64,"+o;
+                    unblock();
+                }, function () {unblock()})
+            }
             
             // Load metadata
-            var mcmeta = zip.file("pack.mcmeta");
-            var fabric = zip.file("fabric.mod.json")
-            if (mcmeta) {
-                mcmeta.async("text").then(function(o) {
-                    try {
-                        Object.assign(data.meta, JSON.parse(o).pack);
-                        $("#side-main-head").text(data.meta.name);
-                        $("#div-meta h2").text("pack - " + data.meta.name);
-                    } finally {
-                        unblock();
-                    }
-                }, function() {unblock()});
-            } else if (fabric) {
+
+            // See if fabric is available (if so, this is a mod)
+            var fabric = zip.file("fabric.mod.json");
+            if (fabric) {
                 fabric.async("text").then(function(o) {
                     try {
                         var metadata = JSON.parse(o);
@@ -41,104 +73,46 @@ function importThing(thing) {
                         if (metadata.description) meta.description = metadata.description;
                         if (metadata.pack_format) meta.pack_format = metadata.pack_format
                         if (metadata.authors) meta.authors = metadata.authors.join(", ");
+
+                        pid = data.meta.id;
                     } finally {
+                        loadImportData(zip);
                         unblock();
                     }
                 }, function() {unblock()});
             } else {
-                unblock(2); // Exiting early means close unblock
-                return;
-            };
-            
-            // Load icon (if available)
-            var icon = zip.file("pack.png");
-            if (icon) icon.async("base64").then(function (o) {
-                data.meta.icon = "data:image/png;base64,"+o;
-                unblock();
-            }, function () {unblock()})
+                // Otherwise if fabric is not available, we need to do some digging for the pack.mcmeta file
+                var mcmeta = zip.file("pack.mcmeta");
+                if (!mcmeta) {
+                    for (let [file, filedata] of Object.entries(zip.files)) {
+                        let slash = file.indexOf("/");
+                        console.log(file);
+                        if (slash != -1 && file.substring(slash+1) == "pack.mcmeta") {
+                            console.log("found")
+                            mcmeta = filedata;
+                            break;
+                        }
+                    }
+                }
+                if (mcmeta) {
+                    mcmeta.async("text").then(function(o) {
+                        try {
+                            Object.assign(data.meta, JSON.parse(o).pack);
+                            $("#side-main-head").text(data.meta.name);
+                            $("#div-meta h2").text("pack - " + data.meta.name);
+                            pid = data.meta.id; // This is the only reason loadImportData exists
+                        } finally {
+                            loadImportData(zip);
+                            unblock();
+                        }
+                    }, function() {unblock()});
+                } else {
+                    unblock(2); // Exiting early means close unblock
+                    return;
+                };
+            }
             
             // Load content
-            var dFolder = zip.folder("data");
-            block(Object.keys(dFolder.files).length-1);
-            
-            for (const [file, filedata] of Object.entries(dFolder.files)) {
-                filedata.async("text").then(function(o) {
-                    try {
-                        var names = file.split(/[/.]/g);
-                        
-                        if (names[0] == "data" && names.length > 2 && names[names.length-1]) {
-                            var id = names[1] + ":" + names.slice(3, -1).join("/");
-                            var type = names[2].substring(0, names[2].length-1);
-
-                            var idata
-                            try {
-                                idata = JSON.parse(o);
-                            } catch (err) {
-                                loadOther(names, o);
-                                unblock();
-                                return;
-                            }
-                            
-                            switch (names[2]) {
-                                case "origin_layers":
-                                    if (!data.layer[id]) {
-                                        $("#layers-group>.newitem").before(`<option class="ocitem" value="layer-${id}">${id}</option>`);
-                                    }
-                                    
-                                    let origins = [];
-                                    let cOrigins = [];
-                                    data.layer[id] = {
-                                        "replace": idata.replace,
-                                        "origins": origins,
-                                        "conditional_origins": cOrigins
-                                    };
-                                    for (let v of idata.origins) {
-                                        if (typeof(v) == "string") {
-                                            origins.push(v);
-                                        } else {
-                                            cOrigins.push(v);
-                                        }
-                                    }
-                                    break;
-                                case "tags":
-                                    if (!data[type][id]) {
-                                        $("#" + type + "s-group>.newitem").before(`<option class="ocitem" value="${type}-${id}">${id}</option>`);
-                                    }
-                                    
-                                    let values = [];
-                                    let rValues = [];
-                                    data.tag[id] = {
-                                        "replace": idata.replace,
-                                        "values": values,
-                                        "required_values": rValues
-                                    };
-                                    for (let v of idata.values) {
-                                        if (typeof(v) == "string") {
-                                            values.push(v);
-                                        } else {
-                                            rValues.push(v);
-                                        }
-                                    }
-                                    break;
-                                case "origins":
-                                case "powers":
-                                    if (!data[type][id]) {
-                                        $("#" + type + "s-group>.newitem").before(`<option class="ocitem" value="${type}-${id}">${id}</option>`);
-                                    }
-                                    data[type][id] = idata;
-                                    break;
-                                default:
-                                    loadOther(names, o);
-                                    break;
-                            }
-                        }
-                    } catch (err) {
-                        console.error(err);
-                    } finally {
-                        unblock();
-                    }
-                }, function() {unblock()})
-            }
             
             // Unblock once to counteract extra block at beginning
             unblock();
@@ -161,12 +135,116 @@ function importThing(thing) {
     }
     thing.target.value = "";
 }
-function loadOther(names, o) {
-    var id = names[1] + ":" + names.slice(0, -1).join("/") + "." + names[names.length-1];
-    if (!data.other[id]) {
-        $("#others-group>.newitem").before(`<option class="ocitem" value="other-${id}">${id}</option>`);
+function loadImportData(zip) {
+    console.log(page_blockers, Object.keys(zip.files).length-1);
+    block(Object.keys(zip.files).length-1);
+    for (let [file, filedata] of Object.entries(zip.files)) {
+        filedata.async("text").then(function(o) {
+            try {
+                let names = file.split(/[/.]/g);
+                if (names[0] != "data" && names[1] == "data") names.splice(0, 1);
+
+                // Make sure this is a file and not a folder
+                if (names[0] == "data" && names.length > 2 && names[names.length-1]) {
+                    // Get the id from the path of the file
+                    let id = names[names.length-2];
+                    if (names[1] != pid) id = names[1] + ":" + id; // Check if namespace is needed
+                    if (names[2] == "functions") { // Check if filetype is needed
+                        if (names[names.length-1] != "mcfunction") id += "." + names[names.length-1];
+                    } else {
+                        if (names[names.length-1] != "json") id += "." + names[names.length-1];
+                    }
+                    let folders = names.slice(3, -2);
+                    
+                    let output;
+                    let ndata;
+                    // Check the type of this file. Determines what to do in other cases too
+                    switch (names[2]) {
+                        case "origin_layers":
+                            try {
+                                output = JSON.parse(o);
+
+                                let origins = [];
+                                let cOrigins = [];
+                                ndata = {
+                                    "replace": output.replace,
+                                    "origins": origins,
+                                    "conditional_origins": cOrigins
+                                };
+                                for (let v of output.origins) {
+                                    if (typeof(v) == "string") {
+                                        origins.push(v);
+                                    } else {
+                                        cOrigins.push(v);
+                                    }
+                                }
+                                putLoadedData(ndata, names[2], folders, id);
+                            } catch (err) {
+                                // This file is invalid and must be loaded outside of the proper folder
+                                folders.splice(0, 0, names[2]);
+                                putLoadedData(o, "invalid", folders, id);
+                            }
+                            break;
+                        case "tags":
+                            try {
+                                output = JSON.parse(o);
+
+                                let values = [];
+                                let rValues = [];
+                                ndata = {
+                                    "replace": output.replace,
+                                    "values": values,
+                                    "required_values": rValues
+                                };
+                                for (let v of output.values) {
+                                    if (typeof(v) == "string") {
+                                        values.push(v);
+                                    } else {
+                                        rValues.push(v);
+                                    }
+                                }
+                                putLoadedData(ndata, names[2], folders, id);
+                            } catch (err) {
+                                // This file is invalid and must be loaded outside of the proper folder
+                                folders.splice(0, 0, names[2]);
+                                putLoadedData(o, "invalid", folders, id);
+                            }
+                            break;
+                        case "origins":
+                        case "powers":
+                            try {
+                                putLoadedData(JSON.parse(o), names[2], folders, id);
+                            } catch (err) {
+                                // This file is invalid and must be loaded outside of the proper folder
+                                folders.splice(0, 0, names[2]);
+                                putLoadedData(o, "invalid", folders, id);
+                            }
+                            break;
+                        default: // Defaultly loaded things are cool
+                            putLoadedData(o, names[2], folders, id);
+                            break;
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                unblock();
+            }
+        }, function() {unblock()})
     }
-    data.other[id] = {"data": o};
+    unblock();
+}
+function putLoadedData(d, type, folders, id) {
+    var loc = data;
+    if (loc[type+"/"] === undefined) loc[type+"/"] = {};
+
+    loc = loc[type+"/"];
+    for (let folder of folders) {
+        if (loc[folder+"/"] === undefined) loc[folder+"/"] = {};
+        loc = loc[folder+"/"];
+    }
+
+    loc[id] = d;
 }
 
 function exportDatapack() {
@@ -233,51 +311,91 @@ function exportMod() {
     });
 }
 
-function createFile(folder, id, sub, data) {
-    var sid = id.split(/[:/]/g);
-    if (sid.length > 1) {
-        // Create folder structure
-        var loc = folder.folder(sid[0]).folder(sub);
-        for (let i = 1; i < sid.length-1; i++) {
-            loc = loc.folder(sid[i]);
-        }
+function createFile(folder, id, iData, type, path, dName=".json") {
+    // stringify data
+    var sData = iData;
+    if (typeof(iData) == "object") sData = JSON.stringify(iData, null, 4);
 
-        // Create
-        loc.file(sid[sid.length-1]+".json", JSON.stringify(data, null, 4));
+    // Get ID
+    var sid = id;
+    var namespace = pid;
+    var cIndex = id.indexOf(":");
+    if (cIndex != -1) {
+        namespace = id.substring(0, cIndex);
+        sid = id.substring(cIndex+1);
     }
+    if (sid.indexOf(".") == -1) sid += dName;
+
+    // Create File
+    var loc = folder.folder(namespace);
+    if (type) loc = loc.folder(type);
+    if (path) loc = loc.folder(path);
+    loc.file(sid, sData);
 }
 
 function createData(dFolder) {
-    // Create origin layers
-    for (const [id, lData] of Object.entries(data.layer)) {
-        let origins = lData.origins;
-        if (lData.conditional_origins) origins = origins.concat(lData.conditional_origins);
-        
-        createFile(dFolder, id, "origin_layers", {
-            "replace": lData.replace || false,
-            "origins": origins
-        });
-    }
-    
-    // Create a bunch of stuff
-    for (const type of ["origin", "power"]) {
-        for (const [id, lData] of Object.entries(data[type])) {
-            createFile(dFolder, id, type+"s", lData);
+    "use strict";
+    for (const [type, typeData] of Object.entries(data)) {
+        if (type[type.length-1] != "/") {
+            if (type != "meta" && type != "$") {
+                // TODO: Handle files outside of a folder
+                createFile(dFolder, type, typeData);
+            }
+        } else {
+            // Handle folders
+            createRData(dFolder, typeData, type);
         }
     }
+}
+function createRData(dFolder, itemData, type, path="") {
+    for (const [id, iData] of Object.entries(itemData)) {
+        if (id[id.length-1] != "/") {
+            // Handle leafy files
+            switch (type) {
+                case "origin_layers/":
+                    let origins = iData.origins || [];
+                    if (iData.conditional_origins) origins = origins.concat(iData.conditional_origins);
+                    
+                    createFile(dFolder, id, {
+                        "replace": iData.replace || false,
+                        "origins": origins
+                    }, type, path);
+                    break;
+                case "tags/":
+                    let values = iData.values || [];
+                    if (iData.required_values) values = values.concat(iData.required_values);
 
-    // Create tags
-    for (const [id, lData] of Object.entries(data.tag)) {
-        let values = lData.values;
-        if (lData.required_values) values = values.concat(lData.required_values);
-
-        createFile(dFolder, id, "tags", {
-            "replace": lData.replace || false,
-            "values": values
-        });
+                    createFile(dFolder, id, {
+                        "replace": iData.replace || false,
+                        "values": values
+                    }, type, path);
+                case "functions/":
+                    createFile(dFolder, id, iData, type, path, ".mcfunction");
+                    break;
+                default:
+                    createFile(dFolder, id, iData, type, path);
+                    break;
+            }
+        } else {
+            // Handle folders
+            path += id;
+            createRData(dFolder, iData, type, path);
+        }
     }
 }
 
 function downloadRaw() {
+    "use strict";
     saveAs(new Blob([JSON.stringify(data, null, 4)], {type: "text/plain;charset=utf-8"}), pid+".json");
+}
+function downloadActiveRaw() {
+    var d = activeParent[activeUName];
+    if (typeof(d) == "object") {
+        saveAs(new Blob([JSON.stringify(d, null, 4)], {type: "text/plain;charset=utf-8"}), pid+".json");
+    } else {
+        saveAs(new Blob([d], {type: "text/plain;charset=utf-8"}), pid+".txt");
+    }
+}
+function downloadOther() {
+    var d = activeParent[activeUName];
 }

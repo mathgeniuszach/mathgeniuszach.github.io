@@ -8,7 +8,12 @@ body {
 
 aside {
     height: 100%;
-    max-height: calc(100% - 167px);
+    min-width: 170px;
+    max-width: calc(100% - 54px);
+    min-height: 200px;
+    max-height: calc(100% - 169px);
+    resize: both;
+    overflow: auto;
 }
 aside select {
     height: 100%;
@@ -31,6 +36,7 @@ input.ientry[type="file"] {
 
 .content {
     /* TODO: figure out a way to make the page expand with the content */
+    /*overflow: scroll;*/
 }
 
 .panel {

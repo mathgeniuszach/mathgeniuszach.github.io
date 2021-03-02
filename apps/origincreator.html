@@ -3,8 +3,9 @@
 <head>
     <script data-ad-client="ca-pub-8932289367183622" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
     
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
 
     <script src="/js/main.js"></script>
     <script src="origincreator-io.js"></script>
@@ -28,37 +29,25 @@
 
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="origincreator.css">
+    <link rel="stylesheet" href="/css/jstree-themes/proton/style.css">
+    <link rel="stylesheet" href="/css/jstree-themes/default/style.css">
     <link rel="shortcut icon" href="/i/favicon.ico">
 </head>
 <body>
     <div class="nodisplay" id="page-blocker"></div>
     <header></header>
     <aside>
-        <div id="side-main-head" class="side-head">My Origins</div>
+        <div id="side-main-head" class="side-head">My Pack</div>
         <div class="button-group">
             <button id="btn-help">Help</button>
             <button id="btn-raw-data">Raw Data</button>
             <button id="btn-save">Save</button>
         </div>
-        <select id="content-box" size=2>
-            <option value="meta">Metadata</option>
-            <optgroup id="layers-group" label="Layers">
-                <option class="ocitem" value="layer-origins:origin">origins:origin</option>
-                <option class="newitem" value="layer-+">+</option>
-            </optgroup>
-            <optgroup id="origins-group" label="Origins">
-                <option class="newitem" value="origin-+">+</option>
-            </optgroup>
-            <optgroup id="powers-group" label="Powers">
-                <option class="newitem" value="power-+">+</option>
-            </optgroup>
-            <optgroup id="tags-group" label="Tags">
-                <option class="newitem" value="tag-+">+</option>
-            </optgroup>
-            <optgroup id="others-group" label="Other">
-                <option class="newitem" value="other-+">+</option>
-            </optgroup>
-        </select>
+        <div id="content-box"></div>
+        <div class="button-group">
+            <button id="btn-add-type">Add Type</button>
+            <button id="btn-add-file">Add File</button>
+        </div>
         <div class="button-group">
             <button id="btn-import">Import</button>
             <input type="file" class="nodisplay" id="ipt-import" multiple>
@@ -79,20 +68,25 @@
             <h2>Usage</h2>
             <p>You can click the "Help" button in the top left to return to this page at any time.</p>
             
-            <p>Before editing anything, you should add metadata to your work so people know it was you who made it. You can do this by clicking the "Metadata" item in the left box. This help page will then be replaced by an editor for metadata, and most of the entries in the editor are self-explanitory.</p>
+            <p>Before editing anything, you should add metadata to your work so people know it was you who made it. You can do this by clicking the "meta" item in the left box. This help page will then be replaced by an editor for metadata, and most of the entries in the editor are self-explanitory.</p>
             
-            <p>If you already have a datapack or mod you want to edit, press the "Import" button in the bottom left and select the item you want to edit on your Computer. Note that this button will <i>merge</i> all of the content from that item into your workspace, replacing anything that it can.</p>
+            <p>If you already have a datapack or mod you want to edit, press the "Import" button in the bottom left and select the item you want to edit on your Computer.</p>
             
-            <p>After adding metadata, you can add data items by using the "+" option beneath one of the groups at the left of the page. After adding anything, it should select and open up an editor for that item. You can switch between items by clicking them in the left pane. You can also press the "Delete" button to delete the item you have selected, or the "Reset" button to delete all your progress and return to this page. One thing to note, if you are adding a <a href="https://minecraft.gamepedia.com/Tag">tag</a>, <i>MAKE SURE</i> you rename it to include at least one folder, otherwise minecraft will not detect it's type.</p>
+            <p>After adding metadata, you can add anything to the datapack by right clicking on any group or folder in the left pane and clicking "New File" (or if you want to make a folder, "New Folder"). Items may only contain letters, numbers, and underscores in their name.</p>
+
+            <p>Item names can optionally specify a namespace and/or a file extension in the format "namespace:name.ext". If a namespace is not found, it will default to whatever your pack's id is (e.g., "thing.json" becomes "mypack:thing.json"). If the file extention is not found on export, it will default to .json or .mcfunction (e.g., "thing" becomes "mypack:thing.json" or "mypack:thing.mcfunction"). Folders are considered too (e.g., "pack:thing.json" in the "folder" folder becomes "pack:folder/thing.json").</p>
+
+            <p>After adding anything, click on it to open up an editor for that item; you can switch between editors of different items by clicking them in the left pane. Right clicking any item in the left pane provides you the option to delete, cut, copy, and paste it anywhere. You can also pick up any added items and drag them around in the left pane to move them.</p>
             
-            <p>For information, here's what each of the different grouped items are:</p>
+            <p>For information, here's what each of the different groups are:</p>
             <ul>
-                <li><a href="https://github.com/apace100/origins-fabric/wiki/Defining-an-origin-in-JSON">Layers</a><br><span class="tabbed">Layers are groups of origins. Usually you will only need to use the origins:origin layer to enable people to select your origin when they first join a world. You can also make your own layers if you want to do additional things like <a href="https://github.com/apace100/origins-fabric/wiki/Origin-conditions-in-layers">coniditional origins</a>.</span></li>
+                <li><a href="https://github.com/apace100/origins-fabric/wiki/Defining-an-origin-in-JSON">Layers</a><br><span class="tabbed">Layers are groups of origins. Usually you will only need to use the origins:origin layer to enable people to select your origin when they first join a world. You can also make your own layers if you want to do additional things like <a href="https://github.com/apace100/origins-fabric/wiki/Origin-conditions-in-layers">conditional origins</a>.</span></li>
                 <li><a href="https://github.com/apace100/origins-fabric/wiki/Defining-an-origin-in-JSON">Origins</a><br><span class="tabbed">Groups of powers that people can have and/or choose from, like the Blazeborn or the Enderian on the <a href="https://www.curseforge.com/minecraft/mc-mods/origins">Origins homepage</a>.</span></li>
                 <li><a href="https://github.com/apace100/origins-fabric/wiki/Defining-a-power-in-JSON">Powers</a><br><span class="tabbed">Abilities and Disabilities that origins can have. They are very versitile.</span></li>
+                <li><a href="">Tags</a><br><span class="tabbed">Lists of things. Note that any tag you create must be located in one of the predefined folders so minecraft knows the type of tag it is.</span></li>
             </ul>
             
-            <p>When you are finished editing, you can press the "To Datapack" button to export your work to a datapack or the "To Mod" button to export it to a mod. </p>
+            <p>When you are finished editing, you can press the "To Datapack" button to export your work to a datapack or the "To Mod" button to export it to a mod. Note that empty folders will not be exported.</p>
             
             <h2>Tips</h2>
             <p>Creating a good origin can be difficult, so here's a few tips.</p>
@@ -102,7 +96,7 @@
                 <li>Pressing the "+" button in any subpanel will add content to that panel and change the button to a "-" button. Pressing this new button will remove any content (and data stored) in that panel.</li>
                 <li>Want to save multiple projects? Click the "Raw Data" button, type anything into the "Save" box, and press the "Load" button to the bottom right. The page will be reloaded and you will store data in a separate location.</li>
                 <li>Check out the official <a href="https://github.com/apace100/origins-fabric/wiki">wiki</a> for more information on what each thing does.</li>
-                <li>Check out the #origin-ideas chat in the official <a href="https://discord.gg/4mTMHu3"> Origins Discord</a></li>
+                <li>Check out the #origin-ideas chat in the official <a href="https://discord.gg/4mTMHu3"> Origins Discord.</a></li>
                 <li>Test things out! If you aren't sure something will work, test it out in Minecraft! Failure is an important step in creativity.</li>
                 <li>
                     Here are some good design principles to make origins/powers interesting:
@@ -136,16 +130,30 @@
             <div class="nodisplay" id="div-i-raw-i">
                 <button class="mb2" id="btn-save-i-raw">Save Raw</button>
                 <button id="btn-reset-i-raw">Refresh</button>
+                <button id="btn-download-i-raw">Download</button>
                 <span id="i-raw-err"></span>
                 <div class="ace" id="i-raw-data-ace"></div>
             </div>
         </div>
+        <div name="other" class="content nodisplay _other" id="div-other">
+            <h2>other - thing</h2>
+            <div class="flex m mb2">
+                <button onclick="saveOther()">Save</button>
+                &nbsp;Autosave:&nbsp;<select onchange="changeOtherAutosave(this.value)">
+                    <option value="0">focus lost only</option>
+                    <option value="10">10 sec</option>
+                    <option value="20">20 sec</option>
+                    <option value="30">30 sec</option>
+                    <option value="60">1 min</option>
+                </select>
+            </div>
+            <div id="other-ace" class="iblock _${itemID} ace" onfocusout="saveOther()"></div>
+        </div>
         <div name="meta" class="content nodisplay _meta" id="div-meta"></div>
-        <div name="layer" class="content nodisplay _layer" id="div-layer"></div>
-        <div name="origin" class="content nodisplay _origin" id="div-origin"></div>
-        <div name="power" class="content nodisplay _power" id="div-power"></div>
-        <div name="tag" class="content nodisplay _tag" id="div-tag"></div>
-        <div name="other" class="content nodisplay _other" id="div-other"></div>
+        <div name="origin_layers" class="content nodisplay _origin_layers" id="div-origin_layers"></div>
+        <div name="origins" class="content nodisplay _origins" id="div-origins"></div>
+        <div name="powers" class="content nodisplay _powers" id="div-powers"></div>
+        <div name="tags" class="content nodisplay _tags" id="div-tags"></div>
     </section>
     <footer></footer>
 </body>

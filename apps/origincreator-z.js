@@ -1,3 +1,319 @@
+function getParents(node) {
+    var parents = [];
+    if (!node.parents) return null;
+
+    Object.assign(parents, node.parents);
+    if (parents[0] != "#") parents.reverse();
+    return parents;
+}
+function isFreeNode(node) {
+    return node.type == "default" || node.type == "file";
+}
+function isFile(node) {
+    return node.type == "file" || node.type == "meta";
+}
+function findNodeData(node, parentData) {
+    var tnode = node;
+    if (typeof(node) == "string") {
+        if (node == "#") return data;
+        tnode = contentBox.get_node(node);
+    }
+
+    var parents = getParents(tnode);
+    var loc = data;
+    if (!parents) return loc;
+
+    for (let i = 1; i < parents.length; i++) {
+        loc = loc[contentBox.get_node(parents[i]).text+"/"];
+    }
+
+    if (parentData) {
+        return loc;
+    } else {
+        if (isFile(node)) return loc[tnode.text];
+        else return loc[tnode.text+"/"];
+    }
+}
+
+function ss(str) {
+    "use strict";
+    return str.replace(/\s+/g, '_').replace(/[^\w:._]+/g, '').toLowerCase();
+}
+function fixName(node, d) {
+    var tnode = node;
+    if (typeof(node) == "string") tnode = contentBox.get_node(node);
+
+    var stext = ss(tnode.text);
+    if (!stext) stext = "_";
+    if (isFile(node)) {
+        var extloc = stext.indexOf(".");
+        var ext = "";
+        var name = stext;
+        if (extloc != -1) {
+            ext = stext.substring(extloc);
+            stext.substring(0, extloc);
+        }
+        while (stext in d) {
+            name += "_";
+            stext = name+ext;
+        }
+        contentBox.rename_node(tnode, stext);
+        return stext;
+    } else {
+        while (stext+"/" in d) stext += "_";
+        if (d == data && ttypes.indexOf(stext) != -1) {
+            contentBox.set_type(tnode, stext);
+        }
+        contentBox.rename_node(tnode, stext);
+        return stext+"/";
+    }
+}
+
+var content_box = {
+    "core": {
+        "data": [
+            {"text": "meta", "type": "meta"},
+            {"text": "origin_layers", "type": "origin_layers", "children": [
+                {"text": "origins:origin", "type": "file"}
+            ]},
+            {"text": "origins", "type": "origins"},
+            {"text": "powers", "type": "powers"},
+            {"text": "tags", "type": "tags", "children": [
+                {"text": "blocks"},
+                {"text": "entity_types"},
+                {"text": "fluids"},
+                {"text": "functions"},
+                {"text": "items"}
+            ]},
+            {"text": "functions", "type": "functions"}
+        ],
+        "themes": {
+            "name": "proton",
+            "variant": "small",
+            "responsive": false
+        },
+        "force_text": true,
+        "check_callback": true
+    },
+    "types": {
+        "file": {"icon": "/i/origincreator/file.png", "max_depth": 0},
+        "meta": {"icon": "/i/origincreator/file.png", "max_depth": 0},
+        "origin_layers": {"icon": "/i/origincreator/layer.png"},
+        "origins": {"icon": "/i/origincreator/origin.png"},
+        "powers": {"icon": "/i/origincreator/power.png"},
+        "tags": {"icon": "/i/origincreator/tag.png"},
+        "functions": {"icon": "/i/origincreator/function.png"}
+    },
+    "conditionalselect": function (node, event) {
+        return isFile(node);
+    },
+    "dnd": {
+        "is_draggable": function (node, event) {
+            return isFreeNode(node[0]);
+        },
+        "large_drop_target": true,
+        "copy": false
+    },
+    "sort": function(a, b) {
+        contentBox = $("#content-box").jstree(true);
+        var na = contentBox.get_node(a);
+        var nb = contentBox.get_node(b);
+
+        var af = isFreeNode(na);
+        var bf = isFreeNode(nb);
+        if (af) {
+            if (bf) {
+                // Two unlocked elements
+                af = isFile(na);
+                bf = isFile(nb);
+                if (af) {
+                    if (bf) return na.text.localeCompare(nb.text); // Both are files so compare normally
+                    else return 1; // b is a folder and comes before file a
+                } else {
+                    if (bf) return -1; // a is a folder and comes before file b
+                    else return na.text.localeCompare(nb.text); // Both are folders so compare normally
+                }
+            }
+            else return 1; // b is locked and comes before unlocked a
+        } else {
+            if (bf) return -1; // a is locked and comes before unlocked b
+            else {
+                return Math.sign(ttypes.indexOf(na.text)-ttypes.indexOf(nb.text)); // Both are locked, so return whatever is first in ttypes
+            }
+        }
+    },
+    "contextmenu": {         
+        "items": function (node) {
+            contentBox = $("#content-box").jstree(true);
+            return {
+                "new-file": {
+                    "label": "New File",
+                    "action": function (e) {
+                        var nnode = contentBox.create_node(node);
+                        contentBox.set_type(nnode, "file");
+                        contentBox.edit(nnode, "new_item", function (node, status, cancel) {
+                            var d = findNodeData(node, true);
+                            var newName = fixName(node, d);
+                            d[newName] = {};
+                            save();
+                        });
+                    },
+                    "_disabled": function () {
+                        return isFile(node);
+                    }
+                },
+                "new-folder": {
+                    "label": "New Folder",
+                    "action": function (e) {
+                        var nnode = contentBox.create_node(node);
+                        contentBox.edit(nnode, "folder", function (node, status, cancel) {
+                            var d = findNodeData(node, true);
+                            var newName = fixName(node, d);
+                            d[newName] = {};
+                            save();
+                        });
+                    },
+                    "_disabled": function () {
+                        return isFile(node);
+                    }
+                },
+                "cut": {
+                    "separator_before": true,
+                    "label": "Cut",
+                    "action": function (e) {
+                        var ndata = findNodeData(node, true);
+
+                        // Copy
+                        clipedTree = true;
+                        if (isFile(node)) dataClipboard = JSON.stringify(ndata[node.text]);
+                        else dataClipboard = JSON.stringify([node.text, node.type, ndata[node.text+"/"]]);
+
+                        // Delete
+                        if (isFile(node)) delete ndata[node.text];
+                        else delete ndata[node.text+"/"];
+                        contentBox.delete_node(node);
+                        if (node.state.selected) changeScreen("help");
+                        save();
+                    },
+                    "_disabled": function () {
+                        return !isFreeNode(node);
+                    }
+                },
+                "copy": {
+                    "label": "Copy",
+                    "action": function (e) {
+                        if (isFreeNode(node)) {
+                            // Copy
+                            var ndata = findNodeData(node, true);
+                            clipedTree = true;
+                            if (isFile(node)) dataClipboard = JSON.stringify([node.text, node.type, ndata[node.text]]);
+                            else dataClipboard = JSON.stringify([node.text, node.type, ndata[node.text+"/"]]);
+                            save();
+                        }
+                    },
+                    "_disabled": function () {
+                        return !isFreeNode(node);
+                    }
+                },
+                "paste": {
+                    "label": "Paste",
+                    "action": function (e) {
+                        if (!isFile(node)) {
+                            var o = JSON.parse(dataClipboard);
+                            var nnode = contentBox.create_node(node);
+                            contentBox.rename_node(nnode, o[0]);
+                            contentBox.set_type(nnode, o[1]);
+                            
+                            var d = findNodeData(node);
+                            var newName = fixName(nnode, d);
+                            d[newName] = o[2];
+                            save();
+                        }
+                    },
+                    "_disabled": function () {
+                        return !clipedTree || !dataClipboard || isFile(node);
+                    }
+                },
+                "rename": {
+                    "separator_before": true,
+                    "label": "Rename",
+                    "action": function (e) {
+                        var otext = node.text;
+                        var d = findNodeData(node, true);
+                        if (isFreeNode(node)) contentBox.edit(node, otext, function(node, status, cancel) {
+                            var newName = fixName(node, d);
+                            if (isFile(node)) {
+                                d[newName] = d[otext];
+                                delete d[otext];
+                            } else {
+                                d[newName] = d[otext+"/"];
+                                delete d[otext+"/"];
+                            }
+                            if (node.state.selected) $("#div-"+activeType+">h2").text(activePath+"/"+newName);
+                            save();
+                        });
+                    },
+                    "_disabled": function () {
+                        return !isFreeNode(node);
+                    }
+                },                         
+                "delete": {
+                    "label": "Delete",
+                    "action": function (e) {
+                        var ndata = findNodeData(node, true);
+                        if (isFile(node)) delete ndata[node.text];
+                        else delete ndata[node.text+"/"];
+                        contentBox.delete_node(node);
+                        if (node.state.selected) changeScreen("help");
+                        save();
+                    },
+                    "_disabled": function () {
+                        return !isFreeNode(node);
+                    }
+                }
+            }
+        }
+    },
+    "plugins": [
+        "changed", "conditionalselect", "dnd", "themes", "types", "contextmenu", "sort"
+    ]
+};
+function moveTreeItem(e, data) {
+    contentBox = $("#content-box").jstree(true);
+    if (data.parent != data.old_parent) {
+        var oldLoc = findNodeData(data.old_parent);
+        var newLoc = findNodeData(data.parent);
+
+        var oldName = data.node.text;
+        if (data.node.type == "default") oldName += "/";
+        var newName = fixName(data.node, newLoc);
+
+        newLoc[newName] = oldLoc[oldName];
+        delete oldLoc[oldName];
+
+        if (data.node.state.selected) selectContent(null, {"node": data.node});
+
+        save();
+    }
+};
+function addTreeType() {
+    var nnode = contentBox.create_node("#");
+    contentBox.edit(nnode, "folder", function (node, status, cancel) {
+        var newName = fixName(node, data);
+        data[newName] = {};
+        save();
+    });
+}
+function addTreeFile() {
+    var nnode = contentBox.create_node("#");
+    contentBox.set_type(nnode, "file");
+    contentBox.edit(nnode, "new_item", function (node, status, cancel) {
+        var newName = fixName(node, data);
+        data[newName] = {};
+        save();
+    });
+}
+
 function addListItem(btn, relevel=0) {
     var pnl = $(btn.parentElement);
     var lbtn = $(btn);
@@ -49,7 +365,7 @@ function copyListItem(btn) {
     
     // Copy item in data array
     var list = locateData(getPath(btn.parentElement));
-    list.splice(i, 0, JSON.parse(JSON.stringify(list[i]))); // Javascript lacks deep cloning, but this'll do since I'm not doing anything special.
+    list.splice(i, 0, JSON.parse(JSON.stringify(list[i]))); // Javascript lacks good deep cloning, but this'll do since I'm not doing anything special.
     
     // Clone element (and <br>)
     var clone = pnl.clone().insertAfter(pnl);
@@ -65,7 +381,7 @@ function copyListItem(btn) {
         jelem.addClass("_"+String(j));
     }
     
-    changeScreen(fullscreen); // HACK: only loading list item is necessary
+    //changeScreen(activeType, activeParent, activeUName, activePath); // HACK: only loading list item is necessary
     
     // Don't forget to save!
     save();
