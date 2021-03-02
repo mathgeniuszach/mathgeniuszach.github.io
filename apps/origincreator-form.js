@@ -4,30 +4,103 @@ function loadData(ocd) {
     if (!ocd) {
         return "Couldn't find data to load.";
     }
-    
-    // Delete any lingering items
-    $('.ocitem').remove();
 
     // Load into data
     data = JSON.parse(ocd);
+    if (!data.meta) data.meta = {
+        "name": "My Pack",
+        "id": "mypack"
+    };
+    if (!data.meta.id) data.meta.id = "mypack";
+    pid = data.meta.id;
+    if (data.$ !== 2) convertData(); // Data conversion necessary
 
     // Create items in listbox
-    let item
-    for (const type of types) {
-        if (data[type]) {
-            item = $("#" + type + "s-group>.newitem");
-            for (const itemid of Object.keys(data[type])) {
-                item.before(`<option class="ocitem" value="${type}-${itemid}">${itemid}</option>`);
+    //let item
+    //for (const type of types) {
+    //    if (data[type]) {
+    //        item = $("#" + type + "s-group>.newitem");
+    //        for (const itemid of Object.keys(data[type])) {
+    //            item.before(`<option class="ocitem" value="${type}-${itemid}">${itemid}</option>`);
+    //        }
+    //    }
+    //}
+
+    // First distroy the entire content box
+    if (contentBox) $("#content-box").jstree("destroy");
+
+    // Then format content box data
+    var cdata = [];
+    var iconed = ["meta", "origin_layers/", "origins/", "powers/", "tags/", "functions/"];
+    for (const [key, val] of Object.entries(data)) {
+        var v = typeof(val);
+        if (v == "string" || v == "object") {
+            if (key[key.length-1] == "/") {
+                var children = [];
+                var name = key.substring(0, key.length-1);
+                cdata.push({"text": name, "type": (iconed.indexOf(key) == -1 ? "default" : name), "children": children});
+                rLoadData(children, val);
+            } else {
+                cdata.push({"text": key, "type": (iconed.indexOf(key) == -1 ? "file" : key)});
             }
         }
     }
+
+    // Then remake content box
+    content_box.core.data = cdata;
+    contentBox = $("#content-box").jstree(content_box);
+    contentBox.bind("move_node.jstree", moveTreeItem);
+    contentBox.bind("select_node.jstree", selectContent);
     
     // Change the header in the Metadata
-    $("#div-meta h2").text("pack - " + data["meta"]["name"]);
-    $("#side-main-head").text(data["meta"]["name"]);
+    $("#div-meta h2").text("pack - " + data.meta.name);
+    $("#side-main-head").text(data.meta.name);
 
     // Save data to keep things in sync
     save();
+}
+function rLoadData(cdata, fdata) {
+    for (const [key, val] of Object.entries(fdata)) {
+        if (key[key.length-1] == "/") {
+            var children = [];
+            var name = key.substring(0, key.length-1);
+            cdata.push({"text": name, "children": children});
+            rLoadData(children, val);
+        } else {
+            cdata.push({"text": key, "type": "file"});
+        }
+    }
+}
+function convertData() {
+    for (let [name, type] of [["layer", "origin_layers/"], ["origin", "origins/"], ["power", "powers/"], ["tag", "tags/"]]) {
+        if (name in data) {
+            data[type] = data[name];
+            delete data[name];
+            for (let [item, itemData] of Object.entries(data[type])) {
+                let id = item;
+                let c = item.indexOf(":");
+                if (c != -1) {
+                    let namespace = item.substring(0, c);
+                    if (namespace === pid) id = item.substring(c+1);
+                }
+                id = ss(id);
+
+                if (id != item) {
+                    data[type][id] = itemData;
+                    delete data[type][item];
+                }
+            }
+        }
+    }
+    data.$ = 2;
+    data["functions/"] = {};
+
+    delete data.recipe;
+    delete data.advancement;
+    delete data.function;
+    delete data.loot_table;
+    
+    if (data.other) data.other = JSON.stringify(data.other, null, 4);
 }
 
 // Find an element's datapath (which is dynamic thanks to lists... yuck. Oh well)
@@ -90,10 +163,7 @@ function locateForm(datapath, id) {
 function locateData(datapath, nosub) {
     var spath = datapath.replace("-_-", ":").split("--");
     // Find starting location
-    var loc = data[spath[0]];
-    if (spath[0] != "meta") { // Necessary because meta doesn't have named subitems
-        loc = loc[subscreen];
-    }
+    var loc = active;
     // Finish finding location (here because maybe meta has a panel)
     for (let i = 1; i < spath.length; i++) {
         if (spath[i][0] === "_") { // Skip things that don't want to be stored
@@ -158,7 +228,7 @@ function insertData(key, type, item, extra) {
             var p = findItem(datapath, extra).find(">div");
             p.addClass("nodisplay");
             findItem(datapath, extra, jqns(v)).removeClass("nodisplay");
-            changeScreen(fullscreen); // HACK: this is lazy, but it's fine. I'll fix it like the others later.
+            changeScreen(activeType, activeParent, activeUName, activePath); // HACK: this is lazy, but it's fine. I'll fix it like the others later.
         }
         save();
         return;
@@ -177,24 +247,24 @@ function insertData(key, type, item, extra) {
             $("#side-main-head").text(v);
             $("#div-meta h2").text("pack - " + v);
             break;
-        case "id": // IDs need to be handled in a particular way because they unique define the subscreen.
+        //case "id": // IDs need to be handled in a particular way because they unique define the subscreen.
             // Start by getting normalized id
-            v = ns(v);
+            //v = ns(v);
             // Make sure the id is unique
-            while (v in data[screen]) v += "_";
-            item.value = v;
+            //while (v in data[screen]) v += "_";
+            //item.value = v;
             // Then move data to the right place
-            data[screen][v] = loc;
-            delete data[screen][subscreen];
+            //data[screen][v] = loc;
+            //delete data[screen][subscreen];
             // Update html
-            $("#div-" + screen + " h2").text(screen + " - " + v); 
-            elem = $(`option[value="${screen}-${subscreen}"]`);
-            elem.attr("value", screen + "-" + v);
-            elem.text(v);
+            //$("#div-" + screen + " h2").text(screen + " - " + v); 
+            //elem = $(`option[value="${screen}-${subscreen}"]`);
+            //elem.attr("value", screen + "-" + v);
+            //elem.text(v);
             // Finally, update screen
-            subscreen = v;
-            fullscreen = screen+"-"+subscreen;
-            break;
+            //subscreen = v;
+            //fullscreen = screen+"-"+subscreen;
+            //break;
         case "image": // Images need to be converted to 128x128 png/base64 for safe keeping
             var reader = new FileReader();
             reader.onload = function() {
@@ -277,7 +347,7 @@ function insertData(key, type, item, extra) {
 //    - data - Dictionary containing the values to insert into the form, and to clean.
 //    - form - Dictionary of a form containing the metadata of how to insert values.
 //    - id - id of the dictionary, necessary for filling in "id" types.
-function loadEntries(level, rootElem, data, form, del, id) {
+function loadEntries(level, rootElem, data, form, del) {
     "use strict";
     if (data && form) {
         var moreForms = [];
@@ -402,10 +472,8 @@ function loadEntries(level, rootElem, data, form, del, id) {
                     elem.prevAll("img").first().attr("src", v);
                     break;
                 case "checkbox":
-                    if (v === "") {
-                        v = false;
-                        data[itemID] = v;
-                    }
+                    if (v === "") v = false;
+                    if (data[itemID] === undefined) data[itemID] = v;
                     //if (v === "") v = false;
                     //if (item.default === undefined) {
                         //if (v) data[itemID] = v;
@@ -506,11 +574,11 @@ function insertForm(loc, header, form, datapath, level=0) {
                 items.push("</select>");
                 loc.append(items.join(""));
                 break;
-            case "ace":
-                loc.append(`<div class="flex m mb2"><button onclick="saveAce(${xn}, '${itemID}')">Save</button>&nbsp;Autosave:&nbsp;<select onchange="changeAutosave(${xn}, '${itemID}', this.value)"><option value="0">focus lost only</option><option value="10">10 sec</option><option value="20">20 sec</option><option value="30">30 sec</option><option value="60">1 min</option></select></div><div id="ace-${xn}" name="${itemID}" class="iblock _${itemID} ace" onfocusout="saveAce(${xn}, '${itemID}')"></div><br><div class="iitem"></div>`);
-                setupAce("ace-"+xn, "ace/mode/text");
-                xn++;
-                break;
+            //case "ace":
+                //loc.append(`<div class="flex m mb2"><button onclick="saveAce(${xn}, '${itemID}')">Save</button>&nbsp;Autosave:&nbsp;<select onchange="changeAutosave(${xn}, '${itemID}', this.value)"><option value="0">focus lost only</option><option value="10">10 sec</option><option value="20">20 sec</option><option value="30">30 sec</option><option value="60">1 min</option></select></div><div id="ace-${xn}" name="${itemID}" class="iblock _${itemID} ace" onfocusout="saveAce(${xn}, '${itemID}')"></div><br><div class="iitem"></div>`);
+                //setupAce("ace-"+xn, "ace/mode/text");
+                //xn++;
+                //break;
             default:
                 // If it's not any of the above options, it has a panel, and we wait to create fields for it until the user expands it (except in more's case). If we didn't do this, we would have infinite recursion problems.
                 elemID = datapath + "--" + itemID;
@@ -518,9 +586,11 @@ function insertForm(loc, header, form, datapath, level=0) {
                 if (item.type === "more") {
                     loc.append(`<div name="${itemID}" class="iblock _${itemID}"></div>`);
                     var pnl = findItem(elemID);
+                    //console.log(pnl, elemID);
                     
                     // Creating multiple panels is necessary
                     for (const [option, odata] of Object.entries(item.data)) {
+                        //console.log(option, odata);
                         let jqop = jqns(option);
                         // Create panel
                         pnl.append(`<div name="${jqop}" class="nodisplay _${jqop}"></div>`);
@@ -588,6 +658,7 @@ function insertPanel(btn) {
     var datapath = getPath(btn.parentElement);
     var elemID = datapath + "--" + itemID;
     var loc = locateData(elemID); // Populates data, is actually necessary
+    save();
     
     // Change button to "hide"
     var sbtn = $(btn);
@@ -611,7 +682,7 @@ function insertPanel(btn) {
     }
     
     // After inserting panel, load entries
-    if (/*loc && */subscreen != "help" && subscreen != "raw") {
+    if (/*loc && */activeType != "help" && activeType != "raw") {
         if (type == "list") {
             loadEntries(level, pnl.parent(), locateData(datapath), locateForm(datapath)); // Load list's parent only.
             // changeScreen(fullscreen); // this is unavailable and will cause infinite recursion errors.
@@ -645,123 +716,19 @@ function genID(type) {
     } while (l in data[type]);
     return l;
 }
-// Create a new item
-function newItem(type, content) {
-    "use strict";
-    // Create name
-    var i = genID(type);
-    
-    // Create item
-    $("#" + type + "s-group>.newitem").before(`<option class="ocitem" value="${type}-${i}">${i}</option>`);
-    // Create item data
-    data[type][i] = content || {};
-    save();
-    
-    // Select this item in the list
-    document.querySelector(`option[value="${type}-${i}"]`).selected = true;
-    changeScreen(type + "-" + i);
-}
 
-// Delete item
-function deleteItem() {
-    "use strict";
-    if (screen && screen != "help" && screen != "meta" && screen != "raw" && subscreen != "+") {
-        // Delete from data
-        delete data[screen][subscreen];
-        // Delete from content box
-        $('option[value="' + fullscreen + '"]').remove();
-        // Change screen
-        changeScreen("help");
-        
-        save();
-    }
-}
 
-// Move item up
-function itemUp() {
-    "use strict";
-    if (screen && screen != "help" && screen != "meta" && screen != "raw") {
-        // Value
-        var val = document.getElementById("content-box").value;
-        
-        if (val) {
-            // Find key location
-            var subdata = data[screen];
-            var keys = Object.keys(subdata);
-            var i = keys.indexOf(splitScreen(val)[1]);
-
-            if (i > 0) {
-                // Swap key with previous in keys array
-                [keys[i-1], keys[i]] = [keys[i], keys[i-1]];
-
-                // Swap option with previous in content box
-                var elems = $("#"+screen+"s-group option");
-                swapNodes(elems.get(i-1), elems.get(i))
-
-                // Convert keys back into data
-                var newData = {}
-                for (let key of keys) {
-                    newData[key] = subdata[key];
-                }
-                data[screen] = newData;
-            }
-            
-            save();
-        }
-    }
-}
-
-// Move item down
-function itemDown() {
-    "use strict";
-    if (screen && screen != "help" && screen != "meta" && screen != "raw") {
-        // Value
-        var val = document.getElementById("content-box").value;
-        
-        if (val) {
-            // Find key location
-            var subdata = data[screen];
-            var keys = Object.keys(subdata);
-            var i = keys.indexOf(splitScreen(val)[1]);
-
-            if (i !== -1 && i < keys.length-1) {
-                // Swap key with previous in keys array
-                [keys[i], keys[i+1]] = [keys[i+1], keys[i]];
-
-                // Swap option with previous in content box
-                var elems = $("#"+screen+"s-group option");
-                swapNodes(elems.get(i), elems.get(i+1))
-
-                // Convert keys back into data
-                var newData = {}
-                for (let key of keys) {
-                    newData[key] = subdata[key];
-                }
-                data[screen] = newData;
-            }
-            
-            save();
-        }
-    }
-}
-
+var otherOptions = {};
 // Ace functions
-function saveAce(id, itemID) {
-    var e = $("#ace-"+id).get(0);
-    if (!e) window.clearInterval(editOptions[id].autosave);
-
-    var d = locateData(getPath(e));
-    d[itemID] = ace.edit(e.id).getValue();
-    save();
+function saveOther() {
+    if (activeType == "other" || activeType == "functions") activeParent[activeUName] = otherEditor.getValue();
 }
-
-function changeAutosave(id, itemID, value) {
-    if (!editOptions[id]) {
-        editOptions[id] = {};
-    } else if (editOptions[id].autosave) {
-        window.clearInterval(editOptions[id].autosave);
+function changeAutosave(value) {
+    if (otherOptions.autosave) {
+        window.clearInterval(otherOptions.autosave);
+        otherOptions.autosave = null;
     }
 
     var v = parseInt(value)*1000;
-    if (v) editOptions[id].autosave = window.setInterval(saveAce.bind(this, id, itemID), v);
+    if (v) otherOptions.autosave = window.setInterval(saveOther, v);
 }

@@ -8,6 +8,9 @@
     --box-border-color-darkest: #aaaaaa;
     --box-border-color-selected: #99cccc;
     --box-border-width: 2px;
+
+    --link-color: #0097a8;
+    --hover-link-color: #10c8e5;
 }
 
 html {
@@ -57,10 +60,10 @@ p {
 
 a {
     text-decoration: none;
-    color: #0097a8;
+    color: var(--link-color);
 }
 a:hover {
-    color: #10c8e5;
+    color: var(--hover-link-color);
 }
 
 /* Sidebar */
@@ -224,14 +227,6 @@ footer {
     background-color: var(--box-color-selected);
 }
 
-.ace {
-    resize: both;
-    overflow: auto;
-    width: 500px; height: 175px;
-    /*margin-top: 5px;*/
-    border: var(--box-border-width) solid var(--box-border-color);
-}
-
 .hidden {
     position: absolute;
     left: -9999px;
@@ -251,4 +246,76 @@ footer {
     height: 100%;
     background-color: #ffffff80;
     z-index: 100;
+}
+
+/* Ace thing */
+.ace {
+    resize: both;
+    overflow: auto;
+    width: 500px; height: 175px;
+    /*margin-top: 5px;*/
+    border: var(--box-border-width) solid var(--box-border-color);
+}
+/* jsTree stuff */
+.jstree {
+    height: 100%;
+    margin-top: 8px;
+    padding: 5px;
+
+    overflow-x: auto;
+    overflow-y: auto;
+
+    font-size: smaller;
+
+    background-color: white;
+    border: var(--box-border-width) solid var(--box-border-color);
+
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -o-transition: none !important;
+    transition: none !important;
+}
+/*
+.jstree a {
+    border: none;
+    outline: none;
+}
+.jstree-container-ul {
+    padding-left: 0px;
+    margin: 0px;
+}
+.jstree-node {
+    padding: 2px 6px;
+    margin: 1px 0px;
+}
+.jstree-node[aria-selected="true"] {
+    background-color: var(--box-color-selected);
+    border: var(--box-border-width) solid var(--box-border-color-selected);
+    padding: 0px 4px;
+}
+.jstree-clicked {
+    color: var(--link-color);
+}
+*/
+/* Gotta prevent the thicc context menu */
+.jstree-contextmenu {
+    z-index: 10;
+    font-family: Arial, Helvetica, sans-serif !important;
+}
+.jstree-contextmenu li>a {
+    line-height: 25px !important;
+    padding: 0px 0px 0px 10px !important;
+    height: 25px !important;
+    width: 90px !important;
+}
+.jstree-contextmenu ul {
+    transform: translate(7px, 15px) !important;
+}
+.jstree-contextmenu li>a>i,
+.vakata-contextmenu-sep
+{
+    display: none !important;
+}
+.vakata-context-separator > a{
+    margin: 0px !important;
 }

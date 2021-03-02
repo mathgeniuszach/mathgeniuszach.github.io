@@ -1,13 +1,10 @@
 // Current list of TODOs:
-// Setup customized dictionary editing system
 // Setup built-in wiki and info
-// Copy and paste system
 // Support functions, tags, loot tables, and predicates.
 // Use a url var to generate slightly different html that targets non-origin datapacks
 // Improve import system so that conflicts are stated
 // Replace content bar with jsTree and handle file movement
-// Support other kinds of data that are unknown.
-// Delete lingering references to aces that don't exist anymore.
+// Handle other files better (make the editor customizable)
 
 // Possible performace improvements
 // Transition things off of findItem to findChildItem
@@ -16,45 +13,56 @@
 
 // Data that pretty much stores everything
 var data = {
+    "$": 2, // Version number to know how to convert data
     "meta": {
-        "name": "My Origins",
-        "id": "myorigins"
+        "name": "My Pack",
+        "id": "mypack"
     },
-    "layer": {
+    "origin_layers/": {
         "origins:origin": {
             "replace": false,
             "origins": []
         }
     },
-    "origin": {},
-    "power": {},
-    "tag": {},
-    "recipe": {},
-    "advancement": {},
-    "function": {},
-    "loot_table": {},
-    "other": {}
+    "origins/": {},
+    "powers/": {},
+    "tags/": {
+        "blocks/": {},
+        "entity_types/": {},
+        "fluids/": {},
+        "functions/": {},
+        "items/": {}
+    },
+    "functions/": {}
 };
-var types = ["layer", "origin", "power", "tag", "other"]
+var types = ["origin_layers", "origins", "powers", "tags"];
+var ttypes = ["meta", "origin_layers", "origins", "powers", "tags", "functions"];
 
 // Some useful global variables
-// Active JQuery screen
+// Type of the currently active screen
+var activeType = "help"
+// Path of the currently selected item
+var activeParent = null;
+// Active data of the currently viewed element
 var active = null;
-// Full text of the screen
-var fullscreen = "help"
-// Left side text of the screen (layer, origin, power, etc.)
-var screen = "help";
-// Right side text of the screen (user defined name)
-var subscreen = null;
+// Uname active
+var activeUName = null;
+// Upath active
+var activePath = null;
 // Just a number to make unique things
 var n = 0;
 // Another number to make unique things
 var xn = 0;
 // ID
-var pid = "myorigins";
+var pid = "mypack";
 
+var clipedTree = false;
+
+var dataClipboard;
 var selected;
+var contentBox;
 
+var otherEditor;
 var rawEditor;
 var iRawEditor;
 var editOptions = {};
@@ -81,13 +89,8 @@ $(document).ready(function() {
     
     insertForm($("#div-meta"), '<h2>pack - My Origins</h2>\n', forms.meta, "meta");
     for (const type of types) {
-        insertForm($("#div-"+type), '<h2>' + type + ' - ?</h2><button class="btn-up">Up</button><button class="btn-down">Down</button><button class="btn-delete">Delete</button><br><br>\n', forms[type], type);
+        insertForm($("#div-"+type), '<h2>' + type + ' - ?</h2><br><br>\n', forms[type], type);
     }
-    
-    // Buttons for item movement
-    $(".btn-up").click(itemUp);
-    $(".btn-down").click(itemDown);
-    $(".btn-delete").click(deleteItem);
     
     // Buttons for general overview
     $("#btn-save").click(save);
@@ -106,6 +109,10 @@ $(document).ready(function() {
     $("#btn-reset-raw").click(resetRaw);
     $("#btn-download").click(downloadRaw);
 
+    // Add thing buttons
+    $("#btn-add-type").click(addTreeType);
+    $("#btn-add-file").click(addTreeFile);
+
     // Things for raw location
     $("#ipt-save-loc").val(saveLoc);
     $("#ipt-web-loc").val(extDataLoc);
@@ -115,17 +122,28 @@ $(document).ready(function() {
     $("#btn-toggle-i-raw").click(toggleIRaw);
     $("#btn-save-i-raw").click(saveIRaw);
     $("#btn-reset-i-raw").click(resetIRaw);
+    $("#btn-download-i-raw").click(downloadActiveRaw);
     
     // Document key handlers
     $(document).click(select);
     $(document).keydown(keyDown);
 
     // Content box (soon to be replaced)
-    var contentBox = $("#content-box");
-    contentBox.on("change", selectContent);
-    contentBox.on("focus", ensureSelect);
+    //var cb = $("#content-box");
+    //cb.on("change", selectContent);
+    //cb.on("focus", ensureSelect);
+
+    // Clipboard
+    dataClipboard = window.localStorage.getItem("origin-creator-clip");
+    clipedTree = window.localStorage.getItem("origin-creator-cliptree");
+
+    // jsTree content box
+    contentBox = $("#content-box").jstree(content_box);
+    contentBox.bind("move_node.jstree", moveTreeItem);
+    contentBox.bind("select_node.jstree", selectContent);
 
     // Make ace raw content
+    otherEditor = setupAce("other-ace", "ace/mode/text");
     rawEditor = setupAce("raw-data-ace", "ace/mode/json");
     iRawEditor = setupAce("i-raw-data-ace", "ace/mode/json");
     
@@ -148,73 +166,61 @@ $(document).ready(function() {
     }
 });
 
-// Function to split screen into screen and subscreen
-function splitScreen(s) {
-    "use strict";
-    var loc = s.search("-");
-    if (loc == -1) {
-        return [s, null];
-    } else {
-        return [s.substring(0, loc), s.substring(loc+1)];
-    }
-}
 // Function to change the screen and load any data into entry fields
-function changeScreen(s) {
+function changeScreen(type, activeP, uname, path) {
     "use strict";
-    block();
-    // Get screens
-    fullscreen = s;
-    [screen, subscreen] = splitScreen(s);
-    if (subscreen == "+") {
-        if (!data[screen]) data[screen] = {};
-        // For new items
-        switch (screen) {
-            case "layer":
-                newItem("layer", {"replace": false, "origins": []});
-                break;
-            default:
-                newItem(screen);
-                break;
-        }
+    // Store active data into globals
+    activeType = type;
+    activeParent = activeP;
+    activeUName = uname;
+    activePath = path;
+    
+    var activeElem = $("#div-"+type);
+
+    // Switch screen
+    $(".content").addClass("nodisplay");
+    activeElem.removeClass('nodisplay');
+    // Set header
+    if (uname) activeElem.find(">h2").text(path + "/" + uname);
+
+    // Do the rest
+    if (type == "other" || type == "functions") {
+        // Other panel is handled specially
+        active = activeP[uname || type];
+        $("#div-i-raw").addClass("nodisplay");
+        // Gotta load in the other panel now
+        otherEditor.setValue(active);
+    } else if (uname || type == "meta") {
+        active = activeP[uname || type];
+        // Load data into raw editor
+        $("#div-i-raw").removeClass("nodisplay");
+        resetIRaw();
+        // Load data into entry fields
+        loadEntries(0, activeElem, active, forms[type], true);
     } else {
-        var activeElem = $("#div-"+screen)
-
-        // Switch screen
-        $(".content").addClass("nodisplay");
-        activeElem.removeClass('nodisplay');
-
-        // Set header and variables
-        active = data[screen];
-        if (subscreen) {
-            active = active[subscreen];
-            activeElem.find(">h2").text(screen + " - " + subscreen);
-        }
-
-        if (active) {
-            // Load data into raw editor
-            $("#div-i-raw").removeClass("nodisplay");
-            resetIRaw();
-            // Load data into entry fields
-            loadEntries(0, activeElem, active, forms[screen], true, subscreen);
-        }
+        active = null;
+        $("#div-i-raw").addClass("nodisplay");
     }
+    
     resetRaw();
-    unblock();
-}
-// Ensure that the proper item in the list box is shown (on refocus)
-function ensureSelect() {
-    "use strict";
-    if (this.value && this.value != fullscreen) {
-        changeScreen(this.value);
-    }
 }
 // Item selected was changed, change screen
-function selectContent() {
+function selectContent(e, edata) {
     "use strict";
-    if (this.value) {
-        changeScreen(this.value);
-    } else {
-        changeScreen("help");
+    contentBox = $("#content-box").jstree(true);
+    var node = edata.node;
+
+    if (node.type == "meta") changeScreen("meta", data);
+    else {
+        var parents = getParents(node);
+        activeParent = findNodeData(node, true);
+        activePath = parents.slice(1).map(n => contentBox.get_text(n)).join("/");
+        if (parents.length < 2) changeScreen("other", activeParent, node.text, activePath);
+        else {
+            var type = contentBox.get_node(parents[1]).text;
+            if (types.indexOf(type) == -1) changeScreen("other", activeParent, node.text, activePath);
+            else changeScreen(type, activeParent, node.text, activePath);
+        }
     }
 }
 
@@ -241,6 +247,9 @@ function load() {
 function save() {
     "use strict";
     window.localStorage.setItem("origin-creator-data"+saveLoc, JSON.stringify(data));
+    window.localStorage.setItem("origin-creator-clip", dataClipboard);
+    window.localStorage.setItem("origin-creator-cliptree", clipedTree);
+    resetRaw();
     resetIRaw();
 }
 // Reset the entire pack to default
@@ -270,7 +279,7 @@ function loadRaw() {
 function resetRaw() {
     "use strict";
     $("#raw-err").text("");
-    if (screen == "raw") rawEditor.setValue(JSON.stringify(data, null, 4) || "", -1);
+    if (activeType == "raw") rawEditor.setValue(JSON.stringify(data, null, 4) || "", -1);
     else rawEditor.setValue("", -1);
     //$("#raw-data-textarea").val(JSON.stringify(data, null, 4));
 }
@@ -297,13 +306,9 @@ function toggleIRaw() {
 }
 function saveIRaw() {
     try {
-        var d = JSON.parse(iRawEditor.getValue())
-        if (subscreen) {
-            data[screen][subscreen] = d;
-        } else {
-            data[screen] = d;
-        }
-        changeScreen(fullscreen); // Not really hacky here tbh
+        var d = JSON.parse(iRawEditor.getValue());
+        activeParent[activeUName] = d;
+        changeScreen(activeType, activeParent, activeUName, activePath); // Not really hacky here tbh
         window.localStorage.setItem("origin-creator-data"+saveLoc, JSON.stringify(data));
         $("#i-raw-err").text("Data loaded successfully.");
     } catch (err) {
@@ -337,7 +342,10 @@ function keyDown(e) {
                 case 88:
                     // Cut
                     // Copy first
-                    navigator.clipboard.writeText(JSON.stringify(locateData(getPath(selected.get(0), true))));
+                    dataClipboard = JSON.stringify(locateData(getPath(selected.get(0), true)));
+                    clipedTree = false;
+                    save();
+                    //navigator.clipboard.writeText(dataClipboard);
                     // Then delete
                     if (isNaN(selected.attr("name"))) {
                         removePanel(selected.find(">button").get(0));
@@ -350,33 +358,42 @@ function keyDown(e) {
                     break;
                 case 67:
                     // Copy
-                    navigator.clipboard.writeText(JSON.stringify(locateData(getPath(selected.get(0), true))));
+                    dataClipboard = JSON.stringify(locateData(getPath(selected.get(0), true)));
+                    clipedTree = false;
+                    save();
+                    //navigator.clipboard.writeText(dataClipboard);
                     select();
                     e.stopPropagation();
                     break;
                 case 86:
                     // Paste
-                    navigator.clipboard.readText().then(function(o) {
-                        try {
-                            // Get data
-                            var d = JSON.parse(o);
-                            var id = selected.attr("name");
-                            if (!isNaN(id)) {
-                                id = parseInt(id);
-                            }
-                            // Paste data
-                            var path = getPath(selected.get(0));
-                            locateData(path)[id] = d;
-                            save();
-                            // Load entries
-                            changeScreen(fullscreen) // HACK: only loading list item is necessary
-                        } finally {
-                            select();
-                        }
-                    }, function() {});
+                    if (!clipedTree) loadClipboard(dataClipboard);
+                    //navigator.clipboard.readText().then(function (o) {
+                    //    loadClipboard(o);
+                    //}, function() {
+                    //    alert("Defaulting to backup clipboard (data will not persist on reload)");
+                    //});
                     e.stopPropagation();
                     break;
             }
         }
+    }
+}
+function loadClipboard(o) {
+    try {
+        // Get data
+        var d = JSON.parse(o);
+        var id = selected.attr("name");
+        if (!isNaN(id)) {
+            id = parseInt(id);
+        }
+        // Paste data
+        var path = getPath(selected.get(0));
+        locateData(path)[id] = d;
+        save();
+        // Load entries
+        changeScreen(activeType, activeParent, activeUName, activePath); // HACK: only loading the item itself is necessary
+    } finally {
+        select();
     }
 }

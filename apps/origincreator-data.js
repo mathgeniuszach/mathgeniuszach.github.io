@@ -328,7 +328,7 @@ condition_data.__type_options = {
             }
         },
         "origins:biome": {
-            "dimension": {
+            "biome": {
                 "name": "Biome",
                 "type": "ns",
                 "desc": "ID of the biome the player needs to be in for this condition to evaluate to true, e.g. minecraft:savannah."
@@ -1367,12 +1367,7 @@ var forms = {
             "default": 6
         }
     },
-    "layer": {
-        "id": {
-            "name": "ID",
-            "type": "id",
-            "desc": "Namespaced ID of the layer. Use '/'s to define folders."
-        },
+    "origin_layers": {
         "replace": {
             "name": "Replace",
             "type": "checkbox",
@@ -1413,12 +1408,7 @@ var forms = {
             }
         }
     },
-    "origin": {
-        "id": {
-            "name": "ID",
-            "type": "id",
-            "desc": "Namespaced ID of the origin. Use '/'s to define folders."
-        },
+    "origins": {
         "name": {
             "name": "Name",
             "type": "text",
@@ -1490,12 +1480,7 @@ var forms = {
             }
         }
     },
-    "power": {
-        "id": {
-            "name": "ID",
-            "type": "id",
-            "desc": "Namepsaced ID of the power. Use '/'s to define folders."
-        },
+    "powers": {
         "name": {
             "name": "Name",
             "type": "text",
@@ -2265,16 +2250,12 @@ var forms = {
             }
         }
     },
-    "tag": {
-        "id": {
-            "name": "ID",
-            "type": "id",
-            "desc": "The namespace and id of this tag. Make sure it contains at least one folder; e.g. minecraft:functions/tick.json"
-        },
+    "tags": {
         "replace": {
             "name": "Replace",
             "type": "checkbox",
-            "desc": "Whether to replace an already existing loaded tag."
+            "desc": "Whether to replace an already existing loaded tag.",
+            "default": false
         },
         "values": {
             "name": "Values",
@@ -2303,16 +2284,6 @@ var forms = {
                     "default": true
                 }
             }
-        }
-    },
-    "other": {
-        "id": {
-            "name": "ID",
-            "type": "id",
-            "desc": "The ID of this other thing, with namespace, folders, and file extension."
-        },
-        "data": {
-            "type": "ace"
         }
     }
 };
