@@ -1343,7 +1343,7 @@ var forms = {
         "id": {
             "name": "Mod ID",
             "type": "ns",
-            "desc": "If your work is being exported to a mod, you can use this to specify a mod id. If not specified, it will be based on the display name."
+            "desc": "This is the default namespace of your datapack items and also the mod id to export to if using a mod."
         },
         "authors": {
             "name": "Authors",

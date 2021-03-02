@@ -99,7 +99,7 @@ function convertData() {
     delete data.advancement;
     delete data.function;
     delete data.loot_table;
-    
+
     if (data.other) data.other = JSON.stringify(data.other, null, 4);
 }
 
@@ -171,7 +171,7 @@ function locateData(datapath, nosub) {
         } else if (spath[i][0] === "-") { // Handle lists
             let newLoc = loc[spath[i].substring(1)];
             // If the list doesn't exist, it needs to be created
-            if (!newLoc) {
+            if (typeof(newLoc) != "object") {
                 newLoc = [];
                 loc[spath[i].substring(1)] = newLoc;
             }
@@ -191,12 +191,13 @@ function locateData(datapath, nosub) {
                 // For non-dict items in lists
                 if (i == spath.length-1 && nosub) return [newLoc, index];
                 
+                if (typeof(newLoc[index]) != "object" && i != spath.length-1) newLoc[index] = {}; // Ensure this is an object if reading past it
                 loc = newLoc[index];
             }
         } else {
             let newLoc = loc[spath[i]];
             // If the location doesn't exist, it needs to be created
-            if (!newLoc) {
+            if (typeof(newLoc) != "object") {
                 newLoc = {};
                 loc[spath[i]] = newLoc;
             }
