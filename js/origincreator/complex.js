@@ -45,7 +45,7 @@ function fixName(node, d) {
 
     var stext = ss(tnode.text);
     if (!stext) stext = "_";
-    if (isFile(node)) {
+    if (isFile(tnode)) {
         var extloc = stext.indexOf(".");
         var ext = "";
         var name = stext;

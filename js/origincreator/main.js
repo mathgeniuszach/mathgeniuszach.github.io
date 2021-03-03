@@ -207,6 +207,7 @@ function changeScreen(type, activeP, uname, path) {
     }
     
     resetRaw();
+    resetIRaw();
 }
 // Item selected was changed, change screen
 function selectContent(e, edata) {
