@@ -85,7 +85,10 @@ var content_box = {
                 {"text": "functions"},
                 {"text": "items"}
             ]},
-            {"text": "functions", "type": "functions"}
+            {"text": "functions", "type": "functions"},
+            //{"text": "predicates", "type": "predicates"},
+            //{"text": "advancements", "type": "advancements"},
+            //{"text": "recipes", "type": "recipes"}
         ],
         "themes": {
             "name": "proton",
@@ -102,7 +105,10 @@ var content_box = {
         "origins": {"icon": "/i/origincreator/origin.png"},
         "powers": {"icon": "/i/origincreator/power.png"},
         "tags": {"icon": "/i/origincreator/tag.png"},
-        "functions": {"icon": "/i/origincreator/function.png"}
+        "functions": {"icon": "/i/origincreator/function.png"},
+        "predicates": {"icon": "/i/origincreator/predicates.png"},
+        "advancements": {"icon": "/i/origincreator/advancements.png"},
+        "recipes": {"icon": "/i/origincreator/recipes.png"}
     },
     "conditionalselect": function (node, event) {
         return isFile(node);
@@ -370,7 +376,7 @@ function copyListItem(btn) {
     // Clone element (and <br>)
     var clone = pnl.clone().insertAfter(pnl);
     clone.before("<br>");
-    clone.click(selectPanel);
+    //clone.click(selectPanel);
     
     // Move all elements below down one (This is why the rewrite was required)
     var elems = pnlp.find(">div");

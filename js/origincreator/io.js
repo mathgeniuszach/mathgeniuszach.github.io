@@ -1,4 +1,3 @@
-
 function importThing(thing) {
     if (thing.target.files.length) {
         var file = thing.target.files[0];

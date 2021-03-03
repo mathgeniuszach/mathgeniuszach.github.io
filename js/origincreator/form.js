@@ -31,7 +31,6 @@ function loadData(ocd) {
 
     // Then format content box data
     var cdata = [];
-    var iconed = ["meta", "origin_layers/", "origins/", "powers/", "tags/", "functions/"];
     for (const [key, val] of Object.entries(data)) {
         var v = typeof(val);
         if (v == "string" || v == "object") {
@@ -94,6 +93,9 @@ function convertData() {
     }
     data.$ = 2;
     data["functions/"] = {};
+    data["predicates/"] = {};
+    data["advancements/"] = {};
+    data["recipes/"] = {};
 
     delete data.recipe;
     delete data.advancement;
@@ -309,6 +311,7 @@ function insertData(key, type, item, extra) {
                 item.value = v;
                 loc[key] = v;
             }
+            pid = data.meta.id; // FIXME: This should go in it's own separate thing
             break;
         case "int":
             if (v == "") {
@@ -466,6 +469,9 @@ function loadEntries(level, rootElem, data, form, del) {
                 case "ace":
                     ace.edit(elem.attr("id")).setValue(v, -1);
                     break;
+                case "multi":
+                    // Because some people thought it would be cool to have multiple types for the same id. Thanks.
+                    break;
                 case "id": // ID values are not based on the dictionary, but rather a unique value.
                     if (id !== undefined) elem.val(id); // IDs are only updated if provided.
                     break;
@@ -523,6 +529,7 @@ function insertForm(loc, header, form, datapath, level=0) {
     for (const [itemID, item] of Object.entries(form)) {
         // Get element id from id and key
         let elemID = datapath + "-" + itemID;
+        let panelID = datapath + "--" + itemID;
         // Append Div for item and description
         if (item.name) {
             if (item.desc) {
@@ -541,9 +548,15 @@ function insertForm(loc, header, form, datapath, level=0) {
         }
         
         // Append custom input dependent on the type
+        let cs = "panel";
+        let pnl;
         switch (item.type) {
             case "info":
-                loc.append(item.info);
+                cs = "panel";
+                if (level % 2 == 1) {
+                    cs = "panel panel-dark";
+                }
+                loc.append(`<div class="${cs}">${item.info}</div>`);
                 break;
             case "main":
             case "ns":
@@ -580,68 +593,63 @@ function insertForm(loc, header, form, datapath, level=0) {
                 //setupAce("ace-"+xn, "ace/mode/text");
                 //xn++;
                 //break;
-            default:
-                // If it's not any of the above options, it has a panel, and we wait to create fields for it until the user expands it (except in more's case). If we didn't do this, we would have infinite recursion problems.
-                elemID = datapath + "--" + itemID;
-                
-                if (item.type === "more") {
-                    loc.append(`<div name="${itemID}" class="iblock _${itemID}"></div>`);
-                    var pnl = findItem(elemID);
-                    //console.log(pnl, elemID);
-                    
-                    // Creating multiple panels is necessary
-                    for (const [option, odata] of Object.entries(item.data)) {
-                        //console.log(option, odata);
-                        let jqop = jqns(option);
-                        // Create panel
-                        pnl.append(`<div name="${jqop}" class="nodisplay _${jqop}"></div>`);
-                        let spnl = findItem(elemID, jqop);
-
-                        // Then call recursively
-                        insertForm(spnl, "", odata, elemID+"--"+jqop, level);
-                    }
-                    
-                    // Display the first one.
-                    findItem(elemID, jqns(Object.keys(item.data)[0])).removeClass("nodisplay");
-                } else {
-                    let lID = itemID;
-                    if (item.type === "list") {
-                        lID = "-" + itemID;
-                        elemID = datapath + "---" + itemID;
-                    }
-                    
-                    let cs = "panel";
+            case "multi": // I personally find it dumb that this is required
+                if (item.panel) {
+                    cs = "panel ";
                     if (level % 2 == 1) {
-                        cs = "panel panel-dark";
+                        cs = "panel panel-dark ";
                     }
-                    if (level > 100) {
-                        console.log("Recursion depth max reached! Cannot make " + itemID);
-                        continue;
-                    }
-                    
-                    // I'm more comfortable just letting everything be hidden for now. No need to deal with the other issues right now.
-                    //if (item.hidden) { // protect against infinite recursion in the laziest way possible
-                        loc.append(`<div ttype="${item.type}" llevel=${level+1} name="${lID}" class="${cs} _${lID}"><button class="sbutton" onclick='insertPanel(this)'>+</button></div>`);
-                    /*} else {
-                        loc.append(`<div name="${lID}" class="${cs} _${lID}"><button class="sbutton" onclick='removePanel(this, "${lID}", "${item.type}", ${level+1})'>-</button></div>`);
-                    
-                        var pnl = findItem(elemID);
-                        switch (item.type) {
-                            case "list": // Lists just need to have an add button added, as loadEntries handles the rest of it
-                                pnl.append(`<br><button level=${level+1} class="m zlist-button sbutton" onclick='addListItem(this)'>+</button><button class="m zlist-button sbutton" onclick='clearList(this, "${itemID}")'>C</button>`);
-                                break;
-                            case "sub":
-                                pnl.addClass("subop");
-                                pnl.append("<br>")
-                                insertForm(pnl, "", item.data, elemID, level+1);
-                                break;
-                            case "dict":
-                                // TODO: dictionary editor (I'mma wait to actually implement this)
-                                pnl.append('<div class="zdict"></div>');
-                        }
-                    }*/
+                } else cs = "";
+
+                loc.append(`<div name="${itemID}" class="${cs}iblock _${itemID}"><select></select></div>`);
+                pnl = findItem(panelID);
+                let select = pnl.find(">select");
+
+                for (let i = 0; i < item.options.length; i++) {
+                    let mName = item.options[i];
+                    let mType = item.types[i];
+                    select = select.append(`<option value="${mName}">${mName}</option>`);
+                }
+                break;
+            case "more":
+                loc.append(`<div name="${itemID}" class="iblock _${itemID}"></div>`);
+                pnl = findItem(panelID);
+                
+                // Creating multiple panels is necessary
+                for (const [option, odata] of Object.entries(item.data)) {
+                    //console.log(option, odata);
+                    let jqop = jqns(option);
+                    // Create panel
+                    pnl.append(`<div name="${jqop}" class="nodisplay _${jqop}"></div>`);
+                    let spnl = findItem(panelID, jqop);
+
+                    // Then call recursively
+                    insertForm(spnl, "", odata, panelID+"--"+jqop, level);
                 }
                 
+                // Display the first one.
+                findItem(panelID, jqns(Object.keys(item.data)[0])).removeClass("nodisplay");
+                break;
+            default:
+                // If it's not any of the above options, it has a panel, and we wait to create fields for it until the user expands it.
+                // If we didn't do this, we would have infinite recursion problems.
+                let lID = itemID;
+                if (item.type === "list") {
+                    lID = "-" + itemID;
+                    panelID = datapath + "---" + itemID;
+                }
+                
+                cs = "panel";
+                if (level % 2 == 1) {
+                    cs = "panel panel-dark";
+                }
+                if (level > 100) {
+                    console.log("Recursion depth max reached! Cannot make " + itemID);
+                    continue;
+                }
+                
+                loc.append(`<div ttype="${item.type}" llevel=${level+1} name="${lID}" class="${cs} _${lID}"><button class="sbutton" onclick='insertPanel(this)'>+</button></div>`);
+                break;
         }
         if (item.name) loc.append("<br>\n\n");
     }
@@ -722,7 +730,10 @@ function genID(type) {
 var otherOptions = {};
 // Ace functions
 function saveOther() {
-    if (activeType == "other" || activeType == "functions") activeParent[activeUName] = otherEditor.getValue();
+    if (activeType == "other" || activeType == "functions") {
+        activeParent[activeUName] = otherEditor.getValue();
+        save();
+    }
 }
 function changeAutosave(value) {
     if (otherOptions.autosave) {

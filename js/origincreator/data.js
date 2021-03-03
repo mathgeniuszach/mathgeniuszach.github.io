@@ -1374,6 +1374,7 @@ var forms = {
             "desc": "Whether or not to replace an already existing layer in another pack.",
             "default": false
         },
+        // I really, really hope that this kind of splitting is not required elsewhere in datapacks
         "origins": {
             "name": "Origins",
             "type": "list",
@@ -2285,5 +2286,9 @@ var forms = {
                 }
             }
         }
-    }
+    },
+    "predicates": extforms.predicates,
+    "advancements": extforms.advancements,
+    "recipes": extforms.recipes,
+    "loot_tables": extforms.loot_tables
 };

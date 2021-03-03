@@ -1,10 +1,8 @@
 // Current list of TODOs:
 // Setup built-in wiki and info
-// Support functions, tags, loot tables, and predicates.
+// Support loot tables, predicates, recipes, and advancements.
 // Use a url var to generate slightly different html that targets non-origin datapacks
 // Improve import system so that conflicts are stated
-// Replace content bar with jsTree and handle file movement
-// Handle other files better (make the editor customizable)
 
 // Possible performace improvements
 // Transition things off of findItem to findChildItem
@@ -33,10 +31,14 @@ var data = {
         "functions/": {},
         "items/": {}
     },
-    "functions/": {}
+    "functions/": {},
+    "predicates/": {},
+    "advancements/": {},
+    "recipes/": {}
 };
-var types = ["origin_layers", "origins", "powers", "tags"];
-var ttypes = ["meta", "origin_layers", "origins", "powers", "tags", "functions"];
+var types = ["origin_layers", "origins", "powers", "tags"]//, "predicates", "advancements", "recipes", "loot_tables"];
+var ttypes = ["meta", "origin_layers", "origins", "powers", "tags", "functions"]//, "predicates", "advancements", "recipes", "loot_tables"];
+var iconed = ["meta", "origin_layers/", "origins/", "powers/", "tags/", "functions/"]//, "predicates/", "advancements/", "recipes/", "loot_tables/"];
 
 // Some useful global variables
 // Type of the currently active screen
@@ -87,8 +89,10 @@ function jqns(str) {
 $(document).ready(function() {
     block();
     
-    insertForm($("#div-meta"), '<h2>pack - My Origins</h2>\n', forms.meta, "meta");
+    var metaDiv = $("#div-meta");
+    insertForm(metaDiv, '<h2>pack - My Origins</h2>\n', forms.meta, "meta");
     for (const type of types) {
+        metaDiv.after(`<div name="${type}" class="content nodisplay _${type}" id="div-${type}"></div>`);
         insertForm($("#div-"+type), '<h2>' + type + ' - ?</h2><br><br>\n', forms[type], type);
     }
     
