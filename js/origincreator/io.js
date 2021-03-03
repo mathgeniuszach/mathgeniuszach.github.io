@@ -14,7 +14,7 @@ function importThing(thing) {
 
             // Reset data
             data = {
-                "$": 2, // Version number to know how to convert data
+                "$": 3, // Version number to know how to convert data
                 "meta": {
                     "name": "My Pack",
                     "id": "mypack"
@@ -157,55 +157,7 @@ function loadImportData(zip) {
                     // Check the type of this file. Determines what to do in other cases too
                     switch (names[2]) {
                         case "origin_layers":
-                            try {
-                                output = JSON.parse(o);
-
-                                let origins = [];
-                                let cOrigins = [];
-                                ndata = {
-                                    "replace": output.replace,
-                                    "origins": origins,
-                                    "conditional_origins": cOrigins
-                                };
-                                for (let v of output.origins) {
-                                    if (typeof(v) == "string") {
-                                        origins.push(v);
-                                    } else {
-                                        cOrigins.push(v);
-                                    }
-                                }
-                                putLoadedData(ndata, names[2], folders, id);
-                            } catch (err) {
-                                // This file is invalid and must be loaded outside of the proper folder
-                                folders.splice(0, 0, names[2]);
-                                putLoadedData(o, "invalid", folders, id);
-                            }
-                            break;
                         case "tags":
-                            try {
-                                output = JSON.parse(o);
-
-                                let values = [];
-                                let rValues = [];
-                                ndata = {
-                                    "replace": output.replace,
-                                    "values": values,
-                                    "required_values": rValues
-                                };
-                                for (let v of output.values) {
-                                    if (typeof(v) == "string") {
-                                        values.push(v);
-                                    } else {
-                                        rValues.push(v);
-                                    }
-                                }
-                                putLoadedData(ndata, names[2], folders, id);
-                            } catch (err) {
-                                // This file is invalid and must be loaded outside of the proper folder
-                                folders.splice(0, 0, names[2]);
-                                putLoadedData(o, "invalid", folders, id);
-                            }
-                            break;
                         case "origins":
                         case "powers":
                             try {
@@ -347,23 +299,6 @@ function createRData(dFolder, itemData, type, path="") {
         if (id[id.length-1] != "/") {
             // Handle leafy files
             switch (type) {
-                case "origin_layers/":
-                    let origins = iData.origins || [];
-                    if (iData.conditional_origins) origins = origins.concat(iData.conditional_origins);
-                    
-                    createFile(dFolder, id, {
-                        "replace": iData.replace || false,
-                        "origins": origins
-                    }, type, path);
-                    break;
-                case "tags/":
-                    let values = iData.values || [];
-                    if (iData.required_values) values = values.concat(iData.required_values);
-
-                    createFile(dFolder, id, {
-                        "replace": iData.replace || false,
-                        "values": values
-                    }, type, path);
                 case "functions/":
                     createFile(dFolder, id, iData, type, path, ".mcfunction");
                     break;

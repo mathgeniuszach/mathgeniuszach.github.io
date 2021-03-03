@@ -13,7 +13,7 @@ function loadData(ocd) {
     };
     if (!data.meta.id) data.meta.id = "mypack";
     pid = data.meta.id;
-    if (data.$ !== 2) convertData(); // Data conversion necessary
+    if (data.$ !== 3) convertData(); // Data conversion necessary
 
     // Create items in listbox
     //let item
@@ -71,38 +71,74 @@ function rLoadData(cdata, fdata) {
     }
 }
 function convertData() {
-    for (let [name, type] of [["layer", "origin_layers/"], ["origin", "origins/"], ["power", "powers/"], ["tag", "tags/"]]) {
-        if (name in data) {
-            data[type] = data[name];
-            delete data[name];
-            for (let [item, itemData] of Object.entries(data[type])) {
-                let id = item;
-                let c = item.indexOf(":");
-                if (c != -1) {
-                    let namespace = item.substring(0, c);
-                    if (namespace === pid) id = item.substring(c+1);
-                }
-                id = ss(id);
+    if (!data.$) {
+        for (let [name, type] of [["layer", "origin_layers/"], ["origin", "origins/"], ["power", "powers/"], ["tag", "tags/"]]) {
+            if (name in data) {
+                data[type] = data[name];
+                delete data[name];
+                for (let [item, itemData] of Object.entries(data[type])) {
+                    let id = item;
+                    let c = item.indexOf(":");
+                    if (c != -1) {
+                        let namespace = item.substring(0, c);
+                        if (namespace === pid) id = item.substring(c+1);
+                    }
+                    id = ss(id);
 
-                if (id != item) {
-                    data[type][id] = itemData;
-                    delete data[type][item];
+                    if (id != item) {
+                        data[type][id] = itemData;
+                        delete data[type][item];
+                    }
                 }
             }
         }
+        data.$ = 2;
+        data["functions/"] = {};
+        data["predicates/"] = {};
+        data["advancements/"] = {};
+        data["recipes/"] = {};
+
+        delete data.recipe;
+        delete data.advancement;
+        delete data.function;
+        delete data.loot_table;
+
+        if (data.other) data.other = JSON.stringify(data.other, null, 4);
     }
-    data.$ = 2;
-    data["functions/"] = {};
-    data["predicates/"] = {};
-    data["advancements/"] = {};
-    data["recipes/"] = {};
+    if (data.$ < 3) {
+        // Convert layers
+        convertLayers(data["origin_layers/"]);
+        // Convert tags
+        convertTags(data["tags/"]);
 
-    delete data.recipe;
-    delete data.advancement;
-    delete data.function;
-    delete data.loot_table;
-
-    if (data.other) data.other = JSON.stringify(data.other, null, 4);
+        data.$ = 3;
+    }
+}
+function convertLayers(folder) {
+    for (let [layerID, layer] of Object.entries(folder)) {
+        if (layerID[layerID.length-1] == "/") {
+            convertLayers(layer);
+        } else {
+            if (layer.conditional_origins) {
+                if (layer.origins) layer.origins = layer.origins.concat(layer.conditional_origins);
+                else layer.origins = layer.conditional_origins;
+                delete layer.conditional_origins;
+            }
+        }
+    }
+}
+function convertTags(folder) {
+    for (let [tagID, tag] of Object.entries(folder)) {
+        if (tagID[tagID.length-1] == "/") {
+            convertTags(tag);
+        } else {
+            if (tag.required_values) {
+                if (tag.values) tag.values = tag.values.concat(tag.required_values);
+                else tag.values = tag.required_values;
+                delete tag.required_values;
+            }
+        }
+    }
 }
 
 // Find an element's datapath (which is dynamic thanks to lists... yuck. Oh well)
@@ -121,54 +157,60 @@ function getPath(elem, selfish) {
 };
 // Find an item based on a datapath/element id
 function findItem(...datapaths) {
-    return $("._"+datapaths.join(">._").replace(/--/g, ">._").replace(":", "-_-"));
+    return $("._"+datapaths.join(">._").replace(/--/g, ">._").replace(":", "-__-"));
 }
 function findChildItem(parent, ...datapaths) {
-    return parent.find(">._"+datapaths.join(">._").replace(/--/g, ">._").replace(":", "-_-"))
+    return parent.find(">._"+datapaths.join(">._").replace(/--/g, ">._").replace(":", "-__-"))
 }
 
 function locateForm(datapath, id) {
-    //console.log(datapath);
     var spath = datapath.split("--");
     // Find starting location
     var formloc = forms[spath[0]];
     
     // Finish finding form location
     for (let i = 1; i < spath.length; i++) {
-        let path = spath[i].replace("-_-", ":");
+        let path = spath[i].replace("-__-", ":");
         if (path[0] == "-") path = path.substring(1);
         
-        if (!isNaN(path)) continue;
+        if (path != "" && !isNaN(path)) continue;
         
-        //console.log(spath[i], formloc);
         let newFormLoc = formloc[path];
         if (!newFormLoc) continue;
         if (newFormLoc.type == "more") {
-            let v = spath[i+1].replace("-_-", ":");
+            let v = spath[i+1].replace("-__-", ":");
             //if (!v) findItem(spath.slice(0, i).join("--"), newFormLoc.parent).val();
             formloc = newFormLoc.data[v];
             i++;
+        } else if (newFormLoc.type == "multi") {
+            formloc = newFormLoc.data[newFormLoc.options.indexOf("extra")];
         } else {
             formloc = newFormLoc.data;
         }
     }
     if (id != undefined) {
-        var pid = id;
-        if (id[0] == "-") pid = id.substring(1);
+        var lpid = id;
+        if (id[0] == "-") lpid = id.substring(1);
         
-        if (!formloc[pid]) return null;
-        else return formloc[pid].data;
+        if (!formloc[lpid]) return null;
+        else if (formloc[lpid].type == "multi") {
+            return formloc[lpid].data[formloc[lpid].options.indexOf("extra")];
+        }
+        else return formloc[lpid].data;
     }
     else return formloc;
 }
 
 function locateData(datapath, nosub) {
-    var spath = datapath.replace("-_-", ":").split("--");
+    var spath = datapath.replace("-__-", ":").split("--");
+    if (spath[spath.length-2] == "_") spath = spath.slice(0, -2); // Get rid of bad values at the end of a list datapath multis
+
     // Find starting location
     var loc = active;
     // Finish finding location (here because maybe meta has a panel)
     for (let i = 1; i < spath.length; i++) {
-        if (spath[i][0] === "_") { // Skip things that don't want to be stored
+        if (!spath[i]) { // Skip empty things
+        } else if (spath[i][0] === "_") { // Skip things that don't want to be stored
             if (spath[i][1] === "_") i++;
         } else if (spath[i][0] === "-") { // Handle lists
             let newLoc = loc[spath[i].substring(1)];
@@ -221,7 +263,7 @@ function insertData(key, type, item, extra) {
     var datapath = getPath(item);
     var loc = locateData(datapath, !key);
     var v = item.value;
-    var elem;
+    //var elem;
     
     // Options need happen regardless of whether or not loc exists
     if (type === "options") { // Options need to change the visible "more" panel
@@ -250,24 +292,6 @@ function insertData(key, type, item, extra) {
             $("#side-main-head").text(v);
             $("#div-meta h2").text("pack - " + v);
             break;
-        //case "id": // IDs need to be handled in a particular way because they unique define the subscreen.
-            // Start by getting normalized id
-            //v = ns(v);
-            // Make sure the id is unique
-            //while (v in data[screen]) v += "_";
-            //item.value = v;
-            // Then move data to the right place
-            //data[screen][v] = loc;
-            //delete data[screen][subscreen];
-            // Update html
-            //$("#div-" + screen + " h2").text(screen + " - " + v); 
-            //elem = $(`option[value="${screen}-${subscreen}"]`);
-            //elem.attr("value", screen + "-" + v);
-            //elem.text(v);
-            // Finally, update screen
-            //subscreen = v;
-            //fullscreen = screen+"-"+subscreen;
-            //break;
         case "image": // Images need to be converted to 128x128 png/base64 for safe keeping
             var reader = new FileReader();
             reader.onload = function() {
@@ -305,7 +329,8 @@ function insertData(key, type, item, extra) {
             break;
         case "ns": // Normalized strings just need to be normalized
             if (v == "") {
-                delete loc[key];
+                if (Array.isArray(loc)) loc[key] = "";
+                else delete loc[key];
             } else {
                 v = ns(v);
                 item.value = v;
@@ -333,7 +358,8 @@ function insertData(key, type, item, extra) {
             break;
         default:
             if (v == "") {
-                delete loc[key];
+                if (Array.isArray(loc)) loc[key] = "";
+                else delete loc[key];
             } else {
                 loc[key] = v;
             }
@@ -360,19 +386,22 @@ function loadEntries(level, rootElem, data, form, del) {
         // Load data
         for (const [itemID, item] of Object.entries(form)) {
             let v = data[itemID];
-            if (v == undefined) v = item.default;
-            if (v == undefined) v = "";
+            if (item.type == "multi" && v == undefined) v = data;
+            else {
+                if (v == undefined) v = item.default;
+                if (v == undefined) v = "";
 
-            if (itemID.length > 1) {
-                if (data[itemID] === undefined && item.default) data[itemID] = v;
-            } else { // Yes this is hacky and no I don't care
-                if (typeof(data) == "object") {
-                    v = item.default || "";
-                } else {
-                    v = data || item.default || "";
+                if (itemID.length > 1) {
+                    if (data[itemID] === undefined && item.default) data[itemID] = v;
+                } else { // Yes this is hacky and no I don't care
+                    if (typeof(data) == "object") {
+                        v = item.default || "";
+                    } else {
+                        v = data || item.default || "";
+                    }
                 }
             }
-            
+                
             // Spaghetti code is TIGHT!
             let elem = findChildItem(rootElem, itemID);
             if (item.type == "list") {
@@ -452,7 +481,7 @@ function loadEntries(level, rootElem, data, form, del) {
                                         loadEntries(level+1, more, data, form[item.more].data[v], false);
                                     } else {
                                         // I don't need to deal with this case right now.
-                                        console.log("I SHOULD NOT RUN");
+                                        console.log("WARNING! I SHOULD NOT RUN! IF YOU SEE THIS THE EDITOR FAILED!");
                                     }
                                 } else {
                                     if (!data[item.more]) data[item.more] = {};
@@ -470,7 +499,50 @@ function loadEntries(level, rootElem, data, form, del) {
                     ace.edit(elem.attr("id")).setValue(v, -1);
                     break;
                 case "multi":
-                    // Because some people thought it would be cool to have multiple types for the same id. Thanks.
+                    // Because some people thought it would be cool to have multiple valid types for the same key. Thanks.
+                    nodel = true;
+                    let t = typeof(v);
+                    if (Array.isArray(v)) t = "list";
+
+                    let j = null;
+                    let tt = null;
+                    for (let k = 0; k < item.types.length; k++) {
+                        tt = item.types[k];
+                        if (
+                            tt == t ||
+                            t == "object" && tt == "sub" && Object.keys(v).length ||
+                            t == "string" && (tt == "ns" || tt == "text" || tt == "textarea") ||
+                            t == "number" && (tt == "double" || tt == "int") ||
+                            t == "boolean" && tt == "checkbox"
+                        ) {
+                            j = k;
+                            break;
+                        }
+                    }
+
+                    elem = findChildItem(rootElem, "_"+itemID);
+                    elem.find(">div").addClass("nodisplay");
+                    
+                    let sel = elem.find(">select");
+                    let name = item.options[j || 0];
+                    let div = elem.find(">.multi-"+name);
+
+                    sel.val(name);
+                    div.removeClass("nodisplay");
+                    if (j != null) {
+                        switch (tt) {
+                            case "sub":
+                                loadEntries(level+1, div, v, form[itemID].data[j], true);
+                                break;
+                            // TODO: handle checkboxes when necessary
+                            default:
+                                div.find(">._"+itemID).val(v);
+                                break;
+                        }
+                    } else {
+                        // FIXME: Hopefully no issues here...
+                        div.find(">._"+itemID).val("");
+                    }
                     break;
                 case "id": // ID values are not based on the dictionary, but rather a unique value.
                     if (id !== undefined) elem.val(id); // IDs are only updated if provided.
@@ -481,14 +553,6 @@ function loadEntries(level, rootElem, data, form, del) {
                 case "checkbox":
                     if (v === "") v = false;
                     if (data[itemID] === undefined) data[itemID] = v;
-                    //if (v === "") v = false;
-                    //if (item.default === undefined) {
-                        //if (v) data[itemID] = v;
-                        //else delete data[itemID];
-                    //} else {
-                        //if (v === item.default) data[itemID] = v;
-                        //else delete data[itemID];
-                    //}
                     elem.prop("checked", v);
                 default:
                     // Every other element
@@ -497,7 +561,7 @@ function loadEntries(level, rootElem, data, form, del) {
             }
 
             // Make sure data is stored in the right format regardless.
-            if (item.type != "dict" && item.type != "sub" && item.type != "list" && item.type != "more") {
+            if (item.type != "dict" && item.type != "sub" && item.type != "list" && item.type != "more"/*&& item.type != "multi"*/) {
                 if (item.type != "options" || v != "???") {
                     if (data[itemID] !== undefined && data[itemID] !== v) data[itemID] = v;
                 }
@@ -558,27 +622,14 @@ function insertForm(loc, header, form, datapath, level=0) {
                 }
                 loc.append(`<div class="${cs}">${item.info}</div>`);
                 break;
-            case "main":
-            case "ns":
-            case "id":
-            case "text":
-                loc.append(`<input name="${itemID}" class="ientry _${itemID}" onchange='insertData("${itemID}", "${item.type}", this)' value="${itemval}">`);
-                break;
-            case "int":
-                loc.append(`<input name="${itemID}" class="ientry _${itemID}" type="number" onchange='insertData("${itemID}", "${item.type}", this)' value="${itemval}">`);
-                break;
-            case "double":
-                loc.append(`<input name="${itemID}" class="ientry _${itemID}" type="number" step="0.0001" onchange='insertData("${itemID}", "${item.type}", this)' value="${itemval}">`);
-                break;
-            case "checkbox":
-                loc.append(`<input name="${itemID}" class="ientry _${itemID}" type="checkbox" onchange='insertData("${itemID}", "${item.type}", this)' value="${itemval}">`);
-                break;
-            case "image":
-                loc.append(`<img class="i_${itemID}" src=""><br><div class="iitem"></div><button onclick='insertData("${itemID}", "cimage", this)'>Clear</button><input name="${itemID}" class="ientry _${itemID}" type="file" onchange='insertData("${itemID}", "${item.type}", this)' value="${itemval}" accept="image/*">`);
-                break;
             case "textarea":
                 loc.append(`<textarea name="${itemID}" class="ientry _${itemID}" onchange='insertData("${itemID}", "${item.type}", this)'>${itemval}</textarea>`);
                 break;
+            //case "ace":
+                //loc.append(`<div class="flex m mb2"><button onclick="saveAce(${xn}, '${itemID}')">Save</button>&nbsp;Autosave:&nbsp;<select onchange="changeAutosave(${xn}, '${itemID}', this.value)"><option value="0">focus lost only</option><option value="10">10 sec</option><option value="20">20 sec</option><option value="30">30 sec</option><option value="60">1 min</option></select></div><div id="ace-${xn}" name="${itemID}" class="iblock _${itemID} ace" onfocusout="saveAce(${xn}, '${itemID}')"></div><br><div class="iitem"></div>`);
+                //setupAce("ace-"+xn, "ace/mode/text");
+                //xn++;
+                //break;
             case "options":
                 let items = [];
                 items.push(`<select name="${itemID}" class="ientry _${itemID}" onchange='insertData("${itemID}", "${item.type}", this, "${item.more || ""}")' value="${itemval}">`);
@@ -588,36 +639,12 @@ function insertForm(loc, header, form, datapath, level=0) {
                 items.push("</select>");
                 loc.append(items.join(""));
                 break;
-            //case "ace":
-                //loc.append(`<div class="flex m mb2"><button onclick="saveAce(${xn}, '${itemID}')">Save</button>&nbsp;Autosave:&nbsp;<select onchange="changeAutosave(${xn}, '${itemID}', this.value)"><option value="0">focus lost only</option><option value="10">10 sec</option><option value="20">20 sec</option><option value="30">30 sec</option><option value="60">1 min</option></select></div><div id="ace-${xn}" name="${itemID}" class="iblock _${itemID} ace" onfocusout="saveAce(${xn}, '${itemID}')"></div><br><div class="iitem"></div>`);
-                //setupAce("ace-"+xn, "ace/mode/text");
-                //xn++;
-                //break;
-            case "multi": // I personally find it dumb that this is required
-                if (item.panel) {
-                    cs = "panel ";
-                    if (level % 2 == 1) {
-                        cs = "panel panel-dark ";
-                    }
-                } else cs = "";
-
-                loc.append(`<div name="${itemID}" class="${cs}iblock _${itemID}"><select></select></div>`);
-                pnl = findItem(panelID);
-                let select = pnl.find(">select");
-
-                for (let i = 0; i < item.options.length; i++) {
-                    let mName = item.options[i];
-                    let mType = item.types[i];
-                    select = select.append(`<option value="${mName}">${mName}</option>`);
-                }
-                break;
             case "more":
                 loc.append(`<div name="${itemID}" class="iblock _${itemID}"></div>`);
                 pnl = findItem(panelID);
                 
                 // Creating multiple panels is necessary
                 for (const [option, odata] of Object.entries(item.data)) {
-                    //console.log(option, odata);
                     let jqop = jqns(option);
                     // Create panel
                     pnl.append(`<div name="${jqop}" class="nodisplay _${jqop}"></div>`);
@@ -630,8 +657,45 @@ function insertForm(loc, header, form, datapath, level=0) {
                 // Display the first one.
                 findItem(panelID, jqns(Object.keys(item.data)[0])).removeClass("nodisplay");
                 break;
-            default:
-                // If it's not any of the above options, it has a panel, and we wait to create fields for it until the user expands it.
+            case "multi": // I personally find it dumb that this is required
+                if (item.panel) {
+                    cs = "panel ";
+                    if (level % 2 == 1) {
+                        cs = "panel panel-dark ";
+                    }
+                } else cs = "";
+
+                panelID = datapath + "--_" + itemID;
+                loc.append(`<div name="_${itemID}" class="${cs}iblock __${itemID}"><select class="mb2" onchange='changeMulti(this)'></select></div>`);
+                pnl = findItem(panelID);
+                let select = pnl.find(">select");
+
+                for (let i = 0; i < item.options.length; i++) {
+                    let mName = item.options[i];
+                    let mType = item.types[i];
+                    select = select.append(`<option value="${mName}">${mName}</option>`);
+                    if (item.data[i]) {
+                        if (item.panel) {
+                            // It do be a subpanel though! In order to handle mojang's greed for recursion, it needs a show button
+                            pnl = pnl.append(`<div ttype="${mType}" llevel="${level+1}" name="${itemID}" class="nodisplay iblock _${itemID} multi-${mName}"><button class="sbutton" onclick='insertPanel(this)'>+</button></div>`);
+                        } else {
+                            // Load just like how more does, without the show button.
+                            pnl = pnl.append(`<div name="${itemID}" class="nodisplay _${itemID} multi-${mName}"></div>`);
+                            let elem = pnl.find(">._"+itemID);
+                            insertForm(elem, "", item.data[i], panelID+"--"+itemID, level);
+                        }
+                    } else {
+                        pnl = pnl.append(`<div name="_${mName}" class="nodisplay iblock __${mName} multi-${mName}"></div>`);
+                        let elem = pnl.find(">.__"+mName);
+                        insertSimple(elem, mType, itemID);
+                    }
+                }
+
+                select.after("<br>");
+                break;
+            case "sub":
+            case "list":
+                // If it's a list or sub, it has a panel, and we wait to create fields for it until the user expands it.
                 // If we didn't do this, we would have infinite recursion problems.
                 let lID = itemID;
                 if (item.type === "list") {
@@ -650,8 +714,34 @@ function insertForm(loc, header, form, datapath, level=0) {
                 
                 loc.append(`<div ttype="${item.type}" llevel=${level+1} name="${lID}" class="${cs} _${lID}"><button class="sbutton" onclick='insertPanel(this)'>+</button></div>`);
                 break;
+            default:
+                // Other values are simple and inserted simply
+                insertSimple(loc, item.type, itemID, itemval);
         }
         if (item.name) loc.append("<br>\n\n");
+    }
+};
+
+function insertSimple(loc, type, itemID, itemval="") {
+    switch (type) {
+        case "main":
+        case "ns":
+        case "id":
+        case "text":
+            loc.append(`<input name="${itemID}" class="ientry _${itemID}" onchange='insertData("${itemID}", "${type}", this)' value="${itemval}">`);
+            break;
+        case "int":
+            loc.append(`<input name="${itemID}" class="ientry _${itemID}" type="number" onchange='insertData("${itemID}", "${type}", this)' value="${itemval}">`);
+            break;
+        case "double":
+            loc.append(`<input name="${itemID}" class="ientry _${itemID}" type="number" step="0.0001" onchange='insertData("${itemID}", "${type}", this)' value="${itemval}">`);
+            break;
+        case "checkbox":
+            loc.append(`<input name="${itemID}" class="ientry _${itemID}" type="checkbox" onchange='insertData("${itemID}", "${type}", this)' value="${itemval}">`);
+            break;
+        case "image":
+            loc.append(`<img class="i_${itemID}" src=""><br><div class="iitem"></div><button onclick='insertData("${itemID}", "cimage", this)'>Clear</button><input name="${itemID}" class="ientry _${itemID}" type="file" onchange='insertData("${itemID}", "${type}", this)' value="${itemval}" accept="image/*">`);
+            break;
     }
 };
 
@@ -702,7 +792,7 @@ function insertPanel(btn) {
 }
 function removePanel(btn) {
     // Remove data from raw data
-    var spath = getPath(btn).replace("-_-", ":").split("--");
+    var spath = getPath(btn).replace("-__-", ":").split("--");
     var key = spath[spath.length-1];
     if (key[0] == "-") key = key.substring(1);
     

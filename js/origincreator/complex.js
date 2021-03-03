@@ -465,3 +465,27 @@ function listItemDown(btn) {
     var pnl = $(btn.parentElement).nextAll("div").first();
     if (pnl.length) moveListItem(pnl, locateData(getPath(btn.parentElement)));
 }
+
+
+function changeMulti(sel) {
+    var pnl = $(sel.parentElement);
+    var v = sel.value;
+    var div = pnl.find(">.multi-"+v);
+
+    pnl.find(">div").addClass("nodisplay");
+    div.removeClass("nodisplay");
+    var datapath = getPath(sel.parentElement);
+    var i = datapath.lastIndexOf("--");
+    if (v == "extra") {
+        var temp = {};
+        locateData(datapath.substring(0,i))[datapath.substring(i+2)] = temp;
+
+        var form = locateForm(datapath.substring(0,i))[pnl.attr("name").substring(1)];
+        //console.log(form, form.options.indexOf(v), form.data);
+        form = form.data[form.options.indexOf(v)];
+        if (form) loadEntries(0, div, temp, form, true);
+    } else {
+        delete locateData(datapath.substring(0,i))[datapath.substring(i+2)];
+    }
+    save();
+}

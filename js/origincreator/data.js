@@ -1381,28 +1381,27 @@ var forms = {
             "desc": "IDs of origins to include in this layer.",
             "data": {
                 "": {
-                    "type": "ns"
-                }
-            }
-        },
-        "conditional_origins": {
-            "name": "Conditional Origins",
-            "type": "list",
-            "desc": "A list of conditional origins.",
-            "data": {
-                "condition": {
-                    "name": "Condition",
-                    "type": "sub",
-                    "desc": "Condition that needs to hold in order for the origins in the list to be active.",
-                    "data": condition_data
-                },
-                "origins": {
-                    "name": "Origins",
-                    "type": "list",
-                    "desc": "IDs of origins to include in this layer conditionally.",
+                    "type": "multi",
+                    "options": ["simple", "extra"],
+                    "types": ["ns", "sub"],
                     "data": {
-                        "": {
-                            "type": "ns"
+                        1: {
+                            "condition": {
+                                "name": "Condition",
+                                "type": "sub",
+                                "desc": "Condition that needs to hold in order for the origins in the list to be active.",
+                                "data": condition_data
+                            },
+                            "origins": {
+                                "name": "Origins",
+                                "type": "list",
+                                "desc": "IDs of origins to include in this layer conditionally.",
+                                "data": {
+                                    "": {
+                                        "type": "ns"
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -2261,28 +2260,27 @@ var forms = {
         "values": {
             "name": "Values",
             "type": "list",
-            "desc": "A list of things and other tags to include in this tag.",
+            "desc": "A list of ids and other tags to include in this tag.",
             "data": {
                 "": {
-                    "type": "ns"
-                }
-            }
-        },
-        "required_values": {
-            "name": "Required Values",
-            "type": "list",
-            "desc": "A list of required things and other tags to include in this tag. Required things differ in that they must be present in order for the entire tag to load.",
-            "data": {
-                "id": {
-                    "name": "ID",
-                    "type": "ns",
-                    "desc": "An id or another tag"
-                },
-                "required": {
-                    "name": "Required",
-                    "type": "checkbox",
-                    "desc": "Whether or not this thing is required.",
-                    "default": true
+                    "type": "multi",
+                    "options": ["simple", "extra"],
+                    "types": ["ns", "sub"],
+                    "data": {
+                        1: {
+                            "id": {
+                                "name": "ID",
+                                "type": "ns",
+                                "desc": "An id or another tag"
+                            },
+                            "required": {
+                                "name": "Required",
+                                "type": "checkbox",
+                                "desc": "Whether or not this thing is required.",
+                                "default": true
+                            }
+                        }
+                    }
                 }
             }
         }

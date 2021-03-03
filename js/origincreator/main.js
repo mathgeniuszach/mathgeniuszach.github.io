@@ -11,7 +11,7 @@
 
 // Data that pretty much stores everything
 var data = {
-    "$": 2, // Version number to know how to convert data
+    "$": 3, // Version number to know how to convert data
     "meta": {
         "name": "My Pack",
         "id": "mypack"
@@ -32,9 +32,9 @@ var data = {
         "items/": {}
     },
     "functions/": {},
-    "predicates/": {},
-    "advancements/": {},
-    "recipes/": {}
+    //"predicates/": {},
+    //"advancements/": {},
+    //"recipes/": {}
 };
 var types = ["origin_layers", "origins", "powers", "tags"]//, "predicates", "advancements", "recipes", "loot_tables"];
 var ttypes = ["meta", "origin_layers", "origins", "powers", "tags", "functions"]//, "predicates", "advancements", "recipes", "loot_tables"];
@@ -82,7 +82,7 @@ function ns(str) {
 // CSS selectors are dumb so this exists
 function jqns(str) {
     "use strict";
-    return ns(str).replace(/:/g, '-_-');
+    return ns(str).replace(/:/g, '-__-');
 }
 
 // Things to do when the document is done loading
@@ -256,6 +256,7 @@ function save() {
     window.localStorage.setItem("origin-creator-cliptree", clipedTree);
     resetRaw();
     resetIRaw();
+    //console.trace();
 }
 // Reset the entire pack to default
 function resetPack() {
