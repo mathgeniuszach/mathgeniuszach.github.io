@@ -376,11 +376,14 @@ function copyListItem(btn) {
     // Clone element (and <br>)
     var clone = pnl.clone().insertAfter(pnl);
     clone.before("<br>");
+    clone.attr("name", i+1);
+    clone.removeClass("_"+i);
+    clone.addClass("_"+(i+1));
     //clone.click(selectPanel);
     
     // Move all elements below down one (This is why the rewrite was required)
     var elems = pnlp.find(">div");
-    for (let j = i+1; j < elems.length; j++) {
+    for (let j = i+2; j < elems.length; j++) {
         let jelem = $(elems[j]);
         jelem.attr("name", String(j));
         jelem.removeClass("_"+String(j-1));
@@ -388,6 +391,10 @@ function copyListItem(btn) {
     }
     
     //changeScreen(activeType, activeParent, activeUName, activePath); // HACK: only loading list item is necessary
+    var iID = getPath(clone.get(0)) + "--" + (i+1);
+    var form = locateForm(iID);
+    var d = locateData(iID);
+    loadEntries(0, clone, d, form);
     
     // Don't forget to save!
     save();
