@@ -69,27 +69,34 @@ function fixName(node, d) {
     }
 }
 
+var content_data = [
+    {"text": "meta", "type": "meta"},
+    {"text": "tags", "type": "tags", "children": [
+        {"text": "blocks"},
+        {"text": "entity_types"},
+        {"text": "fluids"},
+        {"text": "functions"},
+        {"text": "items"}
+    ]},
+    {"text": "functions", "type": "functions"},
+    {"text": "predicates", "type": "predicates"},
+    {"text": "recipes", "type": "recipes"},
+    {"text": "loot_tables", "type": "loot_tables"},
+    {"text": "advancements", "type": "advancements"}
+];
+if (!simplified) {
+    content_data.push(
+        {"text": "origin_layers", "type": "origin_layers", "children": [
+            {"text": "origins:origin", "type": "file"}
+        ]},
+        {"text": "origins", "type": "origins"},
+        {"text": "powers", "type": "powers"}
+    );
+}
+
 var content_box = {
     "core": {
-        "data": [
-            {"text": "meta", "type": "meta"},
-            {"text": "origin_layers", "type": "origin_layers", "children": [
-                {"text": "origins:origin", "type": "file"}
-            ]},
-            {"text": "origins", "type": "origins"},
-            {"text": "powers", "type": "powers"},
-            {"text": "tags", "type": "tags", "children": [
-                {"text": "blocks"},
-                {"text": "entity_types"},
-                {"text": "fluids"},
-                {"text": "functions"},
-                {"text": "items"}
-            ]},
-            {"text": "functions", "type": "functions"},
-            //{"text": "predicates", "type": "predicates"},
-            //{"text": "advancements", "type": "advancements"},
-            //{"text": "recipes", "type": "recipes"}
-        ],
+        "data": content_data,
         "themes": {
             "name": "proton",
             "variant": "small",
@@ -106,9 +113,10 @@ var content_box = {
         "powers": {"icon": "/i/origincreator/power.png"},
         "tags": {"icon": "/i/origincreator/tag.png"},
         "functions": {"icon": "/i/origincreator/function.png"},
-        "predicates": {"icon": "/i/origincreator/predicates.png"},
-        "advancements": {"icon": "/i/origincreator/advancements.png"},
-        "recipes": {"icon": "/i/origincreator/recipes.png"}
+        "predicates": {"icon": "/i/origincreator/predicate.png"},
+        "advancements": {"icon": "/i/origincreator/advancement.png"},
+        "recipes": {"icon": "/i/origincreator/recipe.png"},
+        "loot_tables": {"icon": "/i/origincreator/loot_table.png"}
     },
     "conditionalselect": function (node, event) {
         return isFile(node);
@@ -274,7 +282,7 @@ var content_box = {
                         save();
                     },
                     "_disabled": function () {
-                        return !isFreeNode(node);
+                        return node.type == "meta";
                     }
                 }
             }
@@ -474,18 +482,28 @@ function changeMulti(sel) {
 
     pnl.find(">div").addClass("nodisplay");
     div.removeClass("nodisplay");
+
     var datapath = getPath(sel.parentElement);
+    var j = 0; // Handle something with an underscore at the start? Panels generate with an extra underscore so j is here to remove it
+    if (pnl.hasClass("panel")) {
+        datapath = getPath(sel.parentElement, true);
+        j = 1;
+    }
     var i = datapath.lastIndexOf("--");
+
+    // I... kind of forget how this works exactly, but it does so oh well
+    // Panel-less items are inside of lists and need to be handled differently
     if (v == "extra") {
         var temp = {};
-        locateData(datapath.substring(0,i))[datapath.substring(i+2)] = temp;
+        locateData(datapath.substring(0,i))[datapath.substring(i+2+j)] = temp;
 
         var form = locateForm(datapath.substring(0,i))[pnl.attr("name").substring(1)];
-        //console.log(form, form.options.indexOf(v), form.data);
         form = form.data[form.options.indexOf(v)];
         if (form) loadEntries(0, div, temp, form, true);
     } else {
-        delete locateData(datapath.substring(0,i))[datapath.substring(i+2)];
+        delete locateData(datapath.substring(0,i))[datapath.substring(i+2+j)];
+        // TODO: support more than just this
+        div.find(">input").val("");
     }
     save();
 }

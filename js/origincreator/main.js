@@ -32,13 +32,14 @@ var data = {
         "items/": {}
     },
     "functions/": {},
-    //"predicates/": {},
-    //"advancements/": {},
-    //"recipes/": {}
+    "predicates/": {},
+    "advancements/": {},
+    "recipes/": {},
+    "loot_tables/": {}
 };
-var types = ["origin_layers", "origins", "powers", "tags"]//, "predicates", "advancements", "recipes", "loot_tables"];
-var ttypes = ["meta", "origin_layers", "origins", "powers", "tags", "functions"]//, "predicates", "advancements", "recipes", "loot_tables"];
-var iconed = ["meta", "origin_layers/", "origins/", "powers/", "tags/", "functions/"]//, "predicates/", "advancements/", "recipes/", "loot_tables/"];
+var types = ["origin_layers", "origins", "powers", "tags", "predicates", "recipes", "loot_tables", "advancements"];
+var ttypes = ["meta", "origin_layers", "origins", "powers", "tags", "functions", "predicates", "recipes", "loot_tables", "advancements"];
+var iconed = ["meta", "origin_layers/", "origins/", "powers/", "tags/", "functions/", "predicates/", "recipes/", "loot_tables/", "advancements/"];
 
 // Some useful global variables
 // Type of the currently active screen
@@ -70,6 +71,8 @@ var iRawEditor;
 var editOptions = {};
 
 const urlArgs = new URLSearchParams(location.search);
+// Whether or not to remove the Origins part of the creator by default
+var simplified = urlArgs.get("type") == "simple";
 // Save location
 var saveLoc = urlArgs.get("save") || "";
 var extDataLoc = decodeURIComponent(urlArgs.get("data") || "");
@@ -93,7 +96,7 @@ $(document).ready(function() {
     insertForm(metaDiv, '<h2>pack - My Origins</h2>\n', forms.meta, "meta");
     for (const type of types) {
         metaDiv.after(`<div name="${type}" class="content nodisplay _${type}" id="div-${type}"></div>`);
-        insertForm($("#div-"+type), '<h2>' + type + ' - ?</h2><br><br>\n', forms[type], type);
+        insertForm($("#div-"+type), '<h2>' + type + ' - ?</h2>\n', forms[type], type);
     }
     
     // Buttons for general overview
@@ -132,10 +135,14 @@ $(document).ready(function() {
     $(document).click(select);
     $(document).keydown(keyDown);
 
-    // Content box (soon to be replaced)
-    //var cb = $("#content-box");
-    //cb.on("change", selectContent);
-    //cb.on("focus", ensureSelect);
+    // If simple, remove references to origins related stuff
+    if (simplified) {
+        $(".non-simple").remove();
+        // Remove parts in data
+        delete data["origin_layers/"];
+        delete data["origins/"];
+        delete data["powers/"];
+    }
 
     // Clipboard
     dataClipboard =  window.localStorage.getItem("origin-creator-clip");
@@ -198,7 +205,6 @@ function changeScreen(type, activeP, uname, path) {
         active = activeP[uname || type];
         // Load data into raw editor
         $("#div-i-raw").removeClass("nodisplay");
-        resetIRaw();
         // Load data into entry fields
         loadEntries(0, activeElem, active, forms[type], true);
     } else {
@@ -295,6 +301,7 @@ function grabData() {
     extDataLoc = $("#ipt-web-loc").val();
 
     var loc = "?";
+    if (simplified) loc += "type=simple&";
     if (saveLoc) loc += "save="+saveLoc+"&";
     if (extDataLoc) loc += "data="+encodeURIComponent(extDataLoc)+"&";
     
@@ -305,6 +312,7 @@ function grabData() {
 function toggleIRaw() {
     var elem = $("#div-i-raw-i");
     if (elem.hasClass("nodisplay")) {
+        resetIRaw();
         elem.removeClass("nodisplay");
     } else {
         elem.addClass("nodisplay");

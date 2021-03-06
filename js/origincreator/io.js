@@ -19,9 +19,6 @@ function importThing(thing) {
                     "name": "My Pack",
                     "id": "mypack"
                 },
-                "origin_layers/": {},
-                "origins/": {},
-                "powers/": {},
                 "tags/": {
                     "blocks/": {},
                     "entity_types/": {},
@@ -29,7 +26,16 @@ function importThing(thing) {
                     "functions/": {},
                     "items/": {}
                 },
-                "functions/": {}
+                "functions/": {},
+                "predicates/": {},
+                "recipes/": {},
+                "loot_tables/": {},
+                "advancements/": {}
+            }
+            if (!simplified) {
+                data["origin_layers/"] = {};
+                data["origins/"] = {};
+                data["powers/"] = {};
             }
             
             // Load icon (if available)
@@ -160,6 +166,10 @@ function loadImportData(zip) {
                         case "tags":
                         case "origins":
                         case "powers":
+                        case "predicates":
+                        case "recipes":
+                        case "loot_tables":
+                        case "advancements":
                             try {
                                 putLoadedData(JSON.parse(o), names[2], folders, id);
                             } catch (err) {

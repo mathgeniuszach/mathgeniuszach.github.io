@@ -97,6 +97,7 @@ function convertData() {
         data["predicates/"] = {};
         data["advancements/"] = {};
         data["recipes/"] = {};
+        data["loot_tables/"] = {};
 
         delete data.recipe;
         delete data.advancement;
@@ -263,11 +264,16 @@ function insertData(key, type, item, extra) {
     var datapath = getPath(item);
     var loc = locateData(datapath, !key);
     var v = item.value;
-    //var elem;
     
     // Options need happen regardless of whether or not loc exists
     if (type === "options") { // Options need to change the visible "more" panel
-        if (loc) loc[key] = v;
+        if (loc) {
+            if (v == " ") {
+                delete loc[key];
+            } else {
+                loc[key] = v;
+            }
+        }
         if (extra) {
             // For performace, removing hidden subpanels from the html might be a good idea.
             var p = findItem(datapath, extra).find(">div");
@@ -287,6 +293,22 @@ function insertData(key, type, item, extra) {
     }
     
     switch (type) {
+        case "textlist":
+            if (v) {
+                loc[key] = v.split(/\r\n|\r|\n/g);
+            } else {
+                delete loc[key];
+            }
+            break;
+        case "ace":
+            let editor = ace.edit("ace-"+extra);
+            v = editor.getValue();
+            if (v) {
+                loc[key] = JSON.parse(v);
+            } else {
+                delete loc[key];
+            }
+            break;
         case "main": // Main field needs to update the header and left panel side-main-head
             loc[key] = v;
             $("#side-main-head").text(v);
@@ -326,6 +348,13 @@ function insertData(key, type, item, extra) {
         case "checkbox":
             v = item.checked;
             loc[key] = v
+            break;
+        case "bool":
+            if (v == "unspecified") {
+                delete loc[key];
+            } else {
+                loc[key] = v === "true";
+            }
             break;
         case "ns": // Normalized strings just need to be normalized
             if (v == "") {
@@ -385,9 +414,22 @@ function loadEntries(level, rootElem, data, form, del) {
 
         // Load data
         for (const [itemID, item] of Object.entries(form)) {
+            // Spaghetti code is TIGHT!
+            let elem = findChildItem(rootElem, itemID);
+            if (item.type == "list") {
+                elem = findChildItem(rootElem, "-"+itemID);
+            }
+
             let v = data[itemID];
-            if (item.type == "multi" && v == undefined) v = data;
-            else {
+            if (item.type == "multi") {
+                elem = findChildItem(rootElem, "_"+itemID);
+                if (elem.hasClass("panel")) {
+                    if (data[itemID] === undefined) {
+                        v = null;
+                        //data[itemID] = v;
+                    }
+                } else if (v === undefined) v = data;
+            } else {
                 if (v == undefined) v = item.default;
                 if (v == undefined) v = "";
 
@@ -400,12 +442,6 @@ function loadEntries(level, rootElem, data, form, del) {
                         v = data || item.default || "";
                     }
                 }
-            }
-                
-            // Spaghetti code is TIGHT!
-            let elem = findChildItem(rootElem, itemID);
-            if (item.type == "list") {
-                elem = findChildItem(rootElem, "-"+itemID);
             }
 
             // Make sure subpanels are expanded or hidden as needed
@@ -490,13 +526,17 @@ function loadEntries(level, rootElem, data, form, del) {
                             }
                         }
                     }
-                    if (v != "???" && data[itemID] !== v) {
+                    if (v != "???" && v != " " && data[itemID] !== v) {
                         data[itemID] = v;
                     }
                     if (v) elem.val(v);
                     break;
                 case "ace":
-                    ace.edit(elem.attr("id")).setValue(v, -1);
+                    if (data[itemID] === undefined) {
+                        ace.edit(elem.attr("id")).setValue("", -1);
+                    } else {
+                        ace.edit(elem.attr("id")).setValue(JSON.stringify(v, null, 4), -1);
+                    }
                     break;
                 case "multi":
                     // Because some people thought it would be cool to have multiple valid types for the same key. Thanks.
@@ -506,21 +546,22 @@ function loadEntries(level, rootElem, data, form, del) {
 
                     let j = null;
                     let tt = null;
-                    for (let k = 0; k < item.types.length; k++) {
-                        tt = item.types[k];
-                        if (
-                            tt == t ||
-                            t == "object" && tt == "sub" && Object.keys(v).length ||
-                            t == "string" && (tt == "ns" || tt == "text" || tt == "textarea") ||
-                            t == "number" && (tt == "double" || tt == "int") ||
-                            t == "boolean" && tt == "checkbox"
-                        ) {
-                            j = k;
-                            break;
+                    if (v !== null && v !== undefined) {
+                        for (let k = 0; k < item.types.length; k++) {
+                            tt = item.types[k];
+                            if (
+                                tt == t ||
+                                t == "object" && (tt == "sub" && Object.keys(v).length || tt == "info") ||
+                                t == "string" && (tt == "ns" || tt == "text" || tt == "textarea") ||
+                                t == "number" && (tt == "double" || tt == "int") ||
+                                t == "boolean" && tt == "checkbox"
+                            ) {
+                                j = k;
+                                break;
+                            }
                         }
                     }
 
-                    elem = findChildItem(rootElem, "_"+itemID);
                     elem.find(">div").addClass("nodisplay");
                     
                     let sel = elem.find(">select");
@@ -530,14 +571,12 @@ function loadEntries(level, rootElem, data, form, del) {
                     sel.val(name);
                     div.removeClass("nodisplay");
                     if (j != null) {
-                        switch (tt) {
-                            case "sub":
-                                loadEntries(level+1, div, v, form[itemID].data[j], true);
-                                break;
-                            // TODO: handle checkboxes when necessary
-                            default:
-                                div.find(">._"+itemID).val(v);
-                                break;
+                        if (tt == "info") {
+                        } else if (tt == "sub") {
+                            loadEntries(level+1, div, v, form[itemID].data[j], true);
+                        } else {
+                            if (v === undefined) v = "";
+                            div.find(">._"+itemID).val(v);
                         }
                     } else {
                         // FIXME: Hopefully no issues here...
@@ -547,6 +586,10 @@ function loadEntries(level, rootElem, data, form, del) {
                 case "id": // ID values are not based on the dictionary, but rather a unique value.
                     if (id !== undefined) elem.val(id); // IDs are only updated if provided.
                     break;
+                case "ns": // Make sure ns value is nsed
+                    if (v) v = ns(v);
+                    elem.val(v);
+                    break;
                 case "image":
                     elem.prevAll("img").first().attr("src", v);
                     break;
@@ -554,6 +597,17 @@ function loadEntries(level, rootElem, data, form, del) {
                     if (v === "") v = false;
                     if (data[itemID] === undefined) data[itemID] = v;
                     elem.prop("checked", v);
+                    break;
+                case "bool":
+                    // JQuery can't set the value on this properly
+                    if (data[itemID] === undefined) {
+                        elem.get(0).value = "unspecified";
+                    } else {
+                        elem.get(0).value = String(v);
+                    }
+                    break;
+                case "textlist":
+                    if (Array.isArray(v)) v = v.join("\n");
                 default:
                     // Every other element
                     elem.val(v);
@@ -561,8 +615,8 @@ function loadEntries(level, rootElem, data, form, del) {
             }
 
             // Make sure data is stored in the right format regardless.
-            if (item.type != "dict" && item.type != "sub" && item.type != "list" && item.type != "more"/*&& item.type != "multi"*/) {
-                if (item.type != "options" || v != "???") {
+            if (["dict", "sub", "list", "more", "ace", "textlist", "multi"].indexOf(item.type) == -1) {
+                if (item.type != "options" || (v != "???" && v != " ")) {
                     if (data[itemID] !== undefined && data[itemID] !== v) data[itemID] = v;
                 }
             }
@@ -596,10 +650,14 @@ function insertForm(loc, header, form, datapath, level=0) {
         let panelID = datapath + "--" + itemID;
         // Append Div for item and description
         if (item.name) {
+            // Make name link if need be
+            let linkname = item.name;
+            if (item.link) linkname = `<a href='${item.link}'>${linkname}</a>`;
+            
             if (item.desc) {
-                loc.append(`<span class="iitem" title="${item.desc}">${item.name}:</span>`);
+                loc.append(`<span class="iitem" title="${item.desc}">${linkname}:</span>`);
             } else {
-                loc.append(`<span class="iitem">${item.name}:</span>`);
+                loc.append(`<span class="iitem">${linkname}:</span>`);
             }
         }
         
@@ -620,16 +678,8 @@ function insertForm(loc, header, form, datapath, level=0) {
                 if (level % 2 == 1) {
                     cs = "panel panel-dark";
                 }
-                loc.append(`<div class="${cs}">${item.info}</div>`);
+                loc.append(`<div class="${cs}">${item.info}</div><br>`);
                 break;
-            case "textarea":
-                loc.append(`<textarea name="${itemID}" class="ientry _${itemID}" onchange='insertData("${itemID}", "${item.type}", this)'>${itemval}</textarea>`);
-                break;
-            //case "ace":
-                //loc.append(`<div class="flex m mb2"><button onclick="saveAce(${xn}, '${itemID}')">Save</button>&nbsp;Autosave:&nbsp;<select onchange="changeAutosave(${xn}, '${itemID}', this.value)"><option value="0">focus lost only</option><option value="10">10 sec</option><option value="20">20 sec</option><option value="30">30 sec</option><option value="60">1 min</option></select></div><div id="ace-${xn}" name="${itemID}" class="iblock _${itemID} ace" onfocusout="saveAce(${xn}, '${itemID}')"></div><br><div class="iitem"></div>`);
-                //setupAce("ace-"+xn, "ace/mode/text");
-                //xn++;
-                //break;
             case "options":
                 let items = [];
                 items.push(`<select name="${itemID}" class="ientry _${itemID}" onchange='insertData("${itemID}", "${item.type}", this, "${item.more || ""}")' value="${itemval}">`);
@@ -640,7 +690,7 @@ function insertForm(loc, header, form, datapath, level=0) {
                 loc.append(items.join(""));
                 break;
             case "more":
-                loc.append(`<div name="${itemID}" class="iblock _${itemID}"></div>`);
+                loc.append(`<div name="${itemID}" class="iblock _${itemID}"></div><br>`);
                 pnl = findItem(panelID);
                 
                 // Creating multiple panels is necessary
@@ -675,7 +725,7 @@ function insertForm(loc, header, form, datapath, level=0) {
                     let mType = item.types[i];
                     select = select.append(`<option value="${mName}">${mName}</option>`);
                     if (item.data[i]) {
-                        if (item.panel) {
+                        if (item.hide) {
                             // It do be a subpanel though! In order to handle mojang's greed for recursion, it needs a show button
                             pnl = pnl.append(`<div ttype="${mType}" llevel="${level+1}" name="${itemID}" class="nodisplay iblock _${itemID} multi-${mName}"><button class="sbutton" onclick='insertPanel(this)'>+</button></div>`);
                         } else {
@@ -687,7 +737,7 @@ function insertForm(loc, header, form, datapath, level=0) {
                     } else {
                         pnl = pnl.append(`<div name="_${mName}" class="nodisplay iblock __${mName} multi-${mName}"></div>`);
                         let elem = pnl.find(">.__"+mName);
-                        insertSimple(elem, mType, itemID);
+                        insertSimple(elem, mType, itemID, level);
                     }
                 }
 
@@ -716,13 +766,13 @@ function insertForm(loc, header, form, datapath, level=0) {
                 break;
             default:
                 // Other values are simple and inserted simply
-                insertSimple(loc, item.type, itemID, itemval);
+                insertSimple(loc, item.type, itemID, level, itemval);
         }
         if (item.name) loc.append("<br>\n\n");
     }
 };
 
-function insertSimple(loc, type, itemID, itemval="") {
+function insertSimple(loc, type, itemID, level, itemval="") {
     switch (type) {
         case "main":
         case "ns":
@@ -739,8 +789,22 @@ function insertSimple(loc, type, itemID, itemval="") {
         case "checkbox":
             loc.append(`<input name="${itemID}" class="ientry _${itemID}" type="checkbox" onchange='insertData("${itemID}", "${type}", this)' value="${itemval}">`);
             break;
+        case "bool":
+            loc.append(`<select name="${itemID}" class="ientry _${itemID}" onchange='insertData("${itemID}", "${type}", this)' value="unspecified"><option value="unspecified">unspecified</option><option value="true">true</option><option value="false">false</option></select>`)
+            break;
         case "image":
             loc.append(`<img class="i_${itemID}" src=""><br><div class="iitem"></div><button onclick='insertData("${itemID}", "cimage", this)'>Clear</button><input name="${itemID}" class="ientry _${itemID}" type="file" onchange='insertData("${itemID}", "${type}", this)' value="${itemval}" accept="image/*">`);
+            break;
+        case "ace":
+            loc.append(`<div id="ace-${xn}" name="${itemID}" class="iblock _${itemID} ace ace-small" onfocusout="insertData('${itemID}', '${type}', this, ${xn})"></div>`);
+            setupAce("ace-"+xn, "ace/mode/json");
+            xn++;
+            break;
+        case "textarea":
+            loc.append(`<textarea name="${itemID}" class="ientry _${itemID}" onchange='insertData("${itemID}", "${type}", this)'>${itemval}</textarea>`);
+            break;
+        case "textlist":
+            loc.append(`<textarea name="${itemID}" class="ientry _${itemID} nowrap larger" onchange='insertData("${itemID}", "${type}", this)'>${itemval}</textarea>`);
             break;
     }
 };

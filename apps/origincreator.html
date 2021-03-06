@@ -8,12 +8,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
 
     <script src="/js/main.js"></script>
+    <script src="/js/origincreator/main.js"></script>
     <script src="/js/origincreator/io.js"></script>
     <script src="/js/origincreator/complex.js"></script>
     <script src="/js/origincreator/form.js"></script>
     <script src="/js/origincreator/ext-data.js"></script>
     <script src="/js/origincreator/data.js"></script>
-    <script src="/js/origincreator/main.js"></script>
     
     <!-- Cheat by getting these files from another github.io site unlikely to go down -->
     <!-- And if it does go down, my site is probably down too -->
@@ -62,7 +62,7 @@
     <section>
         <h1>Origin Creator</h1>
         <div class="content" id="div-help">
-            <p>This is a work-in-progress tool for creating custom Origins for the <a href="https://www.curseforge.com/minecraft/mc-mods/origins">Origins</a> mod in Minecraft.</p>
+            <p>This is a work-in-progress tool for creating custom <a href="https://minecraft.gamepedia.com/Data_Pack">datapacks</a> for Minecraft in a more visual manner. <span class="non-simple">It also mainly supports the <a href="https://www.curseforge.com/minecraft/mc-mods/origins">Origins</a> mod.</span></p>
             
             <p>Note that there may be bugs and performance issues (second-long loading times). I'm honestly just trying to get the thing working right now rather than worring about performance. Report any bugs <a href="https://github.com/xMGZx/xmgzx.github.io/issues">here</a>.</p>
             
@@ -81,11 +81,15 @@
             
             <p>For information, here's what each of the different groups are:</p>
             <ul>
-                <li><a href="https://github.com/apace100/origins-fabric/wiki/Defining-an-origin-in-JSON">Origin Layers</a><br><span class="tabbed">Layers are groups of origins. Usually you will only need to use the origins:origin layer to enable people to select your origin when they first join a world. You can also make your own layers if you want to do additional things like <a href="https://github.com/apace100/origins-fabric/wiki/Origin-conditions-in-layers">conditional origins</a>.</span></li>
-                <li><a href="https://github.com/apace100/origins-fabric/wiki/Defining-an-origin-in-JSON">Origins</a><br><span class="tabbed">Groups of powers that people can have and/or choose from, like the Blazeborn or the Enderian on the <a href="https://www.curseforge.com/minecraft/mc-mods/origins">Origins homepage</a>.</span></li>
-                <li><a href="https://github.com/apace100/origins-fabric/wiki/Defining-a-power-in-JSON">Powers</a><br><span class="tabbed">Abilities and Disabilities that origins can have. They are very versitile.</span></li>
+                <li class="non-simple"><a href="https://github.com/apace100/origins-fabric/wiki/Defining-an-origin-in-JSON">Origin Layers</a><br><span class="tabbed">Layers are groups of origins. Usually you will only need to use the origins:origin layer to enable people to select your origin when they first join a world. You can also make your own layers if you want to do additional things like <a href="https://github.com/apace100/origins-fabric/wiki/Origin-conditions-in-layers">conditional origins</a>.</span></li>
+                <li class="non-simple"><a href="https://github.com/apace100/origins-fabric/wiki/Defining-an-origin-in-JSON">Origins</a><br><span class="tabbed">Groups of powers that people can have and/or choose from, like the Blazeborn or the Enderian on the <a href="https://www.curseforge.com/minecraft/mc-mods/origins">Origins homepage</a>.</span></li>
+                <li class="non-simple"><a href="https://github.com/apace100/origins-fabric/wiki/Defining-a-power-in-JSON">Powers</a><br><span class="tabbed">Abilities and Disabilities that origins can have. They are very versitile.</span></li>
                 <li><a href="https://minecraft.gamepedia.com/Tag">Tags</a><br><span class="tabbed">Lists of things. Note that any tag you create must be located in one of the predefined folders so minecraft knows the type of tag it is.</span></li>
                 <li><a href="https://minecraft.gamepedia.com/Function_(Java_Edition)">Functions</a><br><span class="tabbed">Files containing a sequence of minecraft commands to run in order.</span></li>
+                <li><a href="https://minecraft.gamepedia.com/Predicate">Predicates</a><br><span class="tabbed">Data-driven conditions that the <code>/execute if</code> command can check for.</span></li>
+                <li><a href="https://minecraft.gamepedia.com/Recipe">Recipes</a><br><span class="tabbed">Custom crafting recipes for a variety of crafting blocks. Because the format is complex, the editor isn't as visual. Check out <a href="https://crafting.thedestruc7i0n.ca/">this</a> tool to create a recipe in a more visual way. You can load individual recipes simply by pressing the "Toggle Raw" button at the top of an already created recipe, pasting the json code in there, and pressing "Save Raw".</span></li>
+                <li><a href="https://minecraft.gamepedia.com/Loot_table">Loot Tables</a><br><span class="tabbed">Data structures storing how everything from how dungeon chests are generated to how mobs drop loot.</span></li>
+                <li><a href="https://minecraft.gamepedia.com/Advancement/JSON_format">Advancements</a><br><span class="tabbed">Goals the player can attempt to reach. Since most of the format is a bit complex, this editor isn't as visual. Check out <a href="https://advancements.thedestruc7i0n.ca/">this</a> tool to create a bunch of advancements in a more visual way. You can merge any exported datapack (instead of importing it) to include them in your pack.</span></li>
             </ul>
             
             <p>When you are finished editing, you can press the "To Datapack" button to export your work to a datapack or the "To Mod" button to export it to a mod. Note that empty folders will not be exported.</p>
@@ -96,11 +100,11 @@
                 <li>If you aren't sure what something does, hover over the label. A tooltip will provide a short description of what that entry is for.</li>
                 <li>This page auto-saves on your computer everytime a field loses focus, so refreshing or closing the page won't lose your progress. There's a save button in the top left too if you feel unsure. If you want to reset the pack back do it's default state, press "Reset".</li>
                 <li>Pressing the "+" button in any subpanel will add content to that panel and change the button to a "-" button. Pressing this new button will remove any content (and data stored) in that panel.</li>
-                <li>Want to save multiple projects? Click the "Raw Data" button, type anything into the "Save" box, and press the "Load" button to the bottom right. The page will be reloaded and you will store data in a separate location.</li>
-                <li>Check out the official <a href="https://github.com/apace100/origins-fabric/wiki">wiki</a> for more information on what each thing does.</li>
-                <li>Check out the #origin-ideas chat in the official <a href="https://discord.gg/4mTMHu3"> Origins Discord.</a></li>
-                <li>Test things out! If you aren't sure something will work, test it out in Minecraft! Failure is an important step in creativity.</li>
-                <li>
+                <li>Want to save multiple projects? Click the "Raw Data" button, type anything into the "Save" box, and press the "Load" button to the bottom right. The page will be reloaded and you will store data in a separate location. The default save location is available if you put nothing in the save box and press "Load".</li>
+                <li class="non-simple">Check out the official <a href="https://github.com/apace100/origins-fabric/wiki">wiki</a> for more information on what each thing in the Origins mod does.</li>
+                <li class="non-simple">Check out the #origin-ideas chat in the official <a href="https://discord.gg/4mTMHu3"> Origins Discord.</a></li>
+                <li class="non-simple">Test things out! If you aren't sure something will work, test it out in Minecraft! Failure is an important step in creativity.</li>
+                <li class="non-simple">
                     Here are some good design principles to make origins/powers interesting:
                     <ul>
                         <li><b>Simple</b><br><span class="tabbed">A good origin is easy to understand and doesn't have too many powers. Staying under six is a good idea and helps you make the most of each power. You can get around this by grouping powers together (e.g., if you can't touch water, this includes both water and rain).</span></li>
@@ -122,6 +126,7 @@
             <span class="iitem" title="URL of a webpage containing raw data in this format to load.">Webpage:</span><input class="mb2" id="ipt-web-loc"><button id="btn-grab" style="position:relative;top:-11px;left:5px;">Load</button>
             <br>
             <div class="ace mb2" id="raw-data-ace" style="width:600px;height:400px;"></div>
+            <br>
             <button id="btn-load-raw">Save Raw</button>
             <button id="btn-reset-raw">Refresh</button>
             <button id="btn-download">Download</button>
@@ -134,6 +139,7 @@
                 <button id="btn-reset-i-raw">Refresh</button>
                 <button id="btn-download-i-raw">Download</button>
                 <span id="i-raw-err"></span>
+                <br>
                 <div class="ace" id="i-raw-data-ace"></div>
             </div>
         </div>

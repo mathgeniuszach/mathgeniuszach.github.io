@@ -1438,13 +1438,8 @@ var forms = {
         },
         "powers": {
             "name": "Powers",
-            "type": "list",
-            "desc": "A list of powers which this origin should have.",
-            "data": {
-                "": {
-                    "type": "text"
-                }
-            }
+            "type": "textlist",
+            "desc": "A list of powers which this origin should have, split by lines. Each line should have a valid power namespaced id."
         },
         "loading_priority": {
             "name": "Load Priority",
@@ -1586,13 +1581,8 @@ var forms = {
                     },
                     "effects": {
                         "name": "Effects",
-                        "type": "list",
-                        "desc": "If specified, the effects with these IDs can not be applied to the player.",
-                        "data": {
-                            "": {
-                                "type": "ns"
-                            }
-                        }
+                        "type": "textlist",
+                        "desc": "If specified, the effects with these IDs can not be applied to the player. Each line must have a valid effect ID."
                     }
                 },
                 "origins:elytra_flight": {

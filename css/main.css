@@ -66,6 +66,11 @@ a:hover {
     color: var(--hover-link-color);
 }
 
+.nowrap {
+    white-space:nowrap;
+    overflow:scroll;
+}
+
 /* Sidebar */
 aside {
     position: fixed;
@@ -238,6 +243,10 @@ footer {
     position: relative;
     left: 20px;
 }
+.larger {
+    width: 200px;
+    height: 200px;
+}
 #page-blocker {
     position: fixed;
     left: 0px;
@@ -253,8 +262,12 @@ footer {
     resize: both;
     overflow: auto;
     width: 500px; height: 175px;
+    display: inline-block;
     /*margin-top: 5px;*/
     border: var(--box-border-width) solid var(--box-border-color);
+}
+.ace-small {
+    width: 250px; height: 150px;
 }
 /* jsTree stuff */
 .jstree {
