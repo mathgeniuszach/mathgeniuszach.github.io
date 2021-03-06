@@ -1,4 +1,7 @@
-function importThing(thing) {
+function mergeThing(thing) {
+    importThing(thing, true);
+}
+function importThing(thing, merge) {
     if (thing.target.files.length) {
         var file = thing.target.files[0];
         var zip = new JSZip();
@@ -12,110 +15,113 @@ function importThing(thing) {
             });
             //changeScreen("help");
 
-            // Reset data
-            data = {
-                "$": 3, // Version number to know how to convert data
-                "meta": {
-                    "name": "My Pack",
-                    "id": "mypack"
-                },
-                "tags/": {
-                    "blocks/": {},
-                    "entity_types/": {},
-                    "fluids/": {},
-                    "functions/": {},
-                    "items/": {}
-                },
-                "functions/": {},
-                "predicates/": {},
-                "recipes/": {},
-                "loot_tables/": {},
-                "advancements/": {}
-            }
-            if (!simplified) {
-                data["origin_layers/"] = {};
-                data["origins/"] = {};
-                data["powers/"] = {};
-            }
-            
-            // Load icon (if available)
-            var icon = zip.file("pack.png");
-            if (!icon) {
-                // Do some digging to see if pack.png is inside a subfolder
-                for (let [file, filedata] of Object.entries(zip.files)) {
-                    let slash = file.indexOf("/");
-                    if (slash != -1 && file.substring(slash+1) == "pack.png") {
-                        icon = filedata;
-                        break;
-                    }
-                }
-            }
-            if (icon) {
-                block();
-                icon.async("base64").then(function (o) {
-                    data.meta.icon = "data:image/png;base64,"+o;
-                    unblock();
-                }, function () {unblock()})
-            }
-            
-            // Load metadata
-
-            // See if fabric is available (if so, this is a mod)
-            var fabric = zip.file("fabric.mod.json");
-            if (fabric) {
-                fabric.async("text").then(function(o) {
-                    try {
-                        var metadata = JSON.parse(o);
-                        var meta = data.meta;
-                        
-                        if (metadata.name) {
-                            meta.name = metadata.name;
-                            $("#side-main-head").text(data.meta.name);
-                            $("#div-meta h2").text("pack - " + data.meta.name);
-                        }
-                        if (metadata.id) meta.id = metadata.id;
-                        if (metadata.version) meta.version = metadata.version;
-                        if (metadata.description) meta.description = metadata.description;
-                        if (metadata.pack_format) meta.pack_format = metadata.pack_format
-                        if (metadata.authors) meta.authors = metadata.authors.join(", ");
-
-                        pid = data.meta.id;
-                    } finally {
-                        loadImportData(zip);
-                        unblock();
-                    }
-                }, function() {unblock()});
+            if (merge) {
+                loadImportData(zip);
+                unblock(2);
             } else {
-                // Otherwise if fabric is not available, we need to do some digging for the pack.mcmeta file
-                var mcmeta = zip.file("pack.mcmeta");
-                if (!mcmeta) {
+                // Reset data
+                data = {
+                    "$": 3, // Version number to know how to convert data
+                    "meta": {
+                        "name": "My Pack",
+                        "id": "mypack"
+                    },
+                    "tags/": {
+                        "blocks/": {},
+                        "entity_types/": {},
+                        "fluids/": {},
+                        "functions/": {},
+                        "items/": {}
+                    },
+                    "functions/": {},
+                    "predicates/": {},
+                    "recipes/": {},
+                    "loot_tables/": {},
+                    "advancements/": {}
+                }
+                if (!simplified) {
+                    data["origin_layers/"] = {};
+                    data["origins/"] = {};
+                    data["powers/"] = {};
+                }
+
+                // Load icon (if available)
+                var icon = zip.file("pack.png");
+                if (!icon) {
+                    // Do some digging to see if pack.png is inside a subfolder
                     for (let [file, filedata] of Object.entries(zip.files)) {
                         let slash = file.indexOf("/");
-                        if (slash != -1 && file.substring(slash+1) == "pack.mcmeta") {
-                            mcmeta = filedata;
+                        if (slash != -1 && file.substring(slash+1) == "pack.png") {
+                            icon = filedata;
                             break;
                         }
                     }
                 }
-                if (mcmeta) {
-                    mcmeta.async("text").then(function(o) {
+                if (icon) {
+                    block();
+                    icon.async("base64").then(function (o) {
+                        data.meta.icon = "data:image/png;base64,"+o;
+                        unblock();
+                    }, function () {unblock()})
+                }
+                
+                // Load metadata
+
+                // See if fabric is available (if so, this is a mod)
+                var fabric = zip.file("fabric.mod.json");
+                if (fabric) {
+                    fabric.async("text").then(function(o) {
                         try {
-                            Object.assign(data.meta, JSON.parse(o).pack);
-                            $("#side-main-head").text(data.meta.name);
-                            $("#div-meta h2").text("pack - " + data.meta.name);
-                            pid = data.meta.id; // This is the only reason loadImportData exists
+                            var metadata = JSON.parse(o);
+                            var meta = data.meta;
+                            
+                            if (metadata.name) {
+                                meta.name = metadata.name;
+                                $("#side-main-head").text(data.meta.name);
+                                $("#div-meta h2").text("pack - " + data.meta.name);
+                            }
+                            if (metadata.id) meta.id = metadata.id;
+                            if (metadata.version) meta.version = metadata.version;
+                            if (metadata.description) meta.description = metadata.description;
+                            if (metadata.pack_format) meta.pack_format = metadata.pack_format
+                            if (metadata.authors) meta.authors = metadata.authors.join(", ");
+
+                            pid = data.meta.id;
                         } finally {
                             loadImportData(zip);
                             unblock();
                         }
                     }, function() {unblock()});
                 } else {
-                    unblock(2); // Exiting early means close unblock
-                    return;
-                };
+                    // Otherwise if fabric is not available, we need to do some digging for the pack.mcmeta file
+                    var mcmeta = zip.file("pack.mcmeta");
+                    if (!mcmeta) {
+                        for (let [file, filedata] of Object.entries(zip.files)) {
+                            let slash = file.indexOf("/");
+                            if (slash != -1 && file.substring(slash+1) == "pack.mcmeta") {
+                                mcmeta = filedata;
+                                break;
+                            }
+                        }
+                    }
+                    if (mcmeta) {
+                        mcmeta.async("text").then(function(o) {
+                            try {
+                                Object.assign(data.meta, JSON.parse(o).pack);
+                                $("#side-main-head").text(data.meta.name);
+                                $("#div-meta h2").text("pack - " + data.meta.name);
+                                pid = data.meta.id; // This is the only reason loadImportData exists
+                            } finally {
+                                loadImportData(zip);
+                                unblock();
+                            }
+                        }, function() {unblock()});
+                    } else {
+                        unblock(2); // Exiting early means close unblock
+                        return;
+                    };
+                }
             }
-            
-            // Load content
             
             // Unblock once to counteract extra block at beginning
             unblock();

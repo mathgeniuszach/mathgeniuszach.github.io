@@ -107,6 +107,8 @@ $(document).ready(function() {
     // Import and export buttons
     $("#btn-import").click(function() {$("#ipt-import").click()});
     $("#ipt-import").change(importThing);
+    $("#btn-merge").click(function() {$("#ipt-merge").click()});
+    $("#ipt-merge").change(mergeThing);
     $("#btn-datapack").click(exportDatapack);
     $("#btn-mod").click(exportMod);
     
