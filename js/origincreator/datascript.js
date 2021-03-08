@@ -1,3 +1,8 @@
+var spec;
+$.get('/js/origincreator/datascript.pegjs', function(data) {
+    spec = data;
+});
+
 const markers = ["if", "else"];
 const re_line = RegExp(/.*?(\r|\n|\r\n|$)/g);
 const re_empty = RegExp(/^\s*$/g);

@@ -364,7 +364,7 @@ function insertData(key, type, item, extra) {
                 v = ns(v);
                 item.value = v;
                 loc[key] = v;
-            }=
+            }
             pid = data.meta.id; // FIXME: This should go in it's own separate thing
             break;
         case "int":

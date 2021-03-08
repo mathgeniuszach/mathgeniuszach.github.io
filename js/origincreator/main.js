@@ -356,9 +356,6 @@ function loadClipboard(o) {
     try {
         var d = JSON.parse(o);
         var id = selected.attr("name");
-        if (!isNaN(id)) {
-            id = parseInt(id);
-        }
         if (id[0] == "-") id = id.substring(1);
         // Paste data
         var path = getPath(selected.get(0));
