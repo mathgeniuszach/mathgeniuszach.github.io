@@ -6,12 +6,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pegjs/0.9.0/peg.min.js"></script>
+
+    <!-- This is a browserified script containing peg-util and asty -->
+    <script src="/js/peg-util.js"></script>
 
     <script src="/js/main.js"></script>
+    <script src="/js/origincreator/declare.js"></script>
     <script src="/js/origincreator/main.js"></script>
     <script src="/js/origincreator/io.js"></script>
     <script src="/js/origincreator/complex.js"></script>
     <script src="/js/origincreator/form.js"></script>
+    <script src="/js/origincreator/datascript.js"></script>
     <script src="/js/origincreator/ext-data.js"></script>
     <script src="/js/origincreator/data.js"></script>
     
@@ -21,7 +27,7 @@
     <script src="https://stuk.github.io/jszip/dist/jszip.min.js"></script>
     
     <meta charset="UTF-8">
-    <meta name="keywords" content="MGZ, xMGZx, mathgeniuszach, Zach K">
+    <meta name="keywords" content="MGZ, xMGZx, mathgeniuszach, Zach K, Origins, Datapack, data-pack, data pack">
     <meta name="author" content="Zach K">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -66,7 +72,7 @@
         <div class="content" id="div-help">
             <p>This is a work-in-progress tool for creating custom <a href="https://minecraft.gamepedia.com/Data_Pack">datapacks</a> for Minecraft in a more visual manner. <span class="non-simple">It also mainly supports the <a href="https://www.curseforge.com/minecraft/mc-mods/origins">Origins</a> mod.</span></p>
             
-            <p>Note that there may be bugs and performance issues (second-long loading times). I'm honestly just trying to get the thing working right now rather than worring about performance. Report any bugs <a href="https://github.com/xMGZx/xmgzx.github.io/issues">here</a>.</p>
+            <p>There may be bugs and performance issues (second-long loading times). Report any bugs <a href="https://github.com/xMGZx/xmgzx.github.io/issues">here</a>.</p>
             
             <h2>Usage</h2>
             <p>You can click the "Help" button in the top left to return to this page at any time.</p>
@@ -92,6 +98,7 @@
                 <li><a href="https://minecraft.gamepedia.com/Recipe">Recipes</a><br><span class="tabbed">Custom crafting recipes for a variety of crafting blocks. Because the format is complex, the editor isn't as visual. Check out <a href="https://crafting.thedestruc7i0n.ca/">this</a> tool to create a recipe in a more visual way. You can load individual recipes simply by pressing the "Toggle Raw" button at the top of an already created recipe, pasting the json code in there, and pressing "Save Raw".</span></li>
                 <li><a href="https://minecraft.gamepedia.com/Loot_table">Loot Tables</a><br><span class="tabbed">Data structures storing how everything from how dungeon chests are generated to how mobs drop loot.</span></li>
                 <li><a href="https://minecraft.gamepedia.com/Advancement/JSON_format">Advancements</a><br><span class="tabbed">Goals the player can attempt to reach. Since most of the format is a bit complex, this editor isn't as visual. Check out <a href="https://advancements.thedestruc7i0n.ca/">this</a> tool to create a bunch of advancements in a more visual way. You can merge any exported datapack (instead of importing it) to include them in your pack.</span></li>
+                <li>Data Scripts<br><span class="tabbed">An unfinished programming language for creating mcfunctions easier. This is just a teaser for now and doesn't actually work fully yet!</span></li>
             </ul>
             
             <p>When you are finished editing, you can press the "To Datapack" button to export your work to a datapack or the "To Mod" button to export it to a mod. Note that empty folders will not be exported.</p>

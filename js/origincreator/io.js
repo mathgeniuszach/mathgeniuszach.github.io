@@ -13,36 +13,16 @@ function importThing(thing, merge) {
                 loadData(JSON.stringify(data));
                 //location.reload();
             });
-            //changeScreen("help");
+            changeScreen("help");
 
             if (merge) {
                 loadImportData(zip);
                 unblock(2);
             } else {
                 // Reset data
-                data = {
-                    "$": 3, // Version number to know how to convert data
-                    "meta": {
-                        "name": "My Pack",
-                        "id": "mypack"
-                    },
-                    "tags/": {
-                        "blocks/": {},
-                        "entity_types/": {},
-                        "fluids/": {},
-                        "functions/": {},
-                        "items/": {}
-                    },
-                    "functions/": {},
-                    "predicates/": {},
-                    "recipes/": {},
-                    "loot_tables/": {},
-                    "advancements/": {}
-                }
+                data = JSON.parse(JSON.stringify(empty_data));
                 if (!simplified) {
-                    data["origin_layers/"] = {};
-                    data["origins/"] = {};
-                    data["powers/"] = {};
+                    for (let i of non_simple) data[i] = {};
                 }
 
                 // Load icon (if available)
@@ -150,7 +130,7 @@ function loadImportData(zip) {
         filedata.async("text").then(function(o) {
             try {
                 let names = file.split(/[/.]/g);
-                if (names[0] != "data" && names[1] == "data") names.splice(0, 1);
+                if (names[0] != "data" && names[1] == "data") names = names.splice(0, 1);
 
                 // Make sure this is a file and not a folder
                 if (names[0] == "data" && names.length > 2 && names[names.length-1]) {
@@ -164,29 +144,17 @@ function loadImportData(zip) {
                     }
                     let folders = names.slice(3, -2);
                     
-                    let output;
-                    let ndata;
                     // Check the type of this file. Determines what to do in other cases too
-                    switch (names[2]) {
-                        case "origin_layers":
-                        case "tags":
-                        case "origins":
-                        case "powers":
-                        case "predicates":
-                        case "recipes":
-                        case "loot_tables":
-                        case "advancements":
-                            try {
-                                putLoadedData(JSON.parse(o), names[2], folders, id);
-                            } catch (err) {
-                                // This file is invalid and must be loaded outside of the proper folder
-                                folders.splice(0, 0, names[2]);
-                                putLoadedData(o, "invalid", folders, id);
-                            }
-                            break;
-                        default: // Defaultly loaded things are cool
-                            putLoadedData(o, names[2], folders, id);
-                            break;
+                    if (jsoned.indexOf(names[2]) != -1) {
+                        try {
+                            putLoadedData(JSON.parse(o), names[2], folders, id);
+                        } catch (err) {
+                            // This file is invalid and must be loaded outside of the proper folder
+                            folders.splice(0, 0, names[2]);
+                            putLoadedData(o, "invalid", folders, id);
+                        }
+                    } else {
+                        putLoadedData(o, names[2], folders, id);
                     }
                 }
             } catch (err) {
@@ -317,6 +285,9 @@ function createRData(dFolder, itemData, type, path="") {
             switch (type) {
                 case "functions/":
                     createFile(dFolder, id, iData, type, path, ".mcfunction");
+                    break;
+                case "data_scripts/":
+                    createFile(dFolder, id, iData, type, path, ".mcds");
                     break;
                 default:
                     createFile(dFolder, id, iData, type, path);

@@ -1,45 +1,12 @@
 // Current list of TODOs:
 // Setup built-in wiki and info
-// Support loot tables, predicates, recipes, and advancements.
-// Use a url var to generate slightly different html that targets non-origin datapacks
 // Improve import system so that conflicts are stated
+// Function programming language
 
 // Possible performace improvements
 // Transition things off of findItem to findChildItem
 // Delete subpanels when switching option values
 // Instead of loading the entire screen when something changes, load only one panel.
-
-// Data that pretty much stores everything
-var data = {
-    "$": 3, // Version number to know how to convert data
-    "meta": {
-        "name": "My Pack",
-        "id": "mypack"
-    },
-    "origin_layers/": {
-        "origins:origin": {
-            "replace": false,
-            "origins": []
-        }
-    },
-    "origins/": {},
-    "powers/": {},
-    "tags/": {
-        "blocks/": {},
-        "entity_types/": {},
-        "fluids/": {},
-        "functions/": {},
-        "items/": {}
-    },
-    "functions/": {},
-    "predicates/": {},
-    "advancements/": {},
-    "recipes/": {},
-    "loot_tables/": {}
-};
-var types = ["origin_layers", "origins", "powers", "tags", "predicates", "recipes", "loot_tables", "advancements"];
-var ttypes = ["meta", "origin_layers", "origins", "powers", "tags", "functions", "predicates", "recipes", "loot_tables", "advancements"];
-var iconed = ["meta", "origin_layers/", "origins/", "powers/", "tags/", "functions/", "predicates/", "recipes/", "loot_tables/", "advancements/"];
 
 // Some useful global variables
 // Type of the currently active screen
@@ -69,13 +36,6 @@ var otherEditor;
 var rawEditor;
 var iRawEditor;
 var editOptions = {};
-
-const urlArgs = new URLSearchParams(location.search);
-// Whether or not to remove the Origins part of the creator by default
-var simplified = urlArgs.get("type") == "simple";
-// Save location
-var saveLoc = urlArgs.get("save") || "";
-var extDataLoc = decodeURIComponent(urlArgs.get("data") || "");
 
 // Function to normalize strings
 function ns(str) {
@@ -140,10 +100,7 @@ $(document).ready(function() {
     // If simple, remove references to origins related stuff
     if (simplified) {
         $(".non-simple").remove();
-        // Remove parts in data
-        delete data["origin_layers/"];
-        delete data["origins/"];
-        delete data["powers/"];
+        for (let i of non_simple) delete data[non_simple];
     }
 
     // Clipboard

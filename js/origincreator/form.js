@@ -13,7 +13,7 @@ function loadData(ocd) {
     };
     if (!data.meta.id) data.meta.id = "mypack";
     pid = data.meta.id;
-    if (data.$ !== 3) convertData(); // Data conversion necessary
+    //if (data.$ !== 3) convertData(); // If data conversion is necessary
 
     // Create items in listbox
     //let item
@@ -279,7 +279,7 @@ function insertData(key, type, item, extra) {
             var p = findItem(datapath, extra).find(">div");
             p.addClass("nodisplay");
             findItem(datapath, extra, jqns(v)).removeClass("nodisplay");
-            changeScreen(activeType, activeParent, activeUName, activePath); // HACK: this is lazy, but it's fine. I'll fix it like the others later.
+            changeScreen(activeType, activeParent, activeUName, activePath); // HACK: this is lazy, but it's fine.
         }
         save();
         return;
@@ -357,18 +357,18 @@ function insertData(key, type, item, extra) {
             }
             break;
         case "ns": // Normalized strings just need to be normalized
-            if (v == "") {
+            if (v === "") {
                 if (Array.isArray(loc)) loc[key] = "";
                 else delete loc[key];
             } else {
                 v = ns(v);
                 item.value = v;
                 loc[key] = v;
-            }
+            }=
             pid = data.meta.id; // FIXME: This should go in it's own separate thing
             break;
         case "int":
-            if (v == "") {
+            if (v === "") {
                 delete loc[key];
             } else {
                 v = Math.round(v);
@@ -377,7 +377,7 @@ function insertData(key, type, item, extra) {
             }
             break;
         case "double":
-            if (v == "") {
+            if (v === "") {
                 delete loc[key];
             } else {
                 v = parseFloat(v);
@@ -386,7 +386,7 @@ function insertData(key, type, item, extra) {
             }
             break;
         default:
-            if (v == "") {
+            if (v === "") {
                 if (Array.isArray(loc)) loc[key] = "";
                 else delete loc[key];
             } else {
@@ -848,7 +848,6 @@ function insertPanel(btn) {
     if (/*loc && */activeType != "help" && activeType != "raw") {
         if (type == "list") {
             loadEntries(level, pnl.parent(), locateData(datapath), locateForm(datapath)); // Load list's parent only.
-            // changeScreen(fullscreen); // this is unavailable and will cause infinite recursion errors.
         } else {
             loadEntries(level, pnl, loc, locateForm(datapath, itemID), true);
         }
@@ -868,18 +867,6 @@ function removePanel(btn) {
     pnl.removeClass("selectable");
     pnl.html(`<button class="sbutton" onclick='insertPanel(this)'>+</button>`);
 }
-
-// Generate a unique id of a layer, origin, or power based on the type and n.
-function genID(type) {
-    "use strict";
-    var l;
-    do {
-        l = pid + ":" + type + n;
-        n++;
-    } while (l in data[type]);
-    return l;
-}
-
 
 var otherOptions = {};
 // Ace functions
