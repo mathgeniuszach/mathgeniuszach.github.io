@@ -732,12 +732,16 @@ function loadEntries(level, rootElem, data, form, del) {
 
 // Function to generate and insert html into the page based on the dictionary
 function insertForm(loc, header, form, datapath, level=0) {
-    if (header) {
-        loc.append(header);
+    var code = [];
+    var html = true;
+    if (Array.isArray(loc)) {
+        code = loc;
+        html = false;
     }
+    if (header) code.push(header);
+
     for (const [itemID, item] of Object.entries(form)) {
         // Get element id from id and key
-        let elemID = datapath + "-" + itemID;
         let panelID = datapath + "--" + itemID;
         // Append Div for item and description
         if (item.name) {
@@ -746,9 +750,9 @@ function insertForm(loc, header, form, datapath, level=0) {
             if (item.link) linkname = `<a href='${item.link}'>${linkname}</a>`;
             
             if (item.desc) {
-                loc.append(`<span class="iitem" title="${item.desc}">${linkname}:</span>`);
+                code.push(`<span class="iitem" title="${item.desc}">${linkname}:</span>`);
             } else {
-                loc.append(`<span class="iitem">${linkname}:</span>`);
+                code.push(`<span class="iitem">${linkname}:</span>`);
             }
         }
         
@@ -769,34 +773,30 @@ function insertForm(loc, header, form, datapath, level=0) {
                 if (level % 2 == 1) {
                     cs = "panel panel-dark";
                 }
-                loc.append(`<div class="${cs}">${item.info}</div><br>`);
+                code.push(`<div class="${cs}">${item.info}</div><br>`);
                 break;
             case "options":
-                let items = [];
-                items.push(`<select name="${itemID}" class="ientry _${itemID}" onchange='insertData("${itemID}", "${item.type}", this, "${item.more || ""}")' value="${itemval}">`);
+                code.push(`<select name="${itemID}" class="ientry _${itemID}" onchange='insertData("${itemID}", "${item.type}", this, "${item.more || ""}")' value="${itemval}">`);
                 for (const v of (item.options || Object.keys(form[item.more].data))) {
-                    items.push(`<option value="${v}">${v}</option>`);
+                    code.push(`<option value="${v}">${v}</option>`);
                 }
-                items.push("</select>");
-                loc.append(items.join(""));
+                code.push("</select>");
                 break;
             case "more":
-                loc.append(`<div name="${itemID}" class="iblock _${itemID}"></div><br>`);
-                pnl = findItem(panelID);
+                code.push(`<div name="${itemID}" class="iblock _${itemID}">`);
                 
                 // Creating multiple panels is necessary
                 for (const [option, odata] of Object.entries(item.data)) {
                     let jqop = jqns(option);
                     // Create panel
-                    pnl.append(`<div name="${jqop}" class="nodisplay _${jqop}"></div>`);
-                    let spnl = findItem(panelID, jqop);
-
-                    // Then call recursively
-                    insertForm(spnl, "", odata, panelID+"--"+jqop, level);
+                    code.push(`<div name="${jqop}" class="nodisplay _${jqop}">`);
+                    insertForm(code, "", odata, panelID+"--"+jqop, level);
+                    code.push("</div>");
                 }
                 
                 // Display the first one.
-                findItem(panelID, jqns(Object.keys(item.data)[0])).removeClass("nodisplay");
+                //findItem(panelID, jqns(Object.keys(item.data)[0])).removeClass("nodisplay");
+                code.push("</div><br>");
                 break;
             case "multi": // I personally find it dumb that this is required, but it is
                 if (item.panel) {
@@ -806,33 +806,31 @@ function insertForm(loc, header, form, datapath, level=0) {
                     }
                 } else cs = "";
 
-                panelID = datapath + "--_" + itemID;
-                loc.append(`<div name="_${itemID}" class="${cs}iblock __${itemID}"><select class="mb2" onchange='changeMulti(this)'></select></div>`);
-                pnl = findItem(panelID);
-                let select = pnl.find(">select");
+                code.push(`<div name="_${itemID}" class="${cs}iblock __${itemID}"><select class="mb2" onchange='changeMulti(this)'>`);
+                for (let mName of item.options) code.push(`<option value="${mName}">${mName}</option>`);
+                code.push("</select><br>");
 
                 for (let i = 0; i < item.options.length; i++) {
                     let mName = item.options[i];
                     let mType = item.types[i];
-                    select = select.append(`<option value="${mName}">${mName}</option>`);
                     if (item.data[i]) {
                         if (item.hide) {
                             // It do be a subpanel though! In order to handle mojang's greed for recursion, it needs a show button
-                            pnl = pnl.append(`<div ttype="${mType}" llevel="${level+1}" name="${itemID}" class="nodisplay iblock _${itemID} multi-${mName}"><button class="sbutton" onclick='insertPanel(this)'>+</button></div>`);
+                            code.push(`<div ttype="${mType}" llevel="${level+1}" name="${itemID}" class="nodisplay iblock _${itemID} multi-${mName}"><button class="sbutton" onclick='insertPanel(this)'>+</button></div>`);
                         } else {
                             // Load just like how more does, without the show button.
-                            pnl = pnl.append(`<div name="${itemID}" class="nodisplay _${itemID} multi-${mName}"></div>`);
-                            let elem = pnl.find(">._"+itemID);
-                            insertForm(elem, "", item.data[i], panelID+"--"+itemID, level);
+                            code.push(`<div name="${itemID}" class="nodisplay _${itemID} multi-${mName}">`);
+                            insertForm(code, "", item.data[i], panelID+"--"+itemID, level);
+                            code.push("</div>");
                         }
                     } else {
-                        pnl = pnl.append(`<div name="_${mName}" class="nodisplay iblock __${mName} multi-${mName}"></div>`);
-                        let elem = pnl.find(">.__"+mName);
-                        insertSimple(elem, mType, itemID, false, level);
+                        code.push(`<div name="_${mName}" class="nodisplay iblock __${mName} multi-${mName}">`);
+                        insertSimple(code, mType, itemID, item.size, level);
+                        code.push("</div>");
                     }
                 }
 
-                select.after("<br>");
+                code.push("<br></div>");
                 break;
             case "sub":
             case "nlist": // Named lists kind of just cheat by copying ALMOST everything normal lists do
@@ -857,54 +855,58 @@ function insertForm(loc, header, form, datapath, level=0) {
                     continue;
                 }
                 
-                loc.append(`<div ttype="${item.type}" llevel=${level+1} name="${lID}" class="${cs} _${lID}"><button class="sbutton" onclick='insertPanel(this)'>+</button></div>`);
+                code.push(`<div ttype="${item.type}" llevel=${level+1} name="${lID}" class="${cs} _${lID}"><button class="sbutton" onclick='insertPanel(this)'>+</button></div>`);
                 break;
             default:
                 // Other values are simple and inserted simply
-                insertSimple(loc, item.type, itemID, item.size, level, itemval);
+                insertSimple(code, item.type, itemID, item.size, level, itemval);
         }
-        if (item.name) loc.append("<br>\n\n");
+        if (item.name) code.push("<br>\n\n");
+    }
+    if (html) {
+        loc.append(code.join(""));
+        setupAces();
     }
 };
 
-function insertSimple(loc, type, itemID, size, level, itemval="") {
+function insertSimple(code, type, itemID, size, level, itemval="") {
     switch (type) {
         case "main":
         case "ns":
         case "id":
         case "text":
-            loc.append(`<input spellcheck="false" name="${itemID}" class="ientry _${itemID}" onchange='insertData("${itemID}", "${type}", this)' value="${itemval}">`);
+            code.push(`<input spellcheck="false" name="${itemID}" class="ientry _${itemID}" onchange='insertData("${itemID}", "${type}", this)' value="${itemval}">`);
             break;
         case "int":
-            loc.append(`<input name="${itemID}" class="ientry _${itemID}" type="number" onchange='insertData("${itemID}", "${type}", this)' value="${itemval}">`);
+            code.push(`<input name="${itemID}" class="ientry _${itemID}" type="number" onchange='insertData("${itemID}", "${type}", this)' value="${itemval}">`);
             break;
         case "double":
-            loc.append(`<input name="${itemID}" class="ientry _${itemID}" type="number" step="0.0001" onchange='insertData("${itemID}", "${type}", this)' value="${itemval}">`);
+            code.push(`<input name="${itemID}" class="ientry _${itemID}" type="number" step="0.0001" onchange='insertData("${itemID}", "${type}", this)' value="${itemval}">`);
             break;
         case "checkbox":
-            loc.append(`<input name="${itemID}" class="ientry _${itemID}" type="checkbox" onchange='insertData("${itemID}", "${type}", this)' value="${itemval}">`);
+            code.push(`<input name="${itemID}" class="ientry _${itemID}" type="checkbox" onchange='insertData("${itemID}", "${type}", this)' value="${itemval}">`);
             break;
         case "bool":
-            loc.append(`<select name="${itemID}" class="ientry _${itemID}" onchange='insertData("${itemID}", "${type}", this)' value="unspecified"><option value="unspecified">unspecified</option><option value="true">true</option><option value="false">false</option></select>`)
+            code.push(`<select name="${itemID}" class="ientry _${itemID}" onchange='insertData("${itemID}", "${type}", this)' value="unspecified"><option value="unspecified">unspecified</option><option value="true">true</option><option value="false">false</option></select>`)
             break;
         case "image":
-            loc.append(`<img class="i_${itemID}" src=""><br><div class="iitem"></div><button onclick='insertData("${itemID}", "cimage", this)'>Clear</button><input name="${itemID}" class="ientry _${itemID}" type="file" onchange='insertData("${itemID}", "${type}", this)' value="${itemval}" accept="image/*">`);
+            code.push(`<img class="i_${itemID}" src=""><br><div class="iitem"></div><button onclick='insertData("${itemID}", "cimage", this)'>Clear</button><input name="${itemID}" class="ientry _${itemID}" type="file" onchange='insertData("${itemID}", "${type}", this)' value="${itemval}" accept="image/*">`);
             break;
         case "ace":
             sz = "ace ace-small";
             if (size) sz = "ace";
 
-            loc.append(`<div id="ace-${xn}" name="${itemID}" class="iblock _${itemID} ${sz}" onfocusout="insertData('${itemID}', '${type}', this, ${xn})"></div>`);
-            setupAce("ace-"+xn, "ace/mode/json");
+            code.push(`<div id="ace-${xn}" name="${itemID}" class="iblock _${itemID} ${sz}" onfocusout="insertData('${itemID}', '${type}', this, ${xn})"></div>`);
+            aceQueue.push(["ace-"+xn, "ace/mode/json"]);
             xn++;
             break;
         case "textarea":
             sz = "larger";
             if (size) sz = "smaller";
-            loc.append(`<textarea spellcheck="false" name="${itemID}" class="ientry _${itemID} ${sz}" onchange='insertData("${itemID}", "${type}", this)'>${itemval}</textarea>`);
+            code.push(`<textarea spellcheck="false" name="${itemID}" class="ientry _${itemID} ${sz}" onchange='insertData("${itemID}", "${type}", this)'>${itemval}</textarea>`);
             break;
         case "textlist":
-            loc.append(`<textarea spellcheck="false" name="${itemID}" class="ientry _${itemID} nowrap larger" onchange='insertData("${itemID}", "${type}", this)'>${itemval}</textarea>`);
+            code.push(`<textarea spellcheck="false" name="${itemID}" class="ientry _${itemID} nowrap larger" onchange='insertData("${itemID}", "${type}", this)'>${itemval}</textarea>`);
             break;
     }
 };

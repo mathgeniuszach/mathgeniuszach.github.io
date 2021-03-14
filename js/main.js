@@ -27,6 +27,7 @@ function swapNodes(a, b) {
     aparent.insertBefore(b, asibling);
 }
 
+var aceQueue = [];
 function setupAce(elem, mode) {
     var editor = ace.edit(elem);
     //rawEditor.setTheme("ace/theme/monokai");
@@ -34,6 +35,9 @@ function setupAce(elem, mode) {
     editor.setShowPrintMargin(false);
     $("#"+elem).mouseup(function(e) {editor.resize()});
     return editor;
+}
+function setupAces() {
+    for (let [elem, mode] of aceQueue) setupAce(elem, mode);
 }
 
 // Function to insert an element in a specific part of a dictionary

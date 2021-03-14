@@ -969,20 +969,25 @@ biome_condition_data.__type_options = {
 
 var key_form = {
     "name": "Key",
-    "type": "sub",
-    "desc": "A data type used in active powers to define which key they should react to.",
+    "type": "multi",
+    "desc": "A data type used in active powers to define which key they should react to. 'simple' mode is only for backwards-compatibility.",
     "link": "https://github.com/apace100/origins-fabric/wiki/Key",
+    "options": ["extra", "simple"],
+    "types": ["sub", "text"],
+    "panel": true,
     "data": {
-        "key": {
-            "name": "Key",
-            "type": "text",
-            "desc": "A string specifying the keybinding. Click to see list of vanilla/origins keybindings.",
-            "link": "https://github.com/apace100/origins-fabric/wiki/List-of-keybindings"
-        },
-        "continuous": {
-            "name": "Continuous",
-            "type": "checkbox",
-            "desc": "Whether the keybinding should only trigger the power on the first frame the key is held down, or, if set to true, continuously on each frame while the key is held."
+        0: {
+            "key": {
+                "name": "Key",
+                "type": "text",
+                "desc": "A string specifying the keybinding. Click to see list of vanilla/origins keybindings.",
+                "link": "https://github.com/apace100/origins-fabric/wiki/List-of-keybindings"
+            },
+            "continuous": {
+                "name": "Continuous",
+                "type": "checkbox",
+                "desc": "Whether the keybinding should only trigger the power on the first frame the key is held down, or, if set to true, continuously on each frame while the key is held."
+            }
         }
     }
 };

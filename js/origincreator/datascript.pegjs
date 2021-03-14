@@ -50,14 +50,24 @@ token "token"
         if (!d) expected("directive");
         return d;
     }
-    / "{" ___? block:start ___? e:"}"? ___? {
+    / _? "{" ___? block:start ___? e:"}"? ___? {
         if (!e) ierror("Expected end of block");
         return block;
     }
     / ___? ms:(marker ___?)+ {
         return ast("MChain").add(unroll(null, ms, 0));
     }
-    / _? "/"? c:command ___? {
+    / _? "var" _ id:id _ ex:("=" _ expr)? [ \t]* eol? {
+        if (ex) {
+            return ast("Var").set("id", id).add(ex[2]);
+        } else {
+            return ast("Var").set("id", id)
+        }
+    }
+    / _? id:id _ "=" _ ex:expr [ \t]* eol? {
+        return ast("Set").set("id", id).add(ex);
+    }
+    / _? "/"? c:command [ \t]* eol? {
         return c;
     }
 
@@ -178,44 +188,6 @@ coord "coord" = $(("~" / "^")? float)
 // Position
 pos "position" = $(coord ___ coord ___ coord)
 
-// Arguments are anything from simple identifiers to multiline nested monstrosities.
-// I'm proud of how they turned out, honestly.
-arg "argument" = $((!___ [^(){}\[\]\"\'])+ / string / body)+
-// Marker arguments are like arguments, but end when a colon is found outside a body or string.
-marg "argument" = $((!___ [^(){}\[\]\"\':])+ / string / body)+
-
-// Other is just to catch errors.
-other "argument" = arg:marg {return ":"+arg;}
-
-// Either a player identifier or a truefound selector.
-selector = $("@" [a-zA-Z] ("[" ibody "]")? / id)
-
-string
-    = s:$("\"" ("\\\\" / "\\\"" / [^\\"]+)*) e:"\""? {
-        if (!e) ierror("Expected end of string");
-        return s+e;
-    }
-    / s:$("'" ("\\\\" / "\\'" / [^\\']+)*) e:"'"? {
-        if (!e) ierror("Expected end of string");
-        return s+e;
-    }
-
-ibody = ([^(){}\[\]\"\']+ / string / body)*
-body
-    = s:$("{" ibody) e:"}"? {
-        if (!e) ierror("Expected end of body");
-        return s+e;
-    }
-    / s:$("(" ibody) e:")"? {
-        if (!e) ierror("Expected ending parenthesis");
-        return s+e;
-    }
-    / s:$("[" ibody) e:"]"? {
-        if (!e) ierror("Expected end of square body");
-        return s+e;
-    }
-
-
 
 // Conditions are a combination of selectors, "and"s and "or"s used together to make a statement.
 // They do not need to be surrounded by parentheses, but they can be.
@@ -261,7 +233,9 @@ vartest
     = a:tvar ___?
       op:$("<=" / "<" / ">=" / ">" / "==" / "=") ___?
       b:(tvar / number) ___? {
-        var tester = ast("VarTest").set("op", op).add(a);
+        var top = op;
+        if (top == "==") top = "=";
+        var tester = ast("VarTest").set("op", top).add(a);
         if (typeof(b) == "string") {
             tester.add(ast("Number").set("n", parseInt(b)));
         } else {
@@ -277,8 +251,87 @@ tvar
 
 // Expressions are a combination of commands and variables to perform arithmetic on to store into a variable.
 expr "expression"
-    = "null"
+    = arg:(
+        iexpr
+      / aexpr
+      / mexpr
+      / eop
+    ) {
+        return arg;
+    }
 
+iexpr = "(" c:expr ")" {
+    return c;
+}
+
+aexpr = a:(mexpr / eop) b:(___? ("+" / "-") ___? (mexpr / eop))+ {
+    var astv = ast("Sum").add(a);
+    for (let [_, op, _, v] of b) {
+        astv.add(v.set("op", op));
+    }
+    return ast("Or").add(a).add(unroll(null, b, 3));
+}
+
+mexpr = a:eop b:(___? ("*" / "/" / "%") ___? eop)+ {
+    var astv = ast("Product").add(a);
+    for (let [_, op, _, v] of b) {
+        astv.add(v.set("op", op));
+    }
+    return ast("Or").add(a).add(unroll(null, b, 3));
+}
+
+eop
+    = arg:(
+        iexpr
+      / tvar
+      // icommand
+      / other
+    ) {
+        if (typeof(arg) == "string") {
+            expected("variable, inline command, or expression");
+        } else {
+            return arg;
+        }
+    }
+
+//icommand = "<" ___? "/"? id:id args:(_ !("/" [a-zA-Z]) iarg)* ___? ">" {
+//    return ast("Command").set("name", id).set("args", clean(unroll(null, args, 2)));
+//}
+
+// Arguments are anything from simple identifiers to multiline nested monstrosities.
+// I'm proud of how they turned out, honestly.
+arg "argument" = $((!___ [^(){}\[\]\"])+ / string / body)+
+// Marker arguments are like arguments, but end when a colon is found outside a body or string.
+marg "argument" = $((!___ [^(){}\[\]\":])+ / string / body)+
+
+iarg "argument" = $((!___ [^(){}\[\]\"\>])+ / string / body)+
+
+// Other is just to catch errors.
+other "argument" = arg:marg {return ":"+arg;}
+
+// Either a player identifier or a truefound selector.
+selector = $("@" [a-zA-Z] ("[" ibody "]")? / id)
+
+string
+    = s:$("\"" ("\\\\" / "\\\"" / [^\\"]+)*) e:"\""? {
+        if (!e) ierror("Expected end of string");
+        return s+e;
+    }
+
+ibody = ([^(){}\[\]\"]+ / string / body)*
+body
+    = s:$("{" ibody) e:"}"? {
+        if (!e) ierror("Expected end of body");
+        return s+e;
+    }
+    / s:$("(" ibody) e:")"? {
+        if (!e) ierror("Expected ending parenthesis");
+        return s+e;
+    }
+    / s:$("[" ibody) e:"]"? {
+        if (!e) ierror("Expected end of square body");
+        return s+e;
+    }
 
 
 _ "blank"
