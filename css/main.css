@@ -244,8 +244,12 @@ footer {
     left: 20px;
 }
 .larger {
-    width: 200px;
-    height: 200px;
+    width: 250px;
+    height: 100px;
+}
+.smaller {
+    width: 250px;
+    height: 50px;
 }
 #page-blocker {
     position: fixed;
@@ -261,13 +265,16 @@ footer {
 .ace {
     resize: both;
     overflow: auto;
-    width: 500px; height: 175px;
+    width: 500px; height: 200px;
     display: inline-block;
     /*margin-top: 5px;*/
     border: var(--box-border-width) solid var(--box-border-color);
 }
 .ace-small {
-    width: 250px; height: 150px;
+    width: 250px; height: 100px;
+}
+.ace-medium {
+    width: 350px; height: 250px;
 }
 /* jsTree stuff */
 .jstree {

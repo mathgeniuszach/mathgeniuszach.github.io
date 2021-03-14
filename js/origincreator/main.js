@@ -286,6 +286,7 @@ function saveIRaw() {
         $("#i-raw-err").text("Data loaded successfully.");
     } catch (err) {
         $("#i-raw-err").text("Error loading data: " + err);
+        console.error(err);
     }
 }
 function resetIRaw() {

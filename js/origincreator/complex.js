@@ -218,16 +218,18 @@ var content_box = {
                         var otext = node.text;
                         var d = findNodeData(node, true);
                         if (isFreeNode(node)) contentBox.edit(node, otext, function(node, status, cancel) {
-                            var newName = fixName(node, d);
-                            if (isFile(node)) {
-                                d[newName] = d[otext];
-                                delete d[otext];
-                            } else {
-                                d[newName] = d[otext+"/"];
-                                delete d[otext+"/"];
+                            if (otext != node.text) {
+                                var newName = fixName(node, d);
+                                if (isFile(node)) {
+                                    d[newName] = d[otext];
+                                    delete d[otext];
+                                } else {
+                                    d[newName] = d[otext+"/"];
+                                    delete d[otext+"/"];
+                                }
+                                if (node.state.selected) $("#div-"+activeType+">h2").text(activePath+"/"+newName);
+                                save();
                             }
-                            if (node.state.selected) $("#div-"+activeType+">h2").text(activePath+"/"+newName);
-                            save();
                         });
                     },
                     "_disabled": function () {
@@ -291,7 +293,7 @@ function addTreeFile() {
     });
 }
 
-function addListItem(btn, relevel=0) {
+function addListItem(btn, relevel=0, namedID=null) {
     var pnl = $(btn.parentElement);
     var lbtn = $(btn);
     
@@ -300,26 +302,58 @@ function addListItem(btn, relevel=0) {
     if (level % 2 == 1) {
         cs = "panel panel-dark";
     }
-    
+
     var i = pnl.find(">.panel").length;
+    var path = getPath(btn);
     
-    lbtn.before(`<div name="${i}" class="${cs} m _${i}"><button class="mb zlist-button sbutton" onclick="copyListItem(this)">+</button><button class="mb zlist-button sbutton" onclick="removeListItem(this)">-</button><button class="mb zlist-button sbutton" onclick="listItemUp(this)">˄</button><button class="mb zlist-button sbutton" onclick="listItemDown(this)">˅</button><br></div><br>`);
+    var dataLoc;
+    
+    if (pnl.attr("ttype") == "nlist") {
+        var itemID = namedID;
+        if (namedID !== null) {
+            // Find data location to get existing element
+            path += "--" + i;
+            dataLoc = locateData(path);
+        } else {
+            // Find data location
+            dataLoc = locateData(path, false, itemID);
+            path += "--" + i;
+
+            // Generate unique name for named list item
+            var pnlName = pnl.attr("name").substring(2);
+            itemID = pnlName + "_" + i;
+            while (itemID in dataLoc || itemID == "o__") itemID += "_"
+    
+            // Create element in data (because it doesn't exist)
+            dataLoc[itemID] = {};
+            dataLoc = dataLoc[itemID];
+        }
+
+        // Insert item html
+        lbtn.before(`<div name="${i}" class="${cs} m _${i}"><button class="mb zlist-button sbutton" onclick="copyListItem(this, true)">+</button><button class="mb zlist-button sbutton" onclick="removeListItem(this, true)">-</button><button class="mb zlist-button sbutton" onclick="listItemUp(this, true)">˄</button><button class="mb zlist-button sbutton" onclick="listItemDown(this, true)">˅</button> <input class="zlist-id" value="${itemID}" onchange="listItemRename(this)"><br></div><br>`);
+    } else {
+        // Find data location to create element
+        path += "--" + i;
+        dataLoc = locateData(path);
+
+        // Insert item html
+        lbtn.before(`<div name="${i}" class="${cs} m _${i}"><button class="mb zlist-button sbutton" onclick="copyListItem(this)">+</button><button class="mb zlist-button sbutton" onclick="removeListItem(this)">-</button><button class="mb zlist-button sbutton" onclick="listItemUp(this)">˄</button><button class="mb zlist-button sbutton" onclick="listItemDown(this)">˅</button><br></div><br>`);
+    }
+
+    // Find newly created panel and make it selectable
     var ipanel = pnl.find(">._"+i);
     ipanel.addClass("selectable");
     
-    var iID = getPath(btn) + "--" + i;
-    var form = locateForm(iID);
-    insertForm(ipanel, "", form, iID, level+1);
-    
-    // Find data location to create item (javascript is very nice at this)
-    var d = locateData(iID);
+    // Insert form into list item
+    var form = locateForm(path);
+    insertForm(ipanel, "", form, path, level+1);
+
     // Load list item specifically
-    loadEntries(relevel, ipanel, d, form);
-    
+    loadEntries(relevel, ipanel, dataLoc, form);
     // Don't forget to save!
     save();
 }
-function clearList(btn, itemID) {
+function clearList(btn, itemID, named) {
     // Clear html
     var jqb = $(btn);
     var list = jqb.parent();
@@ -327,22 +361,32 @@ function clearList(btn, itemID) {
     jqb.prev().before("<br>");
     
     // Clear data
-    locateData(getPath(btn.parentElement))[itemID] = [];
+    locateData(getPath(btn.parentElement))[itemID] = named ? {} : [];
     
     // Don't forget to save!
     save();
 }
 
-function copyListItem(btn) {
+function copyListItem(btn, named) {
     var pnl = $(btn.parentElement);
     
     // Get panel data
     var pnlp = pnl.parent();
     var i = parseInt(pnl.attr("name"));
     
-    // Copy item in data array
     var list = locateData(getPath(btn.parentElement));
-    list.splice(i, 0, JSON.parse(JSON.stringify(list[i]))); // Javascript lacks good deep cloning, but this'll do since I'm not doing anything special.
+
+    // Copy data
+    // Javascript lacks good deep cloning, but this'll do since I'm only copying json data.
+    if (named) {
+        var keys = Object.keys(list);
+        var itemID = keys[i] + "_";
+        while (itemID in list || itemID == "o__") itemID += "_"
+
+        insertIn(list, i+1, itemID, JSON.parse(JSON.stringify(list[keys[i]])));
+    } else {
+        list.splice(i, 0, JSON.parse(JSON.stringify(list[i])));
+    }
     
     // Clone element (and <br>)
     var clone = pnl.clone().insertAfter(pnl);
@@ -351,6 +395,7 @@ function copyListItem(btn) {
     clone.removeClass("_"+i);
     clone.addClass("_"+(i+1));
     //clone.click(selectPanel);
+    clone.find(">.zlist-id").val(itemID);
     
     // Move all elements below down one (This is why the rewrite was required)
     var elems = pnlp.find(">div");
@@ -370,13 +415,20 @@ function copyListItem(btn) {
     save();
 }
 
-function removeListItem_(pnl) {
+function removeListItem_(pnl, named, loading) {
     // Get panel data
     var pnlp = pnl.parent();
     var i = parseInt(pnl.attr("name"));
     
     // Remove item from data array
-    locateData(getPath(pnl.get(0))).splice(i, 1);
+    if (!loading) {
+        var d = locateData(getPath(pnl.get(0)));
+        if (named) {
+            delete d[Object.keys(d)[i]];
+        } else {
+            d.splice(i, 1);
+        }
+    }
     
     // Remove element (and <br> after it)
     pnl.next().remove();
@@ -394,18 +446,24 @@ function removeListItem_(pnl) {
     // Don't forget to save!
     save();
 }
-function removeListItem(btn) {
-    removeListItem_($(btn.parentElement));
+function removeListItem(btn, named) {
+    removeListItem_($(btn.parentElement), named);
 }
 
-function moveListItem(pnl, list) {
+// Swaps a list item with the one above it.
+function moveListItem(pnl, list, named) {
     // Remove line break
     var i = parseInt(pnl.attr("name"));
     
     if (i > 0) {
         pnl.prev("br").remove();
         // Swap elements in data
-        [list[i-1], list[i]] = [list[i], list[i-1]];
+        if (named) {
+            pushDownIn(list, i-1);
+        } else {
+            [list[i-1], list[i]] = [list[i], list[i-1]];
+        }
+
         // Swap elements in html
         var prepnl = pnl.prevAll("div").first();
 
@@ -425,15 +483,37 @@ function moveListItem(pnl, list) {
     save();
 }
 
-function listItemUp(btn) {
+function listItemUp(btn, named) {
     var pnl = $(btn.parentElement);
-    moveListItem(pnl, locateData(getPath(btn.parentElement)));
+    moveListItem(pnl, locateData(getPath(btn.parentElement)), named);
 }
 
-function listItemDown(btn) {
+function listItemDown(btn, named) {
     // listItemDown kind of cheats by calling list item up on the next panel
     var pnl = $(btn.parentElement).nextAll("div").first();
-    if (pnl.length) moveListItem(pnl, locateData(getPath(btn.parentElement)));
+    if (pnl.length) moveListItem(pnl, locateData(getPath(btn.parentElement)), named);
+}
+
+// Function that gets called when a list item is renamed.
+function listItemRename(input) {
+    var pnl = $(input.parentElement);
+    var i = parseInt(pnl.attr("name"));
+    var d = locateData(getPath(input.parentElement));
+
+    var key = Object.keys(d)[i];
+    var temp = d[key];
+    delete d[key];
+
+    // Generate unique name for named list item
+    var itemID = input.value;
+    while (itemID in d || itemID == "o__") itemID += "_";
+    input.value = itemID;
+
+    // Reinsert data
+    insertIn(d, i, itemID, temp);
+
+    // Saving is critical!
+    save();
 }
 
 

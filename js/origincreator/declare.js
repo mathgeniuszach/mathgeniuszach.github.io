@@ -47,11 +47,11 @@ var data = {
     "loot_tables/": {},
     "data_scripts/": {}
 };
-const types = ["origin_layers", "origins", "powers", "tags", "predicates", "recipes", "loot_tables", "advancements"];
+const types = ["origin_layers", "origins", "powers", "tags", "predicates", "recipes", "loot_tables", "advancements", "__"];
 const ttypes = ["meta", "origin_layers", "origins", "powers", "tags", "functions", "predicates", "recipes", "loot_tables", "advancements", "data_scripts"];
 const iconed = ["meta", "origin_layers/", "origins/", "powers/", "tags/", "functions/", "predicates/", "recipes/", "loot_tables/", "advancements/", "data_scripts/"];
 const non_simple = ["origin_layers/", "origins/", "powers/"];
-const jsoned = ["origin_layers", "tags", "origins", "powers", "predicates", "recipes", "loot_tables", "advancements"]
+const jsoned = ["origin_layers", "tags", "origins", "powers", "predicates", "recipes", "loot_tables", "advancements", "__"]
 
 const urlArgs = new URLSearchParams(location.search);
 // Whether or not to remove the Origins part of the creator by default

@@ -125,12 +125,12 @@ function importThing(thing, merge) {
     thing.target.value = "";
 }
 function loadImportData(zip) {
-    block(Object.keys(zip.files).length-1);
+    block(Object.keys(zip.files).length);
     for (let [file, filedata] of Object.entries(zip.files)) {
         filedata.async("text").then(function(o) {
             try {
                 let names = file.split(/[/.]/g);
-                if (names[0] != "data" && names[1] == "data") names = names.splice(0, 1);
+                if (names[0] != "data" && names[1] == "data") names = names.splice(1);
 
                 // Make sure this is a file and not a folder
                 if (names[0] == "data" && names.length > 2 && names[names.length-1]) {
@@ -218,7 +218,7 @@ function exportMod() {
             "fabric-api-base": "*",
             "fabric": "*",
             "minecraft": ">=1.16.0",
-            "origins": ">=0.4.7"
+            "origins": ">=0.6.0"
         },
         "name": meta.name,
         "id": pid,
@@ -242,10 +242,24 @@ function exportMod() {
     });
 }
 
+function transformData(iData) {
+    for (let [k, v] of Object.entries(iData)) {
+        if (k == "o__") {
+            for (let [name, nData] of Object.entries(v)) {
+                iData[name] = nData;
+            }
+            delete iData[k];
+        }
+        else if (typeof(v) == "object") transformData(v);
+    }
+    return iData;
+}
+
 function createFile(folder, id, iData, type, path, dName=".json") {
     // stringify data
     var sData = iData;
-    if (typeof(iData) == "object") sData = JSON.stringify(iData, null, 4);
+
+    if (typeof(iData) == "object") sData = JSON.stringify(transformData(iData), null, 4);
 
     // Get ID
     var sid = id;
@@ -266,7 +280,7 @@ function createFile(folder, id, iData, type, path, dName=".json") {
 
 function createData(dFolder) {
     "use strict";
-    for (const [type, typeData] of Object.entries(data)) {
+    for (const [type, typeData] of Object.entries(JSON.parse(JSON.stringify(data)))) {
         if (type[type.length-1] != "/") {
             if (type != "meta" && type != "$") {
                 // TODO: Handle files outside of a folder

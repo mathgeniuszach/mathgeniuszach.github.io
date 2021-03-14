@@ -172,7 +172,10 @@ function locateForm(datapath, id) {
     // Finish finding form location
     for (let i = 1; i < spath.length; i++) {
         let path = spath[i].replace("-__-", ":");
-        if (path[0] == "-") path = path.substring(1);
+        if (path[0] == "-") {
+            if (path[1] == "_") path = path.substring(2);
+            else path = path.substring(1);
+        }
         
         if (path != "" && !isNaN(path)) continue;
         
@@ -191,7 +194,10 @@ function locateForm(datapath, id) {
     }
     if (id != undefined) {
         var lpid = id;
-        if (id[0] == "-") lpid = id.substring(1);
+        if (lpid[0] == "-") {
+            if (lpid[1] == "_") lpid = lpid.substring(2);
+            else lpid = lpid.substring(1);
+        }
         
         if (!formloc[lpid]) return null;
         else if (formloc[lpid].type == "multi") {
@@ -202,9 +208,9 @@ function locateForm(datapath, id) {
     else return formloc;
 }
 
-function locateData(datapath, nosub) {
+function locateData(datapath, nosub, namedID) {
     var spath = datapath.replace("-__-", ":").split("--");
-    if (spath[spath.length-2] == "_") spath = spath.slice(0, -2); // Get rid of bad values at the end of a list datapath multis
+    if (spath[spath.length-2] == "_") spath = spath.slice(0, -2); // Get rid of bad values at the end of list datapath multis
 
     // Find starting location
     var loc = active;
@@ -213,12 +219,20 @@ function locateData(datapath, nosub) {
         if (!spath[i]) { // Skip empty things
         } else if (spath[i][0] === "_") { // Skip things that don't want to be stored
             if (spath[i][1] === "_") i++;
-        } else if (spath[i][0] === "-") { // Handle lists
-            let newLoc = loc[spath[i].substring(1)];
+        } else if (spath[i][0] === "-") { // Handle lists and named lists
+            // Find the list's name and whether or not it is a named list
+            let named = false;
+            let nspath = spath[i].substring(1);
+            if (nspath[0] === "_") {
+                named = true;
+                nspath = nspath.substring(1);
+            }
+
+            let newLoc = loc[nspath];
             // If the list doesn't exist, it needs to be created
             if (typeof(newLoc) != "object") {
-                newLoc = [];
-                loc[spath[i].substring(1)] = newLoc;
+                newLoc = named ? {} : [];
+                loc[nspath] = newLoc;
             }
             
             // You got to figure out the selected element in order to get the right index
@@ -228,16 +242,33 @@ function locateData(datapath, nosub) {
                 // Without a valid index, the list itself becomes the next location
                 loc = newLoc;
             } else {
-                if (newLoc.length < index+1) {
-                    // List needs to be brought up to size
-                    for (let j = newLoc.length; j < index+1; j++) newLoc[j] = {};
+                let key = index;
+
+                if (named) { // Named lists work slightly differently
+                    keys = Object.keys(newLoc);
+                    key = keys[index];
+
+                    if (index > keys.length-1) {
+                        // List needs to be brought up to size, but the best we can do is just add only one item
+                        if (namedID) newLoc[namedID] = {};
+                        else throw Error("list not up to size when locating named list item data!");
+                    }
+                } else {
+                    if (index > newLoc.length-1) {
+                        // List needs to be brought up to size
+                        for (let j = newLoc.length; j < index+1; j++) newLoc[j] = {};
+                    }
                 }
-                
+
                 // For non-dict items in lists
-                if (i == spath.length-1 && nosub) return [newLoc, index];
+                // CAREFUL, AS NAMED LISTS MAY NOT WORK RIGHT!
+                if (i == spath.length-1 && nosub) return [newLoc, key];
                 
-                if (typeof(newLoc[index]) != "object" && i != spath.length-1) newLoc[index] = {}; // Ensure this is an object if reading past it
-                loc = newLoc[index];
+                // Ensure this is an object if reading past it
+                if (typeof(newLoc[key]) != "object" && i != spath.length-1) newLoc[key] = {};
+
+                // Set the new location
+                loc = newLoc[key];
             }
         } else {
             let newLoc = loc[spath[i]];
@@ -264,6 +295,7 @@ function insertData(key, type, item, extra) {
     var datapath = getPath(item);
     var loc = locateData(datapath, !key);
     var v = item.value;
+    var lkey = key;
     
     // Options need happen regardless of whether or not loc exists
     if (type === "options") { // Options need to change the visible "more" panel
@@ -288,29 +320,30 @@ function insertData(key, type, item, extra) {
     
     // For lists without dictionaries
     if (!key) {
-        key = loc[1];
+        lkey = loc[1];
         loc = loc[0];
     }
     
     switch (type) {
         case "textlist":
             if (v) {
-                loc[key] = v.split(/\r\n|\r|\n/g);
+                loc[lkey] = v.split(/\r\n|\r|\n/g);
             } else {
-                delete loc[key];
+                loc[lkey] = [];
             }
             break;
         case "ace":
             let editor = ace.edit("ace-"+extra);
             v = editor.getValue();
             if (v) {
-                loc[key] = JSON.parse(v);
+                loc[lkey] = JSON.parse(v);
             } else {
-                delete loc[key];
+                if (key) delete loc[lkey];
+                else loc[lkey] = null;
             }
             break;
         case "main": // Main field needs to update the header and left panel side-main-head
-            loc[key] = v;
+            loc[lkey] = v;
             $("#side-main-head").text(v);
             $("#div-meta h2").text("pack - " + v);
             break;
@@ -328,8 +361,8 @@ function insertData(key, type, item, extra) {
                     // Grab the source information
                     var output = ctx.canvas.toDataURL("image/png");
                     
-                    findItem(datapath).find(">.i_"+key).attr("src", output);
-                    loc[key] = output;
+                    findItem(datapath).find(">.i_"+lkey).attr("src", output);
+                    loc[lkey] = output;
                     
                     // Delete the element
                     $("#imgcanvas").remove();
@@ -342,55 +375,61 @@ function insertData(key, type, item, extra) {
             if (item.files.length) reader.readAsDataURL(item.files[0]);
             break;
         case "cimage": // For clearing images
-            findItem(datapath).find(">.i_"+key).attr("src", "");
-            findItem(datapath, key).val("");
-            delete loc[key];
+            findItem(datapath).find(">.i_"+lkey).attr("src", "");
+            findItem(datapath, lkey).val("");
+            if (key) delete loc[lkey];
+            else loc[lkey] = null;
         case "checkbox":
             v = item.checked;
-            loc[key] = v
+            loc[lkey] = v;
             break;
         case "bool":
             if (v == "unspecified") {
-                delete loc[key];
+                if (key) delete loc[lkey];
+                else loc[lkey] = null;
             } else {
-                loc[key] = v === "true";
+                loc[lkey] = v === "true";
             }
             break;
         case "ns": // Normalized strings just need to be normalized
             if (v === "") {
-                if (Array.isArray(loc)) loc[key] = "";
-                else delete loc[key];
+                if (Array.isArray(loc)) loc[lkey] = "";
+                else if (key) delete loc[lkey];
+                else loc[lkey] = "";
             } else {
                 v = ns(v);
                 item.value = v;
-                loc[key] = v;
+                loc[lkey] = v;
             }
             pid = data.meta.id; // FIXME: This should go in it's own separate thing
             break;
         case "int":
             if (v === "") {
-                delete loc[key];
+                if (key) delete loc[lkey];
+                else loc[lkey] = null;
             } else {
                 v = Math.round(v);
                 item.value = v;
-                loc[key] = v;
+                loc[lkey] = v;
             }
             break;
         case "double":
             if (v === "") {
-                delete loc[key];
+                if (key) delete loc[lkey];
+                else loc[lkey] = null;
             } else {
                 v = parseFloat(v);
                 item.value = v;
-                loc[key] = v;
+                loc[lkey] = v;
             }
             break;
         default:
             if (v === "") {
-                if (Array.isArray(loc)) loc[key] = "";
-                else delete loc[key];
+                if (Array.isArray(loc)) loc[lkey] = "";
+                else if (key) delete loc[lkey];
+                else loc[lkey] = "";
             } else {
-                loc[key] = v;
+                loc[lkey] = v;
             }
             break;
     }
@@ -418,8 +457,11 @@ function loadEntries(level, rootElem, data, form, del) {
             let elem = findChildItem(rootElem, itemID);
             if (item.type == "list") {
                 elem = findChildItem(rootElem, "-"+itemID);
+            } else if (item.type == "nlist") {
+                elem = findChildItem(rootElem, "-_"+itemID);
             }
 
+            // Find data and store it into v.
             let v = data[itemID];
             if (item.type == "multi") {
                 elem = findChildItem(rootElem, "_"+itemID);
@@ -445,9 +487,9 @@ function loadEntries(level, rootElem, data, form, del) {
             }
 
             // Make sure subpanels are expanded or hidden as needed
-            if (item.type == "list" || item.type == "sub" || item.type == "dict") {
+            if (item.type == "list" || item.type == "nlist" || item.type == "sub" || item.type == "dict") {
                 let c = elem.children();
-                if (data[itemID] && c.length == 1) {
+                if ((data[itemID] || itemID == "o__") && c.length == 1) {
                     // Panel needs to be added
                     insertPanel(c.get(0));
                 } else if ((!data[itemID]) && c.length > 1) {
@@ -458,23 +500,70 @@ function loadEntries(level, rootElem, data, form, del) {
 
             switch (item.type) {
                 case "info": break;
-                case "list": // Fill in lists
-                    let list = data[itemID];
-                    if (list) {
+                case "nlist": // Fill in named lists
+                    v = data[itemID];
+                    if (itemID == "o__") {
+                        // If the type is o__, recreate the named list from leftover fields
+                        if (v === undefined) v = {};
+
+                        for (let key of Object.keys(data)) {
+                            if (!item.ignore.includes(key) && key != "o__") {
+                                v[key] = data[key];
+                                delete data[key];
+                            }
+                        }
+
+                        data[itemID] = v;
+                        save();
+                    }
+
+                    let keys = Object.keys(v);
+                    
+                    if (v) {
                         let elems = elem.find(">div");
                         // Create or remove elements to match length
                         let cl = elems.length;
-                        if (cl < list.length) { // Add elements if too few
+                        if (cl < keys.length) { // Add elements if too few
                             let btn = elem.find(">.zlist-button").get(0);
-                            for (let i = cl; i < list.length; i++) addListItem(btn, level);
-                        } else if (cl > list.length) { // Remove elements if too many
-                            for (let i = cl-1; i > list.length-1; i--) removeListItem_(elems.eq(i));
+                            for (let i = cl; i < keys.length; i++) addListItem(btn, level, keys[i]);
+                        } else if (cl > keys.length) { // Remove elements if too many
+                            for (let i = cl-1; i > keys.length-1; i--) removeListItem_(elems.eq(i), true);
                         }
 
                         // Iterate over elements and load each individually
                         elems = elem.find(">div");
-                        for (let i = 0; i < list.length; i++) {
-                            loadEntries(level+1, elems.eq(i), list[i], form[itemID].data, true)
+                        for (let i = 0; i < keys.length; i++) {
+                            let ielem = elems.eq(i);
+                            // Load id bar
+                            ielem.find(">.zlist-id").val(keys[i]);
+                            // Load entries
+                            loadEntries(level+1, ielem, v[keys[i]], form[itemID].data, true);
+                        }
+                    }
+                    break;
+                case "list": // Fill in lists
+                    v = data[itemID]; // Is this necessary? Idk
+                    if (v) {
+                        // If v is not a list, MAKE IT A LIST! This makes it so I can support many more things.
+                        if (!Array.isArray(v)) {
+                            v = [v];
+                            data[itemID] = v;
+                        }
+
+                        let elems = elem.find(">div");
+                        // Create or remove elements to match length
+                        let cl = elems.length;
+                        if (cl < v.length) { // Add elements if too few
+                            let btn = elem.find(">.zlist-button").get(0);
+                            for (let i = cl; i < v.length; i++) addListItem(btn, level);
+                        } else if (cl > v.length) { // Remove elements if too many
+                            for (let i = cl-1; i > v.length-1; i--) removeListItem_(elems.eq(i), true);
+                        }
+
+                        // Iterate over elements and load each individually
+                        elems = elem.find(">div");
+                        for (let i = 0; i < v.length; i++) {
+                            loadEntries(level+1, elems.eq(i), v[i], form[itemID].data, true);
                         }
                     }
                     break;
@@ -607,7 +696,9 @@ function loadEntries(level, rootElem, data, form, del) {
                     }
                     break;
                 case "textlist":
-                    if (Array.isArray(v)) v = v.join("\n");
+                    if (itemID && Array.isArray(v)) v = v.join("\n");
+                    else if (Array.isArray(data)) v = data.join("\n");
+                    else v = [];
                 default:
                     // Every other element
                     elem.val(v);
@@ -615,7 +706,7 @@ function loadEntries(level, rootElem, data, form, del) {
             }
 
             // Make sure data is stored in the right format regardless.
-            if (["dict", "sub", "list", "more", "ace", "textlist", "multi"].indexOf(item.type) == -1) {
+            if (["dict", "sub", "list", "nlist", "more", "ace", "multi", "textlist"].indexOf(item.type) == -1) {
                 if (item.type != "options" || (v != "???" && v != " ")) {
                     if (data[itemID] !== undefined && data[itemID] !== v) data[itemID] = v;
                 }
@@ -623,7 +714,7 @@ function loadEntries(level, rootElem, data, form, del) {
         }
 
         // Trash unused data
-        if (!nodel && del && typeof(data) === "object") {
+        if (!nodel && del && typeof(data) === "object" && !Array.isArray(data)) {
             loopouter:
             for (const key of Object.keys(data)) {
                 if (!(key in form)) {
@@ -707,7 +798,7 @@ function insertForm(loc, header, form, datapath, level=0) {
                 // Display the first one.
                 findItem(panelID, jqns(Object.keys(item.data)[0])).removeClass("nodisplay");
                 break;
-            case "multi": // I personally find it dumb that this is required
+            case "multi": // I personally find it dumb that this is required, but it is
                 if (item.panel) {
                     cs = "panel ";
                     if (level % 2 == 1) {
@@ -737,13 +828,14 @@ function insertForm(loc, header, form, datapath, level=0) {
                     } else {
                         pnl = pnl.append(`<div name="_${mName}" class="nodisplay iblock __${mName} multi-${mName}"></div>`);
                         let elem = pnl.find(">.__"+mName);
-                        insertSimple(elem, mType, itemID, level);
+                        insertSimple(elem, mType, itemID, false, level);
                     }
                 }
 
                 select.after("<br>");
                 break;
             case "sub":
+            case "nlist": // Named lists kind of just cheat by copying ALMOST everything normal lists do
             case "list":
                 // If it's a list or sub, it has a panel, and we wait to create fields for it until the user expands it.
                 // If we didn't do this, we would have infinite recursion problems.
@@ -751,6 +843,9 @@ function insertForm(loc, header, form, datapath, level=0) {
                 if (item.type === "list") {
                     lID = "-" + itemID;
                     panelID = datapath + "---" + itemID;
+                } else if (item.type === "nlist") {
+                    lID = "-_" + itemID;
+                    panelID = datapath + "---_" + itemID;
                 }
                 
                 cs = "panel";
@@ -766,19 +861,19 @@ function insertForm(loc, header, form, datapath, level=0) {
                 break;
             default:
                 // Other values are simple and inserted simply
-                insertSimple(loc, item.type, itemID, level, itemval);
+                insertSimple(loc, item.type, itemID, item.size, level, itemval);
         }
         if (item.name) loc.append("<br>\n\n");
     }
 };
 
-function insertSimple(loc, type, itemID, level, itemval="") {
+function insertSimple(loc, type, itemID, size, level, itemval="") {
     switch (type) {
         case "main":
         case "ns":
         case "id":
         case "text":
-            loc.append(`<input name="${itemID}" class="ientry _${itemID}" onchange='insertData("${itemID}", "${type}", this)' value="${itemval}">`);
+            loc.append(`<input spellcheck="false" name="${itemID}" class="ientry _${itemID}" onchange='insertData("${itemID}", "${type}", this)' value="${itemval}">`);
             break;
         case "int":
             loc.append(`<input name="${itemID}" class="ientry _${itemID}" type="number" onchange='insertData("${itemID}", "${type}", this)' value="${itemval}">`);
@@ -796,15 +891,20 @@ function insertSimple(loc, type, itemID, level, itemval="") {
             loc.append(`<img class="i_${itemID}" src=""><br><div class="iitem"></div><button onclick='insertData("${itemID}", "cimage", this)'>Clear</button><input name="${itemID}" class="ientry _${itemID}" type="file" onchange='insertData("${itemID}", "${type}", this)' value="${itemval}" accept="image/*">`);
             break;
         case "ace":
-            loc.append(`<div id="ace-${xn}" name="${itemID}" class="iblock _${itemID} ace ace-small" onfocusout="insertData('${itemID}', '${type}', this, ${xn})"></div>`);
+            sz = "ace ace-small";
+            if (size) sz = "ace";
+
+            loc.append(`<div id="ace-${xn}" name="${itemID}" class="iblock _${itemID} ${sz}" onfocusout="insertData('${itemID}', '${type}', this, ${xn})"></div>`);
             setupAce("ace-"+xn, "ace/mode/json");
             xn++;
             break;
         case "textarea":
-            loc.append(`<textarea name="${itemID}" class="ientry _${itemID}" onchange='insertData("${itemID}", "${type}", this)'>${itemval}</textarea>`);
+            sz = "larger";
+            if (size) sz = "smaller";
+            loc.append(`<textarea spellcheck="false" name="${itemID}" class="ientry _${itemID} ${sz}" onchange='insertData("${itemID}", "${type}", this)'>${itemval}</textarea>`);
             break;
         case "textlist":
-            loc.append(`<textarea name="${itemID}" class="ientry _${itemID} nowrap larger" onchange='insertData("${itemID}", "${type}", this)'>${itemval}</textarea>`);
+            loc.append(`<textarea spellcheck="false" name="${itemID}" class="ientry _${itemID} nowrap larger" onchange='insertData("${itemID}", "${type}", this)'>${itemval}</textarea>`);
             break;
     }
 };
@@ -831,6 +931,9 @@ function insertPanel(btn) {
     pnl.addClass("selectable");
 
     switch (type) {
+        case "nlist": // Named lists.... at least this part isn't complicated
+            pnl.append(`<br><button level=${level} class="m zlist-button sbutton" onclick='addListItem(this)'>+</button><button class="m zlist-button sbutton" onclick='clearList(this, "${itemID.substring(2)}", true)'>C</button>`);
+            break;
         case "list": // Lists just need to have an add button added, as loadEntries handles the rest of it
             pnl.append(`<br><button level=${level} class="m zlist-button sbutton" onclick='addListItem(this)'>+</button><button class="m zlist-button sbutton" onclick='clearList(this, "${itemID.substring(1)}")'>C</button>`);
             break;
@@ -838,15 +941,11 @@ function insertPanel(btn) {
             pnl.addClass("subop");
             insertForm(pnl, "<br>", locateForm(datapath, itemID), elemID, level, true);
             break;
-        case "dict":
-            // TODO: dictionary editor (I'mma wait to actually implement this)
-            pnl.append('<div class="zdict"></div>')
-            break;
     }
     
     // After inserting panel, load entries
     if (/*loc && */activeType != "help" && activeType != "raw") {
-        if (type == "list") {
+        if (type == "list" || type == "nlist") {
             loadEntries(level, pnl.parent(), locateData(datapath), locateForm(datapath)); // Load list's parent only.
         } else {
             loadEntries(level, pnl, loc, locateForm(datapath, itemID), true);
@@ -857,7 +956,10 @@ function removePanel(btn) {
     // Remove data from raw data
     var spath = getPath(btn).replace("-__-", ":").split("--");
     var key = spath[spath.length-1];
-    if (key[0] == "-") key = key.substring(1);
+    if (key[0] == "-") {
+        if (key[1] == "_") key = key.substring(2);
+        else key = key.substring(1);
+    }
     
     delete locateData(spath.slice(0, -1).join("--"))[key];
     save();

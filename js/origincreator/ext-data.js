@@ -1,3 +1,65 @@
+var status_effects_vanilla = {
+    "name": "Effects",
+    "type": "nlist",
+    "desc": "A list of status effects, with the name of each item being the status effect name.",
+    "data": {
+        "ambient": {
+            "name": "Ambient",
+            "type": "bool",
+            "desc": "Whether the effect is from a beacon."
+        },
+        "amplifier": {
+            "name": "Amplifier",
+            "type": "multi",
+            "desc": "The effect amplifier.",
+            "panel": true,
+            "options": ["simple", "extra"],
+            "types": ["int", "sub"],
+            "data": {
+                1: {
+                    "min": {
+                        "name": "Min",
+                        "type": "int",
+                        "desc": "The minimum value."
+                    },
+                    "max": {
+                        "name": "Max",
+                        "type": "int",
+                        "desc": "The maximum value."
+                    }
+                }
+            }
+        },
+        "duration": {
+            "name": "Duration",
+            "type": "multi",
+            "desc": "The effect duration.",
+            "panel": true,
+            "options": ["simple", "extra"],
+            "types": ["int", "sub"],
+            "data": {
+                1: {
+                    "min": {
+                        "name": "Min",
+                        "type": "int",
+                        "desc": "The minimum value."
+                    },
+                    "max": {
+                        "name": "Max",
+                        "type": "int",
+                        "desc": "The maximum value."
+                    }
+                }
+            }
+        },
+        "visible": {
+            "name": "Visible",
+            "type": "bool",
+            "desc": "Whether the effect has visible particles."
+        }
+    }
+};
+
 var item_tags_data = {
     "item": {
         "name": "Item",
@@ -161,8 +223,13 @@ var location_tags_data = {
             },
             "state": {
                 "name": "State",
-                "type": "ace",
-                "desc": "A map of block property names to values. Test will fail if the block doesn't match."
+                "type": "nlist",
+                "desc": "A map of block property names to values. Test will fail if the block doesn't match.",
+                "data": {
+                    "": {
+                        "type": "text"
+                    }
+                }
             }
         }
     },
@@ -193,8 +260,13 @@ var location_tags_data = {
             },
             "state": {
                 "name": "State",
-                "type": "ace",
-                "desc": "A map of fluid property names to values. Test will fail if the fluid doesn't match."
+                "type": "nlist",
+                "desc": "A map of fluid property names to values. Test will fail if the fluid doesn't match.",
+                "data": {
+                    "": {
+                        "type": "text"
+                    }
+                }
             }
         }
     },
@@ -383,11 +455,7 @@ var entity_tags_data = {
             }
         }
     },
-    "effects": {
-        "name": "Effects",
-        "type": "ace",
-        "desc": "A dictionary of status effects, with the key names being the status effect id. See the wiki for more information."
-    },
+    "effects": status_effects_vanilla,
     "equipment": {
         "name": "Equipment",
         "type": "sub",
@@ -789,7 +857,80 @@ var damage_predicate = {
     }
 };
 
+var damage_predicate_super = {
+    "name": "Damage",
+    "type": "sub",
+    "desc": "Checks the damage done.",
+    "data": {
+        "blocked": {
+            "name": "Blocked",
+            "type": "bool",
+            "desc": "Checks if the damage was successfully blocked."
+        },
+        "source_entity": {
+            "name": "Source Entity",
+            "type": "sub",
+            "desc": "Checks the entity that was the source of the damage (for example: The skeleton that shot the arrow).",
+            "data": entity_tags_data
+        },
+        "dealt": {
+            "name": "Dealt",
+            "type": "multi",
+            "desc": "Checks the amount of incoming damage before damage reduction.",
+            "panel": true,
+            "options": ["simple", "extra"],
+            "types": ["double", "sub"],
+            "data": {
+                1: {
+                    "min": {
+                        "name": "Min",
+                        "type": "double",
+                        "desc": "The minimum value."
+                    },
+                    "max": {
+                        "name": "Max",
+                        "type": "double",
+                        "desc": "The maximum value."
+                    }
+                }
+            }
+        },
+        "taken": {
+            "name": "Taken",
+            "type": "multi",
+            "desc": "Checks the amount of incoming damage after damage reduction.",
+            "panel": true,
+            "options": ["simple", "extra"],
+            "types": ["double", "sub"],
+            "data": {
+                1: {
+                    "min": {
+                        "name": "Min",
+                        "type": "double",
+                        "desc": "The minimum value."
+                    },
+                    "max": {
+                        "name": "Max",
+                        "type": "double",
+                        "desc": "The maximum value."
+                    }
+                }
+            }
+        },
+        "type": {
+            "name": "Type",
+            "type": "sub",
+            "desc": "Checks the type of damage done.",
+            "data": damage_predicate
+        }
+    }
+};
+
 var predicate_data = {};
+predicate_data.info = {
+    "type": "info",
+    "info": "<a href='https://minecraft.gamepedia.com/Predicate'>Wiki Format</a>"
+};
 predicate_data.condition = {
     "name": "Type",
     "type": "options",
@@ -821,7 +962,12 @@ predicate_data.__type_options = {
             }
         },
         "minecraft:damage_source_properties": {
-            "predicate": damage_predicate
+            "predicate": {
+                "name": "Predicate",
+                "type": "sub",
+                "desc": "The type of damage as a predicate.",
+                "data": damage_predicate
+            }
         },
         "minecraft:entity_properties": {
             "entity": {
@@ -982,6 +1128,10 @@ predicate_data.__type_options = {
 };
 
 var advancement_data = {
+    "info": {
+        "type": "info",
+        "info": "<a href='https://minecraft.gamepedia.com/Advancement/JSON_format'>Wiki Format</a>"
+    },
     "display": {
         "name": "Display",
         "type": "sub",
@@ -1003,7 +1153,7 @@ var advancement_data = {
                 "name": "Title",
                 "type": "ace",
                 "desc": "The title for this advancement, specified as either text in quotes or a json text component. Click to see the wiki for the json text format",
-                "wiki": "https://minecraft.gamepedia.com/Raw_JSON_text_format"
+                "link": "https://minecraft.gamepedia.com/Raw_JSON_text_format"
             },
             "frame": {
                 "name": "Frame",
@@ -1048,13 +1198,1434 @@ var advancement_data = {
     },
     "criteria": {
         "name": "Criteria",
-        "type": "ace",
-        "desc": "The required criteria that have to be met as a json component. Click to see wiki on the format."
+        "type": "nlist",
+        "desc": "The required criteria that have to be met.",
+        "data": {
+            "trigger": {
+                "name": "Trigger",
+                "type": "options",
+                "desc": "The trigger for this advancement; specifies what the game should check for the advancement.",
+                "more": "__trigger_options"
+            },
+            "__trigger_options": {
+                "type": "more",
+                "parent": "trigger",
+                "data": {
+                    "minecraft:impossible": {},
+                    "minecraft:tick": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:bee_nest_destroyed": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "block": {
+                                    "name": "Block",
+                                    "type": "ns",
+                                    "desc": "The block that was destroyed. Accepts block IDs."
+                                },
+                                "item": {
+                                    "name": "Item",
+                                    "type": "sub",
+                                    "desc": "The item used to break the block.",
+                                    "data": item_tags_data
+                                },
+                                "num_bees_inside": {
+                                    "name": "Bee Count",
+                                    "type": "int",
+                                    "desc": "The number of bees that were inside the bee nest/beehive before it was broken."
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:bred_animals": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "child": {
+                                    "name": "Child",
+                                    "type": "list",
+                                    "desc": "The child that results from the breeding. May also be a list of predicates that must pass in order for the trigger to activate.",
+                                    "data": entity_tags_data
+                                },
+                                "parent": {
+                                    "name": "Parent",
+                                    "type": "list",
+                                    "desc": "The parent. May also be a list of predicates that must pass in order for the trigger to activate.",
+                                    "data": entity_tags_data
+                                },
+                                "partner": {
+                                    "name": "Partner",
+                                    "type": "list",
+                                    "desc": "The partner. (The entity the parent was bred with) May also be a list of predicates that must pass in order for the trigger to activate.",
+                                    "data": entity_tags_data
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:brewed_potion": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "potion": {
+                                    "name": "Potion",
+                                    "type": "ns",
+                                    "desc": "A brewed potion ID. Click to see wiki.",
+                                    "link": "https://minecraft.gamepedia.com/Potion#Item_data"
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:changed_dimension": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "from": {
+                                    "name": "From",
+                                    "type": "ns",
+                                    "desc": "The dimension the entity traveled from."
+                                },
+                                "to": {
+                                    "name": "From",
+                                    "type": "ns",
+                                    "desc": "The dimension the entity traveled to. Same accepted values as above."
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:channeled_lightning": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "victims": {
+                                    "name": "Victims",
+                                    "type": "list",
+                                    "desc": "The victims hit by the lightning summoned by the Channeling enchantment. All entities in this list must be hit. The checks are applied to the victim hit by the enchanted trident.",
+                                    "data": entity_tags_data
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:construct_beacon": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "level": {
+                                    "name": "Level",
+                                    "type": "multi",
+                                    "desc": "The tier of the updated beacon structure.",
+                                    "panel": true,
+                                    "options": ["simple", "extra"],
+                                    "types": ["int", "sub"],
+                                    "data": {
+                                        1: {
+                                            "min": {
+                                                "name": "Min",
+                                                "type": "int",
+                                                "desc": "The minimum value."
+                                            },
+                                            "max": {
+                                                "name": "Max",
+                                                "type": "int",
+                                                "desc": "The maximum value."
+                                            }
+                                        }
+                                    }
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:consume_item": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "item": {
+                                    "name": "Item",
+                                    "type": "sub",
+                                    "desc": "The item that was consumed.",
+                                    "data": item_tags_data
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:cured_zombie_villager": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "villager": {
+                                    "name": "Villager",
+                                    "type": "list",
+                                    "desc": 'The villager that is the result of the conversion. The "type" tag is redundant since it will always be "villager".',
+                                    "data": entity_tags_data
+                                },
+                                "zombie": {
+                                    "name": "Zombie",
+                                    "type": "list",
+                                    "desc": 'The zombie villager right before the conversion is complete (not when it is initiated). The "type" tag is redundant since it will always be "zombie_villager".',
+                                    "data": entity_tags_data
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:effects_changed": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "effects": {
+                                    "name": "Effects",
+                                    "type": "nlist",
+                                    "desc": "A list of status effects the player has. The name of each item is the status effect name.",
+                                    "data": {
+                                        "amplifier": {
+                                            "name": "Amplifier",
+                                            "type": "multi",
+                                            "desc": "The effect amplifier.",
+                                            "panel": true,
+                                            "options": ["simple", "extra"],
+                                            "types": ["int", "sub"],
+                                            "data": {
+                                                1: {
+                                                    "min": {
+                                                        "name": "Min",
+                                                        "type": "int",
+                                                        "desc": "The minimum value."
+                                                    },
+                                                    "max": {
+                                                        "name": "Max",
+                                                        "type": "int",
+                                                        "desc": "The maximum value."
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "duration": {
+                                            "name": "Duration",
+                                            "type": "multi",
+                                            "desc": "The effect duration in ticks.",
+                                            "panel": true,
+                                            "options": ["simple", "extra"],
+                                            "types": ["int", "sub"],
+                                            "data": {
+                                                1: {
+                                                    "min": {
+                                                        "name": "Min",
+                                                        "type": "int",
+                                                        "desc": "The minimum value."
+                                                    },
+                                                    "max": {
+                                                        "name": "Max",
+                                                        "type": "int",
+                                                        "desc": "The maximum value."
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:enchanted_item": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "item": {
+                                    "name": "Item",
+                                    "type": "sub",
+                                    "desc": "The item after it has been enchanted.",
+                                    "data": item_tags_data
+                                },
+                                "levels": {
+                                    "name": "Levels",
+                                    "type": "multi",
+                                    "desc": "The levels spent by the player on the enchantment.",
+                                    "panel": true,
+                                    "options": ["simple", "extra"],
+                                    "types": ["int", "sub"],
+                                    "data": {
+                                        1: {
+                                            "min": {
+                                                "name": "Min",
+                                                "type": "int",
+                                                "desc": "The minimum value."
+                                            },
+                                            "max": {
+                                                "name": "Max",
+                                                "type": "int",
+                                                "desc": "The maximum value."
+                                            }
+                                        }
+                                    }
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:enter_block": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "block": {
+                                    "name": "Block",
+                                    "type": "ns",
+                                    "desc": "The block that the player is standing in. Accepts block IDs."
+                                },
+                                "state": {
+                                    "name": "State",
+                                    "type": "nlist",
+                                    "desc": "A map of block property names to values. Test will fail if the block doesn't match.",
+                                    "data": {
+                                        "": {
+                                            "type": "text"
+                                        }
+                                    }
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:entity_hurt_player": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "damage": damage_predicate_super,
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:entity_killed_player": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "entity": {
+                                    "name": "Entity",
+                                    "type": "list",
+                                    "desc": 'Checks the entity that was the source of the damage that killed the player (for example: The skeleton that shot the arrow).',
+                                    "data": entity_tags_data
+                                },
+                                "killing_blow": {
+                                    "name": "Killing Blow",
+                                    "type": "sub",
+                                    "desc": "Checks the type of damage that killed the player. Missing corresponding list of predicates for the direct entity.",
+                                    "data": damage_predicate
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:filled_bucket": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "item": {
+                                    "name": "Item",
+                                    "type": "list",
+                                    "desc": 'The item resulting from filling the bucket.',
+                                    "data": item_tags_data
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:fishing_rod_hooked": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "entity": {
+                                    "name": "Entity",
+                                    "type": "list",
+                                    "desc": "The entity that was pulled.",
+                                    "data": predicate_data
+                                },
+                                "item": {
+                                    "name": "Item",
+                                    "type": "sub",
+                                    "desc": "The item that was caught.",
+                                    "data": item_tags_data
+                                },
+                                "rod": {
+                                    "name": "Rod",
+                                    "type": "sub",
+                                    "desc": "The fishing rod used.",
+                                    "data": item_tags_data
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:hero_of_the_village": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "location": {
+                                    "name": "Location",
+                                    "type": "list",
+                                    "desc": "The location of the player.",
+                                    "data": location_tags_data
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:inventory_changed": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "items": {
+                                    "name": "Items",
+                                    "type": "list",
+                                    "desc": "A list of items in the player's inventory. All items in the list must be in the player's inventory, but not all items in the player's inventory have to be in this list.",
+                                    "data": item_tags_data
+                                },
+                                "slots": {
+                                    "name": "Slots",
+                                    "type": "sub",
+                                    "desc": "Tests about the number of different kinds of slots in the user's inventory.",
+                                    "data": {
+                                        "empty": {
+                                            "name": "Empty",
+                                            "type": "multi",
+                                            "desc": "The amount of slots empty in the inventory.",
+                                            "panel": true,
+                                            "options": ["simple", "extra"],
+                                            "types": ["int", "sub"],
+                                            "data": {
+                                                1: {
+                                                    "min": {
+                                                        "name": "Min",
+                                                        "type": "int",
+                                                        "desc": "The minimum value."
+                                                    },
+                                                    "max": {
+                                                        "name": "Max",
+                                                        "type": "int",
+                                                        "desc": "The maximum value."
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "full": {
+                                            "name": "Full",
+                                            "type": "multi",
+                                            "desc": "The amount of slots completely filled (stacksize) in the inventory.",
+                                            "panel": true,
+                                            "options": ["simple", "extra"],
+                                            "types": ["int", "sub"],
+                                            "data": {
+                                                1: {
+                                                    "min": {
+                                                        "name": "Min",
+                                                        "type": "int",
+                                                        "desc": "The minimum value."
+                                                    },
+                                                    "max": {
+                                                        "name": "Max",
+                                                        "type": "int",
+                                                        "desc": "The maximum value."
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "occupied": {
+                                            "name": "Occupied",
+                                            "type": "multi",
+                                            "desc": "The amount of slots occupied in the inventory.",
+                                            "panel": true,
+                                            "options": ["simple", "extra"],
+                                            "types": ["int", "sub"],
+                                            "data": {
+                                                1: {
+                                                    "min": {
+                                                        "name": "Min",
+                                                        "type": "int",
+                                                        "desc": "The minimum value."
+                                                    },
+                                                    "max": {
+                                                        "name": "Max",
+                                                        "type": "int",
+                                                        "desc": "The maximum value."
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:item_durability_changed": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "delta": {
+                                    "name": "Delta",
+                                    "type": "multi",
+                                    "desc": "The change in durability (negative numbers are used to indicate a decrease in durability).",
+                                    "panel": true,
+                                    "options": ["simple", "extra"],
+                                    "types": ["int", "sub"],
+                                    "data": {
+                                        1: {
+                                            "min": {
+                                                "name": "Min",
+                                                "type": "int",
+                                                "desc": "The minimum value."
+                                            },
+                                            "max": {
+                                                "name": "Max",
+                                                "type": "int",
+                                                "desc": "The maximum value."
+                                            }
+                                        }
+                                    }
+                                },
+                                "durability": {
+                                    "name": "Durability",
+                                    "type": "multi",
+                                    "desc": "The remaining durability of the item.",
+                                    "panel": true,
+                                    "options": ["simple", "extra"],
+                                    "types": ["int", "sub"],
+                                    "data": {
+                                        1: {
+                                            "min": {
+                                                "name": "Min",
+                                                "type": "int",
+                                                "desc": "The minimum value."
+                                            },
+                                            "max": {
+                                                "name": "Max",
+                                                "type": "int",
+                                                "desc": "The maximum value."
+                                            }
+                                        }
+                                    }
+                                },
+                                "item": {
+                                    "name": "Item",
+                                    "type": "sub",
+                                    "desc": "The item before it was damaged, allows you to check the durability before the item was damaged.",
+                                    "data": item_tags_data
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:item_used_on_block": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "location": {
+                                    "name": "Location",
+                                    "type": "list",
+                                    "desc": "The location at the center of the block the item was used on.",
+                                    "data": location_tags_data
+                                },
+                                "item": {
+                                    "name": "Item",
+                                    "type": "sub",
+                                    "desc": "The item used on the block.",
+                                    "data": item_tags_data
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:killed_by_crossbow": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "unique_entity_types": {
+                                    "name": "Kill Count",
+                                    "type": "multi",
+                                    "desc": "The count of unique types of entities killed with a single shot.",
+                                    "panel": true,
+                                    "options": ["simple", "extra"],
+                                    "types": ["int", "sub"],
+                                    "data": {
+                                        1: {
+                                            "min": {
+                                                "name": "Min",
+                                                "type": "int",
+                                                "desc": "The minimum value."
+                                            },
+                                            "max": {
+                                                "name": "Max",
+                                                "type": "int",
+                                                "desc": "The maximum value."
+                                            }
+                                        }
+                                    }
+                                },
+                                "victims": {
+                                    "name": "Victims",
+                                    "type": "ace",
+                                    "desc": "A predicate for any of the killed entities or a list of predicates for any of the killed entities. All of the predicates must be matched, and one killed entity may match only one predicate. Refer to the wiki for more information, as this is complex."
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:levitation": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "distance": {
+                                    "name": "Distance",
+                                    "type": "sub",
+                                    "desc": "I think this is the distance from the place where the player was originally given levitation to the place the player traveled to.",
+                                    "data": {
+                                        "absolute": {
+                                            "name": "Absolute",
+                                            "type": "sub",
+                                            "data": {
+                                                "min": {
+                                                    "name": "Min",
+                                                    "type": "int",
+                                                    "desc": "The minimum value."
+                                                },
+                                                "max": {
+                                                    "name": "Max",
+                                                    "type": "int",
+                                                    "desc": "The maximum value."
+                                                }
+                                            }
+                                        },
+                                        "horizontal": {
+                                            "name": "Horizontal",
+                                            "type": "sub",
+                                            "data": {
+                                                "min": {
+                                                    "name": "Min",
+                                                    "type": "int",
+                                                    "desc": "The minimum value."
+                                                },
+                                                "max": {
+                                                    "name": "Max",
+                                                    "type": "int",
+                                                    "desc": "The maximum value."
+                                                }
+                                            }
+                                        },
+                                        "x": {
+                                            "name": "X",
+                                            "type": "sub",
+                                            "data": {
+                                                "min": {
+                                                    "name": "Min",
+                                                    "type": "int",
+                                                    "desc": "The minimum value."
+                                                },
+                                                "max": {
+                                                    "name": "Max",
+                                                    "type": "int",
+                                                    "desc": "The maximum value."
+                                                }
+                                            }
+                                        },
+                                        "y": {
+                                            "name": "Y",
+                                            "type": "sub",
+                                            "data": {
+                                                "min": {
+                                                    "name": "Min",
+                                                    "type": "int",
+                                                    "desc": "The minimum value."
+                                                },
+                                                "max": {
+                                                    "name": "Max",
+                                                    "type": "int",
+                                                    "desc": "The maximum value."
+                                                }
+                                            }
+                                        },
+                                        "z": {
+                                            "name": "Z",
+                                            "type": "sub",
+                                            "data": {
+                                                "min": {
+                                                    "name": "Min",
+                                                    "type": "int",
+                                                    "desc": "The minimum value."
+                                                },
+                                                "max": {
+                                                    "name": "Max",
+                                                    "type": "int",
+                                                    "desc": "The maximum value."
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "duration": {
+                                    "name": "Duration",
+                                    "type": "multi",
+                                    "desc": "The duration of the levitation in ticks.",
+                                    "panel": true,
+                                    "options": ["simple", "extra"],
+                                    "types": ["int", "sub"],
+                                    "data": {
+                                        1: {
+                                            "min": {
+                                                "name": "Min",
+                                                "type": "int",
+                                                "desc": "The minimum value."
+                                            },
+                                            "max": {
+                                                "name": "Max",
+                                                "type": "int",
+                                                "desc": "The maximum value."
+                                            }
+                                        }
+                                    }
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:location": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "location": {
+                                    "name": "Location",
+                                    "type": "list",
+                                    "desc": "The location of the player.",
+                                    "data": location_tags_data
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:nether_travel": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "entered": {
+                                    "name": "Entered",
+                                    "type": "list",
+                                    "desc": "The location where the player entered the Nether.",
+                                    "data": location_tags_data
+                                },
+                                "exited": {
+                                    "name": "Exited",
+                                    "type": "list",
+                                    "desc": "The location where the player exited the Nether.",
+                                    "data": location_tags_data
+                                },
+                                "distance": {
+                                    "name": "Distance",
+                                    "type": "sub",
+                                    "desc": "The overworld distance between where the player entered the Nether and where the player exited the Nether.",
+                                    "data": {
+                                        "absolute": {
+                                            "name": "Absolute",
+                                            "type": "sub",
+                                            "data": {
+                                                "min": {
+                                                    "name": "Min",
+                                                    "type": "double",
+                                                    "desc": "The minimum value."
+                                                },
+                                                "max": {
+                                                    "name": "Max",
+                                                    "type": "double",
+                                                    "desc": "The maximum value."
+                                                }
+                                            }
+                                        },
+                                        "horizontal": {
+                                            "name": "Horizontal",
+                                            "type": "sub",
+                                            "data": {
+                                                "min": {
+                                                    "name": "Min",
+                                                    "type": "double",
+                                                    "desc": "The minimum value."
+                                                },
+                                                "max": {
+                                                    "name": "Max",
+                                                    "type": "double",
+                                                    "desc": "The maximum value."
+                                                }
+                                            }
+                                        },
+                                        "x": {
+                                            "name": "X",
+                                            "type": "sub",
+                                            "data": {
+                                                "min": {
+                                                    "name": "Min",
+                                                    "type": "double",
+                                                    "desc": "The minimum value."
+                                                },
+                                                "max": {
+                                                    "name": "Max",
+                                                    "type": "double",
+                                                    "desc": "The maximum value."
+                                                }
+                                            }
+                                        },
+                                        "y": {
+                                            "name": "Y",
+                                            "type": "sub",
+                                            "data": {
+                                                "min": {
+                                                    "name": "Min",
+                                                    "type": "double",
+                                                    "desc": "The minimum value."
+                                                },
+                                                "max": {
+                                                    "name": "Max",
+                                                    "type": "double",
+                                                    "desc": "The maximum value."
+                                                }
+                                            }
+                                        },
+                                        "z": {
+                                            "name": "Z",
+                                            "type": "sub",
+                                            "data": {
+                                                "min": {
+                                                    "name": "Min",
+                                                    "type": "double",
+                                                    "desc": "The minimum value."
+                                                },
+                                                "max": {
+                                                    "name": "Max",
+                                                    "type": "double",
+                                                    "desc": "The maximum value."
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:placed_block": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "block": {
+                                    "name": "Block",
+                                    "type": "ns",
+                                    "desc": "The block that was placed. Accepts block IDs."
+                                },
+                                "item": {
+                                    "name": "Item",
+                                    "type": "sub",
+                                    "desc": "The item that was used to place the block before the item was consumed.",
+                                    "data": item_tags_data
+                                },
+                                "location": {
+                                    "name": "Location",
+                                    "type": "list",
+                                    "desc": "The location of the block that was placed.",
+                                    "data": location_tags_data
+                                },
+                                "state": {
+                                    "name": "State",
+                                    "type": "nlist",
+                                    "desc": "",
+                                    "data": {
+                                        "": {
+                                            "type": "text"
+                                        }
+                                    }
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:player_generates_container_loot": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "loot_table": {
+                                    "name": "Loot Table",
+                                    "type": "ns",
+                                    "desc": "The resource location of the generated loot table."
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:player_hurt_entity": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "damage": damage_predicate_super,
+                                "entity": {
+                                    "name": "Entity",
+                                    "type": "list",
+                                    "desc": "The entity that was damaged. May be a list of predicates that must pass in order for the trigger to activate.",
+                                    "data": entity_tags_data
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:player_interacted_with_entity": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "item": {
+                                    "name": "Item",
+                                    "type": "sub",
+                                    "desc": "The item which was in the player's hand during interaction.",
+                                    "data": item_tags_data
+                                },
+                                "entity": {
+                                    "name": "Entity",
+                                    "type": "list",
+                                    "desc": "The entity which was interacted with. May be a list of predicates that must pass in order for the trigger to activate.",
+                                    "data": entity_tags_data
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:player_killed_entity": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "entity": {
+                                    "name": "Entity",
+                                    "type": "list",
+                                    "desc": "The entity that was killed.",
+                                    "data": entity_tags_data
+                                },
+                                "killing_blow": {
+                                    "name": "Killing Blow",
+                                    "type": "sub",
+                                    "desc": "The type of damage that killed an entity.",
+                                    "data": damage_predicate
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:recipe_unlocked": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "recipe": {
+                                    "name": "Recipe",
+                                    "type": "ns",
+                                    "desc": "The recipe that was unlocked."
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:shot_crossbow": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "item": {
+                                    "name": "Item",
+                                    "type": "sub",
+                                    "desc": "The item that was used.",
+                                    "data": item_tags_data
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:slept_in_bed": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "location": {
+                                    "name": "Location",
+                                    "type": "list",
+                                    "desc": "The location of the player when they sleep in a bed.",
+                                    "data": location_tags_data
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:slide_down_block": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "block": {
+                                    "name": "Block",
+                                    "type": "ns",
+                                    "desc": "The block that the player slid on."
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:summoned_entity": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "entity": {
+                                    "name": "Entity",
+                                    "type": "list",
+                                    "desc": "The summoned entity. This does not work with spawn eggs, commands, and mob spawners.",
+                                    "data": entity_tags_data
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:tame_animal": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "entity": {
+                                    "name": "Entity",
+                                    "type": "list",
+                                    "desc": "Checks the entity that was tamed.",
+                                    "data": entity_tags_data
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:target_hit": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "signal_strength": {
+                                    "name": "Signal Strength",
+                                    "type": "int",
+                                    "desc": "The redstone signal that will come out of the target block."
+                                },
+                                "projectile": {
+                                    "name": "Projectile",
+                                    "type": "ns",
+                                    "desc": "The projectile used to hit the target block."
+                                },
+                                "shooter": {
+                                    "name": "Shooter",
+                                    "type": "list",
+                                    "desc": "Entity predicate for the player who shot or threw the projectile.",
+                                    "data": predicate_data
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:thrown_item_picked_up_by_entity": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "item": {
+                                    "name": "Item",
+                                    "type": "sub",
+                                    "desc": "The thrown item which was picked up.",
+                                    "data": item_tags_data
+                                },
+                                "entity": {
+                                    "name": "Entity",
+                                    "type": "list",
+                                    "desc": "The entity which picked up the item.",
+                                    "data": entity_tags_data
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:used_ender_eye": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "distance": {
+                                    "name": "Distance",
+                                    "type": "multi",
+                                    "desc": "The horizontal distance between the player and the stronghold.",
+                                    "panel": true,
+                                    "options": ["simple", "extra"],
+                                    "types": ["double", "sub"],
+                                    "data": {
+                                        1: {
+                                            "min": {
+                                                "name": "Min",
+                                                "type": "double",
+                                                "desc": "The minimum value."
+                                            },
+                                            "max": {
+                                                "name": "Max",
+                                                "type": "double",
+                                                "desc": "The maximum value."
+                                            }
+                                        }
+                                    }
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:used_totem": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "item": {
+                                    "name": "Item",
+                                    "type": "sub",
+                                    "desc": "The item, only works with totem items.",
+                                    "data": item_tags_data
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:villager_trade": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "item": {
+                                    "name": "Item",
+                                    "type": "sub",
+                                    "desc": 'The item that was purchased. The "count" tag checks the count from one trade, not multiple.',
+                                    "data": item_tags_data
+                                },
+                                "villager": {
+                                    "name": "Villager",
+                                    "type": "list",
+                                    "desc": "The villager the item was purchased from.",
+                                    "data": entity_tags_data
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    },
+                    "minecraft:voluntary_exile": {
+                        "conditions": {
+                            "name": "Conditions",
+                            "type": "sub",
+                            "desc": "All the conditions that need to be met when the trigger gets activated.",
+                            "data": {
+                                "location": {
+                                    "name": "Location",
+                                    "type": "list",
+                                    "desc": "The location of the player when they start a raid.",
+                                    "data": location_tags_data
+                                },
+                                "player": {
+                                    "name": "Player",
+                                    "type": "list",
+                                    "desc": "A list of predicates that must pass in order for the trigger to activate. The checks are applied to the player that would get the advancement.",
+                                    "data": predicate_data
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     },
     "requirements": {
         "name": "Requirements",
-        "type": "ace",
-        "desc": "An optional list of requirements (all the <criteriaNames>). If all criteria are required, this may be omitted. With multiple criteria: requirements contains a list of lists with criteria (all criteria need to be mentioned). If all of the lists each have any criteria met, the advancement is complete. (basically AND grouping of OR groups)."
+        "type": "list",
+        "desc": "An optional list of requirements (all the <criteriaNames>). If all criteria are required, this may be omitted. With multiple criteria: requirements contains a list of lists with criteria (all criteria need to be mentioned). If all of the lists each have any criteria met, the advancement is complete. (basically AND grouping of OR groups, with items split by line).",
+        "data": {
+            "": {
+                "type": "textlist"
+            }
+        }
     },
     "rewards": {
         "recipes": {
@@ -1162,6 +2733,10 @@ var shapeless_recipe_data = {
     }
 };
 var recipe_data = {
+    "id": {
+        "type": "info",
+        "info": "<a href='https://minecraft.gamepedia.com/Recipe'>Wiki Format</a>"
+    },
     "type": {
         "name": "Type",
         "type": "options",
@@ -1180,8 +2755,13 @@ var recipe_data = {
                 },
                 "key": {
                     "name": "Key",
-                    "type": "ace",
-                    "desc": "All keys used for this shaped crafting recipe."
+                    "type": "nlist",
+                    "desc": "All keys used for this shaped crafting recipe. Each key's name must be unique and the same as the symbol used to define it in the pattern.",
+                    "data": {
+                        "": {
+                            "type": "ace"
+                        }
+                    }
                 },
                 "result": {
                     "name": "Result",
@@ -1262,6 +2842,14 @@ var recipe_data = {
             }
         }
     }
+};
+
+var i_recipe_data = {};
+Object.assign(i_recipe_data, recipe_data);
+i_recipe_data.id = {
+    "name": "ID",
+    "type": "ns",
+    "desc": "Any arbitrary (but unique) identifier. It is required, so you cannot skip it."
 };
 
 var loot_entry_copy = {};
@@ -1736,6 +3324,10 @@ var loot_entry_data = {
 Object.assign(loot_entry_copy, loot_entry_data);
 
 var loot_table_data = {
+    "info": {
+        "type": "info",
+        "info": "<a href='https://minecraft.gamepedia.com/Loot_table'>Wiki Format</a>"
+    },
     "type": {
         "name": "Type",
         "type": "options",
