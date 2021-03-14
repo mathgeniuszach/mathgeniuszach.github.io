@@ -1123,6 +1123,20 @@ predicate_data.__type_options = {
                     "max": max_number_provider
                 }
             }
+        },
+        "minecraft:origin": {
+            "origin": {
+                "name": "Origin",
+                "type": "ns",
+                "desc": "The name of an origin the player must have in order for this predicate to pass."
+            }
+        },
+        "minecraft:power": {
+            "power": {
+                "name": "Power",
+                "type": "ns",
+                "desc": "The name of a power the player must have in order for this predicate to pass."
+            }
         }
     }
 };

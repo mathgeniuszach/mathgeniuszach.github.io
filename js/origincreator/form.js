@@ -163,6 +163,9 @@ function findItem(...datapaths) {
 function findChildItem(parent, ...datapaths) {
     return parent.find(">._"+datapaths.join(">._").replace(/--/g, ">._").replace(":", "-__-"))
 }
+function findDOM(...datapaths) {
+    return document.querySelector("._"+datapaths.join(">._").replace(/--/g, ">._").replace(":", "-__-"));
+}
 
 function locateForm(datapath, id) {
     var spath = datapath.split("--");
@@ -183,7 +186,6 @@ function locateForm(datapath, id) {
         if (!newFormLoc) continue;
         if (newFormLoc.type == "more") {
             let v = spath[i+1].replace("-__-", ":");
-            //if (!v) findItem(spath.slice(0, i).join("--"), newFormLoc.parent).val();
             formloc = newFormLoc.data[v];
             i++;
         } else if (newFormLoc.type == "multi") {
@@ -731,7 +733,7 @@ function loadEntries(level, rootElem, data, form, del) {
 }
 
 // Function to generate and insert html into the page based on the dictionary
-function insertForm(loc, header, form, datapath, level=0) {
+function insertForm(loc, header, form, level=0) {
     var code = [];
     var html = true;
     if (Array.isArray(loc)) {
@@ -741,8 +743,6 @@ function insertForm(loc, header, form, datapath, level=0) {
     if (header) code.push(header);
 
     for (const [itemID, item] of Object.entries(form)) {
-        // Get element id from id and key
-        let panelID = datapath + "--" + itemID;
         // Append Div for item and description
         if (item.name) {
             // Make name link if need be
@@ -790,7 +790,7 @@ function insertForm(loc, header, form, datapath, level=0) {
                     let jqop = jqns(option);
                     // Create panel
                     code.push(`<div name="${jqop}" class="nodisplay _${jqop}">`);
-                    insertForm(code, "", odata, panelID+"--"+jqop, level);
+                    insertForm(code, "", odata, level);
                     code.push("</div>");
                 }
                 
@@ -820,7 +820,7 @@ function insertForm(loc, header, form, datapath, level=0) {
                         } else {
                             // Load just like how more does, without the show button.
                             code.push(`<div name="${itemID}" class="nodisplay _${itemID} multi-${mName}">`);
-                            insertForm(code, "", item.data[i], panelID+"--"+itemID, level);
+                            insertForm(code, "", item.data[i], level);
                             code.push("</div>");
                         }
                     } else {
@@ -840,10 +840,8 @@ function insertForm(loc, header, form, datapath, level=0) {
                 let lID = itemID;
                 if (item.type === "list") {
                     lID = "-" + itemID;
-                    panelID = datapath + "---" + itemID;
                 } else if (item.type === "nlist") {
                     lID = "-_" + itemID;
-                    panelID = datapath + "---_" + itemID;
                 }
                 
                 cs = "panel";
@@ -941,7 +939,7 @@ function insertPanel(btn) {
             break;
         case "sub":
             pnl.addClass("subop");
-            insertForm(pnl, "<br>", locateForm(datapath, itemID), elemID, level, true);
+            insertForm(pnl, "<br>", locateForm(datapath, itemID), level, true);
             break;
     }
     

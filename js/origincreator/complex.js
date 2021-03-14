@@ -346,7 +346,7 @@ function addListItem(btn, relevel=0, namedID=null) {
     
     // Insert form into list item
     var form = locateForm(path);
-    insertForm(ipanel, "", form, path, level+1);
+    insertForm(ipanel, "", form, level+1);
 
     // Load list item specifically
     loadEntries(relevel, ipanel, dataLoc, form);
@@ -389,11 +389,12 @@ function copyListItem(btn, named) {
     }
     
     // Clone element (and <br>)
-    var clone = pnl.clone().insertAfter(pnl);
+    var clone = pnl.clone();
     clone.before("<br>");
     clone.attr("name", i+1);
     clone.removeClass("_"+i);
     clone.addClass("_"+(i+1));
+    clone.insertAfter(pnl);
     //clone.click(selectPanel);
     clone.find(">.zlist-id").val(itemID);
     

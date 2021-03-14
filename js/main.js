@@ -38,6 +38,7 @@ function setupAce(elem, mode) {
 }
 function setupAces() {
     for (let [elem, mode] of aceQueue) setupAce(elem, mode);
+    aceQueue = [];
 }
 
 // Function to insert an element in a specific part of a dictionary

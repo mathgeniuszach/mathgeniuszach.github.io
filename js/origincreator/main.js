@@ -1,12 +1,11 @@
 // Current list of TODOs:
-// Setup built-in wiki and info
 // Improve import system so that conflicts are stated
 // Function programming language
 
 // Possible performace improvements
-// Transition things off of findItem to findChildItem
 // Delete subpanels when switching option values
-// Instead of loading the entire screen when something changes, load only one panel.
+// Transition off of jQuery to basic DOMElements
+// Instead of reloading everything when an options panel is updated, only load the necessary subpanel
 
 // Some useful global variables
 // Type of the currently active screen
@@ -53,10 +52,10 @@ $(document).ready(function() {
     block();
     
     var metaDiv = $("#div-meta");
-    insertForm(metaDiv, '<h2>pack - My Origins</h2>\n', forms.meta, "meta");
+    insertForm(metaDiv, '<h2>pack - My Origins</h2>\n', forms.meta);
     for (const type of types) {
         metaDiv.after(`<div name="${type}" class="content nodisplay _${type}" id="div-${type}"></div>`);
-        insertForm($("#div-"+type), '<h2>' + type + ' - ?</h2>\n', forms[type], type);
+        insertForm($("#div-"+type), '<h2>' + type + ' - ?</h2>\n', forms[type]);
     }
     
     // Buttons for general overview
