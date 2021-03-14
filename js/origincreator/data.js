@@ -1022,6 +1022,7 @@ var hud_render = {
     "name": "HUD",
     "type": "sub",
     "desc": "Specifies how and if a cooldown bar is rendered.",
+    "link": "https://github.com/apace100/origins-fabric/wiki/Hud-Render",
     "data": {
         "should_render": {
             "name": "Render",
@@ -1039,7 +1040,8 @@ var hud_render = {
             "name": "Bar Index",
             "type": "int",
             "desc": "The indexed position of the bar on the sprite to use."
-        }
+        },
+        "condition": condition
     }
 };
 var status_effect_data = {
@@ -1226,6 +1228,17 @@ entity_action_data.__type_options = {
                 "data": entity_action_data
             }
         },
+        "origins:if_else_list": {
+            "actions": {
+                "name": "Actions",
+                "type": "list",
+                "desc": "A list of actions associated with conditions, and executes the first one in the list for which the condition holds. Basically a less indentation-heavy way to represent a deeply nested If Else Action.",
+                "data": {
+                    "condition": condition,
+                    "action": entity_action
+                }
+            }
+        },
         "origins:choice": {
             "actions": {
                 "name": "Actions",
@@ -1240,6 +1253,14 @@ entity_action_data.__type_options = {
                         "default": 10
                     }
                 }
+            }
+        },
+        "origins:delay": {
+            "action": entity_action,
+            "ticks": {
+                "name": "Delay",
+                "type": "int",
+                "desc": "The delay in ticks before the action is executed."
             }
         },
         "origins:damage": {
@@ -1305,8 +1326,9 @@ entity_action_data.__type_options = {
             "space": {
                 "name": "Space",
                 "type": "options",
-                "desc": 'When set to world, the axes are global, mostly useful because "y" is always the up-down-axis. When set to local, the axes are rotated so that the z-axis is the player\'s look direction. Mostly useful because "z" can be used to launch the player forwards or backwards of the direction they are looking.',
-                "options": ["world", "local"]
+                "options": ["world", "local", "velocity", "velocity_normalized", "velocity_horizontal", "velocity_horizontal_normalized"],
+                "desc": 'A space is a string which defines which coordinate system is used for directions, currently it\'s only used in Add Velocity. This means a space defines what "y" and "z" mean. Click to see the wiki.',
+                "link": "https://github.com/apace100/origins-fabric/wiki/Space"
             }
         },
         "origins:spawn_entity": {
@@ -1955,7 +1977,8 @@ var power_data = {
                     "desc": "If set, these modifiers will apply to the upwards jump velocity.",
                     "data": amodifier,
                     "link": "https://github.com/apace100/origins-fabric/wiki/Attribute-Modifier"
-                }
+                },
+                "entity_action": entity_action
             },
             "origins:modify_swim_speed": {
                 "modifier": {
