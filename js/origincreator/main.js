@@ -144,28 +144,62 @@ function changeScreen(type, activeP, uname, path) {
     activeUName = uname;
     activePath = path;
     
-    var activeElem = $("#div-"+type);
-
-    // Switch screen
+    // Hide all screens
     $(".content").addClass("nodisplay");
-    activeElem.removeClass('nodisplay');
-    // Set header
-    if (uname) activeElem.find(">h2").text(path + "/" + uname);
 
     // Do the rest
-    if (type == "other" || type == "functions") {
-        // Other panel is handled specially
-        active = activeP[uname || type];
-        $("#div-i-raw").addClass("nodisplay");
-        // Gotta load in the other panel now
-        otherEditor.setValue(active);
-    } else if (uname || type == "meta") {
-        active = activeP[uname || type];
-        // Load data into raw editor
-        $("#div-i-raw").removeClass("nodisplay");
-        // Load data into entry fields
-        loadEntries(0, activeElem, active, forms[type], true);
-    } else {
+    if (uname || type == "meta") {
+        // It is not an other
+        var activeElem;
+
+        // Check if this is an other
+        if (!types.includes(type) && type != "meta") {
+            activeElem = $("#div-other");
+
+            // Switch screen
+            $("#div-other").removeClass('nodisplay');
+
+            // Other panel is handled specially
+            active = activeP[uname || type];
+            if (typeof(active) != "string") {
+                if (!active) active = "";
+                else active = JSON.stringify(active);
+                activeP[uname || type] = active;
+            }
+
+            // Gotta load in the other panel now
+            otherEditor.setValue(active, -1);
+            otherEditor.session.setMode("ace/mode/text");
+            // Show raw editor
+            $("#div-i-raw").addClass("nodisplay");
+        } else {
+            activeElem = $("#div-"+type);
+            
+            active = activeP[uname || type];
+            if (!active || typeof(active) != "object") {
+                try {
+                    active = JSON.parse(active);
+                } catch (err) {}
+
+                if (!active || typeof(active) != "object" || Array.isArray(active)) active = {};
+                activeP[uname || type] = active;
+            }
+            
+            // Load data into entry fields
+            loadEntries(0, activeElem, active, forms[type], true);
+            // Show raw editor
+            $("#div-i-raw").removeClass("nodisplay");
+        }
+        // Switch screen
+        activeElem.removeClass('nodisplay');
+        // Set header
+        if (uname) activeElem.find(">h2").text(path + "/" + uname);
+    } else if (type == "raw" || type == "help") {
+        // Switch screen
+        $("#div-"+type).removeClass('nodisplay');
+        // Set header
+        if (uname) activeElem.find(">h2").text(path + "/" + uname);
+
         active = null;
         $("#div-i-raw").addClass("nodisplay");
     }
@@ -184,10 +218,10 @@ function selectContent(e, edata) {
         var parents = getParents(node);
         activeParent = findNodeData(node, true);
         activePath = parents.slice(1).map(n => contentBox.get_text(n)).join("/");
-        if (parents.length < 2) changeScreen("other", activeParent, node.text, activePath);
+        if (parents.length < 2) changeScreen(type, activeParent, node.text, activePath, true);
         else {
             var type = contentBox.get_node(parents[1]).text;
-            if (types.indexOf(type) == -1) changeScreen("other", activeParent, node.text, activePath);
+            if (types.indexOf(type) == -1) changeScreen(type, activeParent, node.text, activePath, true);
             else changeScreen(type, activeParent, node.text, activePath);
         }
     }

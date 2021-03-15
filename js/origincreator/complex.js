@@ -69,6 +69,7 @@ function fixName(node, d) {
     }
 }
 
+var fnode = null;
 var content_box = {
     "core": {
         "data": content_data,
@@ -82,7 +83,7 @@ var content_box = {
     },
     "types": jstree_types,
     "conditionalselect": function (node, event) {
-        return isFile(node);
+        return isFile(node) && node.id !== fnode;
     },
     "dnd": {
         "is_draggable": function (node, event) {
@@ -128,30 +129,34 @@ var content_box = {
                     "action": function (e) {
                         var nnode = contentBox.create_node(node);
                         contentBox.set_type(nnode, "file");
+                        fnode = nnode;
                         contentBox.edit(nnode, "new_item", function (node, status, cancel) {
                             var d = findNodeData(node, true);
                             var newName = fixName(node, d);
-                            d[newName] = {};
+                            d[newName] = "";
+                            fnode = null;
                             save();
                         });
                     },
                     "_disabled": function () {
-                        return isFile(node);
+                        return isFile(node) || node.id === fnode;
                     }
                 },
                 "new-folder": {
                     "label": "New Folder",
                     "action": function (e) {
                         var nnode = contentBox.create_node(node);
+                        fnode = nnode;
                         contentBox.edit(nnode, "folder", function (node, status, cancel) {
                             var d = findNodeData(node, true);
                             var newName = fixName(node, d);
                             d[newName] = {};
+                            fnode = null;
                             save();
                         });
                     },
                     "_disabled": function () {
-                        return isFile(node);
+                        return isFile(node) || node.id === fnode;
                     }
                 },
                 "cut": {
@@ -173,7 +178,7 @@ var content_box = {
                         save();
                     },
                     "_disabled": function () {
-                        return !isFreeNode(node);
+                        return !isFreeNode(node) || node.id === fnode;
                     }
                 },
                 "copy": {
@@ -189,7 +194,7 @@ var content_box = {
                         }
                     },
                     "_disabled": function () {
-                        return !isFreeNode(node);
+                        return !isFreeNode(node) || node.id === fnode;
                     }
                 },
                 "paste": {
@@ -208,7 +213,7 @@ var content_box = {
                         }
                     },
                     "_disabled": function () {
-                        return !clipedTree || !dataClipboard || isFile(node);
+                        return !clipedTree || !dataClipboard || isFile(node) || node.id === fnode;
                     }
                 },
                 "rename": {
@@ -227,13 +232,16 @@ var content_box = {
                                     d[newName] = d[otext+"/"];
                                     delete d[otext+"/"];
                                 }
-                                if (node.state.selected) $("#div-"+activeType+">h2").text(activePath+"/"+newName);
+                                if (node.state.selected) {
+                                    if (types.includes(activeType)) $("#div-"+activeType+">h2").text(activePath+"/"+newName);
+                                    else $("#div-other>h2").text(activePath+"/"+newName);
+                                }
                                 save();
                             }
                         });
                     },
                     "_disabled": function () {
-                        return !isFreeNode(node);
+                        return !isFreeNode(node) || node.id === fnode;
                     }
                 },                         
                 "delete": {
@@ -247,7 +255,7 @@ var content_box = {
                         save();
                     },
                     "_disabled": function () {
-                        return node.type == "meta";
+                        return node.type == "meta" || node.id === fnode;
                     }
                 }
             }

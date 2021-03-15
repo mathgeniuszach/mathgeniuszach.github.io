@@ -17,7 +17,7 @@ var empty_data = {
     "recipes/": {},
     "loot_tables/": {},
     "advancements/": {},
-    "data_scripts/": {}
+    //"data_scripts/": {}
 };
 var data = {
     "$": 3, // Version number to know how to convert data
@@ -45,13 +45,12 @@ var data = {
     "advancements/": {},
     "recipes/": {},
     "loot_tables/": {},
-    "data_scripts/": {}
+    //"data_scripts/": {}
 };
 const types = ["origin_layers", "origins", "powers", "tags", "predicates", "recipes", "loot_tables", "advancements", "__"];
 const ttypes = ["meta", "origin_layers", "origins", "powers", "tags", "functions", "predicates", "recipes", "loot_tables", "advancements", "data_scripts"];
 const iconed = ["meta", "origin_layers/", "origins/", "powers/", "tags/", "functions/", "predicates/", "recipes/", "loot_tables/", "advancements/", "data_scripts/"];
 const non_simple = ["origin_layers/", "origins/", "powers/"];
-const jsoned = ["origin_layers", "tags", "origins", "powers", "predicates", "recipes", "loot_tables", "advancements", "__"]
 
 const urlArgs = new URLSearchParams(location.search);
 // Whether or not to remove the Origins part of the creator by default
@@ -74,7 +73,7 @@ var content_data = [
     {"text": "recipes", "type": "recipes"},
     {"text": "loot_tables", "type": "loot_tables"},
     {"text": "advancements", "type": "advancements"},
-    {"text": "data_scripts", "type": "data_scripts"}
+    //{"text": "data_scripts", "type": "data_scripts"}
 ];
 var jstree_types = {
     "file": {"icon": "/i/origincreator/file.png", "max_depth": 0},

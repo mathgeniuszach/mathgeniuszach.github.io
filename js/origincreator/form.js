@@ -15,17 +15,6 @@ function loadData(ocd) {
     pid = data.meta.id;
     //if (data.$ !== 3) convertData(); // If data conversion is necessary
 
-    // Create items in listbox
-    //let item
-    //for (const type of types) {
-    //    if (data[type]) {
-    //        item = $("#" + type + "s-group>.newitem");
-    //        for (const itemid of Object.keys(data[type])) {
-    //            item.before(`<option class="ocitem" value="${type}-${itemid}">${itemid}</option>`);
-    //        }
-    //    }
-    //}
-
     // First distroy the entire content box
     if (contentBox) $("#content-box").jstree("destroy");
 

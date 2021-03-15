@@ -1,0 +1,13 @@
+#quick-links p {
+    margin-bottom: 0px;
+}
+
+.hide {
+    display: none;
+}
+
+#quick-links .hide,
+nav .hide
+{
+    display: unset;
+}

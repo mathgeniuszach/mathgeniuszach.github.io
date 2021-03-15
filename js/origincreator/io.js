@@ -145,7 +145,7 @@ function loadImportData(zip) {
                     let folders = names.slice(3, -2);
                     
                     // Check the type of this file. Determines what to do in other cases too
-                    if (jsoned.indexOf(names[2]) != -1) {
+                    if (types.indexOf(names[2]) != -1) {
                         try {
                             putLoadedData(JSON.parse(o), names[2], folders, id);
                         } catch (err) {

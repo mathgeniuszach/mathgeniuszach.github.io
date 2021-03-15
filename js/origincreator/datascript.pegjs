@@ -57,17 +57,30 @@ token "token"
     / ___? ms:(marker ___?)+ {
         return ast("MChain").add(unroll(null, ms, 0));
     }
-    / _? "var" _ id:id _ ex:("=" _ expr)? [ \t]* eol? {
-        if (ex) {
-            return ast("Var").set("id", id).add(ex[2]);
-        } else {
-            return ast("Var").set("id", id)
-        }
+    / _? "var" _ v:tvar _? type:$([a-zA-Z.:_\-]+)? ex:(_? "=" _? expr)? _? eol? {
+        if (ex) v.add(ex[3]);
+        v.set("init", true).set("type", type || "dummy");
+        return v;
     }
-    / _? id:id _ "=" _ ex:expr [ \t]* eol? {
-        return ast("Set").set("id", id).add(ex);
+    / _? v:tvar _? "=" _? ex:expr? _? eol? {
+        if (!ex) ierror("Expected proper expression for variable assignment")
+        v.add(ex);
+        v.set("init", false);
+        return v;
     }
-    / _? "/"? c:command [ \t]* eol? {
+    / _? v:tvar _? "><" _? v2:tvar _? eol? {
+        return ast("Swap").add(v).add(v2);
+    }
+    / _? p:print _? eol? {
+        return p;
+    }
+    / _? f:func _? eol? {
+        return f;
+    }
+    / _? "after" _ t:$(number "d" / "s" / "t" / "") replace:"r"? {
+        return ast("After").set("t", t).set("replace", replace == "r");
+    }
+    / _? "/" c:command _? eol? {
         return c;
     }
 
@@ -144,12 +157,12 @@ marker "marker"
         return ast("Anchored").set("loc", loc);
     }
     // Block markers
-    / "def" ___ id:id? e:":"? {
+    / "def" ___ id:mnid? e:":"? {
         // Name a function and prevent the function from auto-running
         if (!id) ierror("Expected namespaced id for block of code name");
         return ast("Def").set("id", id);
     }
-    / "id" ___ id:id? e:":"? {
+    / "id" ___ id:mnid? e:":"? {
         // Same as def, but doesn't prevent function from auto-running
         if (!id) ierror("Expected namespaced id for block of code name");
         return ast("Id").set("id", id);
@@ -161,6 +174,32 @@ marker "marker"
     / "folder" ___ id:id? ids:("/" id)* e:":"? {
         if (!id) ierror("Expected namespaced id for block of code folder");
         return ast("Folder").set("folders", unroll(id, ids, 1));
+    }
+    / "inl" e:":"? {
+        // Inline says to not generate this block as a function
+        return ast("Inline");
+    }
+
+// Function calls are neat! They allow for easy arguments, nesting, and return values not possible with the function command.
+func "function"
+    = id:mnid "(" ___? a:expr? b:(___? "," ___? expr)* ")" {
+        var astv = ast("Function").set("id", id);
+
+        var v = unroll(a, b, 3);
+        if (v) astv.add(v);
+
+        return astv;
+    }
+
+print "print"
+    = "print(" ___? s:selector? ___? ","? ___? f:string? args:(___? "," ___? (expr / ostring))* ")" {
+        if (!f) ierror("Expected string for print command");
+        var astv = ast("Print").set("s", s || "@a").set("f", f);
+
+        var v = unroll(null, args, 3);
+        if (v) astv.add(v);
+
+        return astv;
     }
 
 // Commands are minecraft commands, usually prefixed with /. You know this, right?
@@ -180,6 +219,8 @@ command "command"
 id "identifier" = $([a-zA-Z_][a-zA-Z0-9_\-]*)
 // Namespaced id.
 nid "namespaced id" = $(id ":" (id "/")* id)
+// Maybe namespaced id
+mnid "namespaced id" = $(id (":" id)? ("/" id)*)
 // Number!
 number "number" = $("-"? [0-9]+)
 float "float" = $("-"? [0-9]+ ("." [0-9]+)?)
@@ -193,8 +234,7 @@ pos "position" = $(coord ___ coord ___ coord)
 // They do not need to be surrounded by parentheses, but they can be.
 cond "condition"
     = cs:(___? (
-        icond
-      / orcond
+      orcond
       / andcond
       / test
     ))+ {
@@ -216,9 +256,9 @@ andcond = a:test b:(___? "&" ___? test)+ {
 
 test
     = arg:(
-        icond
-      / vartest
+      vartest
       / selector
+      / icond
       / other
     ) {
         if (typeof(arg) == "string") {
@@ -245,15 +285,14 @@ vartest
     }
 
 tvar
-    = name:id ___? target:selector? {
+    = name:id _? target:selector? {
         return ast("Var").set("name", name).set("target", target);
     }
 
 // Expressions are a combination of commands and variables to perform arithmetic on to store into a variable.
 expr "expression"
     = arg:(
-        iexpr
-      / aexpr
+      aexpr
       / mexpr
       / eop
     ) {
@@ -266,45 +305,59 @@ iexpr = "(" c:expr ")" {
 
 aexpr = a:(mexpr / eop) b:(___? ("+" / "-") ___? (mexpr / eop))+ {
     var astv = ast("Sum").add(a);
-    for (let [_, op, _, v] of b) {
+    for (let [_0, op, _1, v] of b) {
         astv.add(v.set("op", op));
     }
-    return ast("Or").add(a).add(unroll(null, b, 3));
+    return astv;
 }
 
 mexpr = a:eop b:(___? ("*" / "/" / "%") ___? eop)+ {
     var astv = ast("Product").add(a);
-    for (let [_, op, _, v] of b) {
+    for (let [_0, op, _1, v] of b) {
         astv.add(v.set("op", op));
     }
-    return ast("Or").add(a).add(unroll(null, b, 3));
+    return astv;
 }
 
 eop
     = arg:(
-        iexpr
+      float
+      / func
       / tvar
-      // icommand
+      / icommand
+      / iexpr
       / other
     ) {
         if (typeof(arg) == "string") {
-            expected("variable, inline command, or expression");
+            if (arg[0] == ":") expected("variable, inline command, constant, or expression");
+            return ast("Constant").set("value", parseInt(arg));
         } else {
             return arg;
         }
     }
 
-//icommand = "<" ___? "/"? id:id args:(_ !("/" [a-zA-Z]) iarg)* ___? ">" {
-//    return ast("Command").set("name", id).set("args", clean(unroll(null, args, 2)));
-//}
+icommand = "<" ___? "/"? id:id args:(_ !("/" [a-zA-Z]) iarg)* ___? ">" {
+    return ast("Command").set("name", id).set("args", clean(unroll(null, args, 2)));
+}
+
+_ "blank"
+    = (
+        [ \t]+
+        / "//" (!eol .)* eol
+        / "/*" (!"*/" .)* "*/"
+    )+
+
+// The code auto-replaces \r\n and \r with \n, so eol is just \n
+eol = "\n"
+___ "separator" = (_ / eol)+
 
 // Arguments are anything from simple identifiers to multiline nested monstrosities.
-// I'm proud of how they turned out, honestly.
-arg "argument" = $((!___ [^(){}\[\]\"])+ / string / body)+
-// Marker arguments are like arguments, but end when a colon is found outside a body or string.
-marg "argument" = $((!___ [^(){}\[\]\":])+ / string / body)+
+// I'm proud of how they turned out, honestly. The visual studio code plugin doesn't like it though
+arg "argument" = $((!___ [^(){}\[\]"])+ / string / body)+
+// Marker arguments are like arguments, but end when a colon or comma is found outside a body or string.
+marg "argument" = $((!___ [^(){}\[\]\":,])+ / string / body)+
 
-iarg "argument" = $((!___ [^(){}\[\]\"\>])+ / string / body)+
+iarg "argument" = $((!___ [^(){}\[\]"\>])+ / string / body)+
 
 // Other is just to catch errors.
 other "argument" = arg:marg {return ":"+arg;}
@@ -312,13 +365,15 @@ other "argument" = arg:marg {return ":"+arg;}
 // Either a player identifier or a truefound selector.
 selector = $("@" [a-zA-Z] ("[" ibody "]")? / id)
 
-string
-    = s:$("\"" ("\\\\" / "\\\"" / [^\\"]+)*) e:"\""? {
-        if (!e) ierror("Expected end of string");
-        return s+e;
-    }
+string = s:$("\"" ("\\\\" / "\\\"" / [^\\"]+)*) e:"\""? {
+    if (!e) ierror("Expected end of string");
+    return s+e;
+}
+ostring = s:string {
+    return ast("String").set("data", s);
+}
 
-ibody = ([^(){}\[\]\"]+ / string / body)*
+ibody = ([^(){}\[\]"]+ / string / body)*
 body
     = s:$("{" ibody) e:"}"? {
         if (!e) ierror("Expected end of body");
@@ -332,11 +387,3 @@ body
         if (!e) ierror("Expected end of square body");
         return s+e;
     }
-
-
-_ "blank"
-    = [ \t]+
-
-// The code auto-replaces \r\n and \r with \n, so eol is just \n
-eol = "\n"
-___ "separator" = (_ / eol)+
