@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Home &mdash; fpclib 1.4 documentation</title>
+  <title>Home &mdash; fpclib 1.5 documentation</title>
   
 
   
@@ -179,16 +179,26 @@
 <li><p><strong>Nearly every kind of Curation is possible to make with this library!</strong> This library and documentation were created with the intent of making it easy to overwrite the Curation class to make it do different things. Anything you can do in the “Curate” tab in Flashpoint Core you can do with fpclib, except test games.</p></li>
 </ul>
 <p>Here’s some example code of using the library to curate “Interactive Buddy” from Newgrounds:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fpclib</span> <span class="kn">import</span> <span class="n">Curation</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import fpclib curation</span>
+<span class="kn">from</span> <span class="nn">fpclib</span> <span class="kn">import</span> <span class="n">Curation</span>
 
+<span class="c1"># Create a curation from a given url</span>
 <span class="n">curation</span> <span class="o">=</span> <span class="n">Curation</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s1">&#39;https://www.newgrounds.com/portal/view/218014&#39;</span><span class="p">)</span>
+<span class="c1"># Set the logo of the curation</span>
 <span class="n">curation</span><span class="o">.</span><span class="n">logo</span> <span class="o">=</span> <span class="s1">&#39;https://picon.ngfiles.com/218000/flash_218014_medium.gif&#39;</span>
+
+<span class="c1"># You can set metadata through the object directly or through the set_meta method</span>
 <span class="n">curation</span><span class="o">.</span><span class="n">set_meta</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Interactive Buddy&#39;</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Simulation&#39;</span><span class="p">,</span> <span class="s1">&#39;Toy&#39;</span><span class="p">])</span>
-<span class="n">curation</span><span class="o">.</span><span class="n">set_meta</span><span class="p">(</span><span class="n">dev</span><span class="o">=</span><span class="s1">&#39;Shock Value&#39;</span><span class="p">,</span> <span class="n">pub</span><span class="o">=</span><span class="s1">&#39;Newgrounds&#39;</span><span class="p">)</span>
-<span class="n">curation</span><span class="o">.</span><span class="n">set_meta</span><span class="p">(</span><span class="n">ver</span><span class="o">=</span><span class="s1">&#39;1.01&#39;</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="s1">&#39;2005-02-08&#39;</span><span class="p">)</span>
+<span class="n">curation</span><span class="o">.</span><span class="n">set_meta</span><span class="p">(</span><span class="n">dev</span><span class="o">=</span><span class="s1">&#39;Shock Value&#39;</span><span class="p">,</span> <span class="n">pub</span><span class="o">=</span><span class="s1">&#39;Wrong Publisher&#39;</span><span class="p">)</span>
+<span class="n">curation</span><span class="o">.</span><span class="n">pub</span> <span class="o">=</span> <span class="s1">&#39;Newgrounds&#39;</span>
+<span class="n">curation</span><span class="o">.</span><span class="n">ver</span> <span class="o">=</span> <span class="s1">&#39;1.01&#39;</span>
+<span class="n">curation</span><span class="o">.</span><span class="n">date</span> <span class="o">=</span> <span class="s1">&#39;2005-02-08&#39;</span>
+
+<span class="c1"># Add an additional app</span>
 <span class="n">curation</span><span class="o">.</span><span class="n">set_meta</span><span class="p">(</span><span class="n">cmd</span><span class="o">=</span><span class="s1">&#39;http://uploads.ungrounded.net/218000/218014_DAbuddy_latest.swf&#39;</span><span class="p">)</span>
 <span class="n">curation</span><span class="o">.</span><span class="n">add_app</span><span class="p">(</span><span class="s1">&#39;Kongregate v1.02&#39;</span><span class="p">,</span> <span class="s1">&#39;http://chat.kongregate.com/gamez/0003/0303/live/ib2.swf?kongregate_game_version=1363985380&#39;</span><span class="p">)</span>
 
+<span class="c1"># Export this curation to the current working directory</span>
 <span class="n">curation</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 </pre></div>
 </div>

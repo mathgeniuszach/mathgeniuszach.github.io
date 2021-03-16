@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Globals &mdash; fpclib 1.4 documentation</title>
+  <title>Globals &mdash; fpclib 1.5 documentation</title>
   
 
   
@@ -166,6 +166,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#write"><span class="hide">write()</span></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#write-line"><span class="hide">write_line()</span></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#write-table"><span class="hide">write_table()</span></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scan-dir"><span class="hide">scan_dir()</span></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#replace"><span class="hide">replace()</span></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#hash256"><span class="hide">hash256()</span></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#hash"><span class="hide">hash()</span></a></li>
 </ul>
@@ -256,108 +258,110 @@
 <div class="contents local topic" id="quick-links">
 <p class="topic-title">Quick Links</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#constants" id="id2">Constants</a></p>
+<li><p><a class="reference internal" href="#constants" id="id4">Constants</a></p>
 <ul>
-<li><p><a class="reference internal" href="#regexes" id="id3">Regexes</a></p>
+<li><p><a class="reference internal" href="#regexes" id="id5">Regexes</a></p>
 <ul>
-<li><p><a class="reference internal" href="#invalid-chars" id="id4"><span class="hide">INVALID_CHARS</span></a></p></li>
-<li><p><a class="reference internal" href="#invalid-chars-no-slash" id="id5"><span class="hide">INVALID_CHARS_NO_SLASH</span></a></p></li>
-<li><p><a class="reference internal" href="#date" id="id6"><span class="hide">DATE</span></a></p></li>
-<li><p><a class="reference internal" href="#port" id="id7"><span class="hide">PORT</span></a></p></li>
-<li><p><a class="reference internal" href="#wayback-link" id="id8"><span class="hide">WAYBACK_LINK</span></a></p></li>
-<li><p><a class="reference internal" href="#protocol" id="id9"><span class="hide">PROTOCOL</span></a></p></li>
-<li><p><a class="reference internal" href="#proper-protocol" id="id10"><span class="hide">PROPER_PROTOCOL</span></a></p></li>
-<li><p><a class="reference internal" href="#extension" id="id11"><span class="hide">EXTENSION</span></a></p></li>
-<li><p><a class="reference internal" href="#uuid" id="id12"><span class="hide">UUID</span></a></p></li>
-<li><p><a class="reference internal" href="#starting-parentheses" id="id13"><span class="hide">STARTING_PARENTHESES</span></a></p></li>
+<li><p><a class="reference internal" href="#invalid-chars" id="id6"><span class="hide">INVALID_CHARS</span></a></p></li>
+<li><p><a class="reference internal" href="#invalid-chars-no-slash" id="id7"><span class="hide">INVALID_CHARS_NO_SLASH</span></a></p></li>
+<li><p><a class="reference internal" href="#date" id="id8"><span class="hide">DATE</span></a></p></li>
+<li><p><a class="reference internal" href="#port" id="id9"><span class="hide">PORT</span></a></p></li>
+<li><p><a class="reference internal" href="#wayback-link" id="id10"><span class="hide">WAYBACK_LINK</span></a></p></li>
+<li><p><a class="reference internal" href="#protocol" id="id11"><span class="hide">PROTOCOL</span></a></p></li>
+<li><p><a class="reference internal" href="#proper-protocol" id="id12"><span class="hide">PROPER_PROTOCOL</span></a></p></li>
+<li><p><a class="reference internal" href="#extension" id="id13"><span class="hide">EXTENSION</span></a></p></li>
+<li><p><a class="reference internal" href="#uuid" id="id14"><span class="hide">UUID</span></a></p></li>
+<li><p><a class="reference internal" href="#starting-parentheses" id="id15"><span class="hide">STARTING_PARENTHESES</span></a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#application-paths" id="id14">Application Paths</a></p>
+<li><p><a class="reference internal" href="#application-paths" id="id16">Application Paths</a></p>
 <ul>
-<li><p><a class="reference internal" href="#secure-player" id="id15"><span class="hide">SECURE_PLAYER</span></a></p></li>
-<li><p><a class="reference internal" href="#java" id="id16"><span class="hide">JAVA</span></a></p></li>
-<li><p><a class="reference internal" href="#java-in-browser" id="id17"><span class="hide">JAVA_IN_BROWSER</span></a></p></li>
-<li><p><a class="reference internal" href="#basilisk" id="id18"><span class="hide">BASILISK</span></a></p></li>
-<li><p><a class="reference internal" href="#flash-players" id="id19"><span class="hide">FLASH_PLAYERS</span></a></p></li>
-<li><p><a class="reference internal" href="#flash" id="id20"><span class="hide">FLASH</span></a></p></li>
-<li><p><a class="reference internal" href="#shockwave-players" id="id21"><span class="hide">SHOCKWAVE_PLAYERS</span></a></p></li>
-<li><p><a class="reference internal" href="#shockwave" id="id22"><span class="hide">SHOCKWAVE</span></a></p></li>
-<li><p><a class="reference internal" href="#unity" id="id23"><span class="hide">UNITY</span></a></p></li>
-<li><p><a class="reference internal" href="#active-x" id="id24"><span class="hide">ACTIVE_X</span></a></p></li>
-<li><p><a class="reference internal" href="#groove" id="id25"><span class="hide">GROOVE</span></a></p></li>
-<li><p><a class="reference internal" href="#svr" id="id26"><span class="hide">SVR</span></a></p></li>
-<li><p><a class="reference internal" href="#applications" id="id27"><span class="hide">APPLICATIONS</span></a></p></li>
+<li><p><a class="reference internal" href="#secure-player" id="id17"><span class="hide">SECURE_PLAYER</span></a></p></li>
+<li><p><a class="reference internal" href="#java" id="id18"><span class="hide">JAVA</span></a></p></li>
+<li><p><a class="reference internal" href="#java-in-browser" id="id19"><span class="hide">JAVA_IN_BROWSER</span></a></p></li>
+<li><p><a class="reference internal" href="#basilisk" id="id20"><span class="hide">BASILISK</span></a></p></li>
+<li><p><a class="reference internal" href="#flash-players" id="id21"><span class="hide">FLASH_PLAYERS</span></a></p></li>
+<li><p><a class="reference internal" href="#flash" id="id22"><span class="hide">FLASH</span></a></p></li>
+<li><p><a class="reference internal" href="#shockwave-players" id="id23"><span class="hide">SHOCKWAVE_PLAYERS</span></a></p></li>
+<li><p><a class="reference internal" href="#shockwave" id="id24"><span class="hide">SHOCKWAVE</span></a></p></li>
+<li><p><a class="reference internal" href="#unity" id="id25"><span class="hide">UNITY</span></a></p></li>
+<li><p><a class="reference internal" href="#active-x" id="id26"><span class="hide">ACTIVE_X</span></a></p></li>
+<li><p><a class="reference internal" href="#groove" id="id27"><span class="hide">GROOVE</span></a></p></li>
+<li><p><a class="reference internal" href="#svr" id="id28"><span class="hide">SVR</span></a></p></li>
+<li><p><a class="reference internal" href="#applications" id="id29"><span class="hide">APPLICATIONS</span></a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#other" id="id28">Other</a></p>
+<li><p><a class="reference internal" href="#other" id="id30">Other</a></p>
 <ul>
-<li><p><a class="reference internal" href="#languages" id="id29"><span class="hide">LANGUAGES</span></a></p></li>
+<li><p><a class="reference internal" href="#languages" id="id31"><span class="hide">LANGUAGES</span></a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#flags" id="id30">Flags</a></p>
+<li><p><a class="reference internal" href="#flags" id="id32">Flags</a></p>
 <ul>
-<li><p><a class="reference internal" href="#everything" id="id31"><span class="hide">EVERYTHING</span></a></p></li>
-<li><p><a class="reference internal" href="#meta" id="id32"><span class="hide">META</span></a></p></li>
-<li><p><a class="reference internal" href="#images" id="id33"><span class="hide">IMAGES</span></a></p></li>
-<li><p><a class="reference internal" href="#logo" id="id34"><span class="hide">LOGO</span></a></p></li>
-<li><p><a class="reference internal" href="#ss" id="id35"><span class="hide">SS</span></a></p></li>
-<li><p><a class="reference internal" href="#content" id="id36"><span class="hide">CONTENT</span></a></p></li>
+<li><p><a class="reference internal" href="#everything" id="id33"><span class="hide">EVERYTHING</span></a></p></li>
+<li><p><a class="reference internal" href="#meta" id="id34"><span class="hide">META</span></a></p></li>
+<li><p><a class="reference internal" href="#images" id="id35"><span class="hide">IMAGES</span></a></p></li>
+<li><p><a class="reference internal" href="#logo" id="id36"><span class="hide">LOGO</span></a></p></li>
+<li><p><a class="reference internal" href="#ss" id="id37"><span class="hide">SS</span></a></p></li>
+<li><p><a class="reference internal" href="#content" id="id38"><span class="hide">CONTENT</span></a></p></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#id1" id="id37">Other</a></p>
+<li><p><a class="reference internal" href="#id1" id="id39">Other</a></p>
 <ul>
-<li><p><a class="reference internal" href="#debug-level" id="id38"><span class="hide">DEBUG_LEVEL</span></a></p></li>
-<li><p><a class="reference internal" href="#tabulation" id="id39"><span class="hide">TABULATION</span></a></p></li>
-<li><p><a class="reference internal" href="#platforms" id="id40"><span class="hide">PLATFORMS</span></a></p></li>
-<li><p><a class="reference internal" href="#tags" id="id41"><span class="hide">TAGS</span></a></p></li>
+<li><p><a class="reference internal" href="#debug-level" id="id40"><span class="hide">DEBUG_LEVEL</span></a></p></li>
+<li><p><a class="reference internal" href="#tabulation" id="id41"><span class="hide">TABULATION</span></a></p></li>
+<li><p><a class="reference internal" href="#platforms" id="id42"><span class="hide">PLATFORMS</span></a></p></li>
+<li><p><a class="reference internal" href="#tags" id="id43"><span class="hide">TAGS</span></a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#exceptions" id="id42">Exceptions</a></p>
+<li><p><a class="reference internal" href="#exceptions" id="id44">Exceptions</a></p>
 <ul>
-<li><p><a class="reference internal" href="#invalidcharactererror" id="id43"><span class="hide">InvalidCharacterError</span></a></p></li>
-<li><p><a class="reference internal" href="#invalidfileerror" id="id44"><span class="hide">InvalidFileError</span></a></p></li>
-<li><p><a class="reference internal" href="#emptylocationerror" id="id45"><span class="hide">EmptyLocationError</span></a></p></li>
-<li><p><a class="reference internal" href="#invalidmetadataerror" id="id46"><span class="hide">InvalidMetadataError</span></a></p></li>
+<li><p><a class="reference internal" href="#invalidcharactererror" id="id45"><span class="hide">InvalidCharacterError</span></a></p></li>
+<li><p><a class="reference internal" href="#invalidfileerror" id="id46"><span class="hide">InvalidFileError</span></a></p></li>
+<li><p><a class="reference internal" href="#emptylocationerror" id="id47"><span class="hide">EmptyLocationError</span></a></p></li>
+<li><p><a class="reference internal" href="#invalidmetadataerror" id="id48"><span class="hide">InvalidMetadataError</span></a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#functions" id="id47">Functions</a></p>
+<li><p><a class="reference internal" href="#functions" id="id49">Functions</a></p>
 <ul>
-<li><p><a class="reference internal" href="#internet" id="id48">Internet</a></p>
+<li><p><a class="reference internal" href="#internet" id="id50">Internet</a></p>
 <ul>
-<li><p><a class="reference internal" href="#download" id="id49"><span class="hide">download()</span></a></p></li>
-<li><p><a class="reference internal" href="#download-all" id="id50"><span class="hide">download_all()</span></a></p></li>
-<li><p><a class="reference internal" href="#download-image" id="id51"><span class="hide">download_image()</span></a></p></li>
-<li><p><a class="reference internal" href="#normalize" id="id52"><span class="hide">normalize()</span></a></p></li>
-<li><p><a class="reference internal" href="#read-url" id="id53"><span class="hide">read_url()</span></a></p></li>
-<li><p><a class="reference internal" href="#get-soup" id="id54"><span class="hide">get_soup()</span></a></p></li>
-<li><p><a class="reference internal" href="#get-fpdata" id="id55"><span class="hide">get_fpdata()</span></a></p></li>
+<li><p><a class="reference internal" href="#download" id="id51"><span class="hide">download()</span></a></p></li>
+<li><p><a class="reference internal" href="#download-all" id="id52"><span class="hide">download_all()</span></a></p></li>
+<li><p><a class="reference internal" href="#download-image" id="id53"><span class="hide">download_image()</span></a></p></li>
+<li><p><a class="reference internal" href="#normalize" id="id54"><span class="hide">normalize()</span></a></p></li>
+<li><p><a class="reference internal" href="#read-url" id="id55"><span class="hide">read_url()</span></a></p></li>
+<li><p><a class="reference internal" href="#get-soup" id="id56"><span class="hide">get_soup()</span></a></p></li>
+<li><p><a class="reference internal" href="#get-fpdata" id="id57"><span class="hide">get_fpdata()</span></a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#file-io" id="id56">File IO</a></p>
+<li><p><a class="reference internal" href="#file-io" id="id58">File IO</a></p>
 <ul>
-<li><p><a class="reference internal" href="#read" id="id57"><span class="hide">read()</span></a></p></li>
-<li><p><a class="reference internal" href="#read-lines" id="id58"><span class="hide">read_lines()</span></a></p></li>
-<li><p><a class="reference internal" href="#read-table" id="id59"><span class="hide">read_table()</span></a></p></li>
-<li><p><a class="reference internal" href="#make-dir" id="id60"><span class="hide">make_dir()</span></a></p></li>
-<li><p><a class="reference internal" href="#delete" id="id61"><span class="hide">delete()</span></a></p></li>
-<li><p><a class="reference internal" href="#write" id="id62"><span class="hide">write()</span></a></p></li>
-<li><p><a class="reference internal" href="#write-line" id="id63"><span class="hide">write_line()</span></a></p></li>
-<li><p><a class="reference internal" href="#write-table" id="id64"><span class="hide">write_table()</span></a></p></li>
-<li><p><a class="reference internal" href="#hash256" id="id65"><span class="hide">hash256()</span></a></p></li>
-<li><p><a class="reference internal" href="#hash" id="id66"><span class="hide">hash()</span></a></p></li>
+<li><p><a class="reference internal" href="#read" id="id59"><span class="hide">read()</span></a></p></li>
+<li><p><a class="reference internal" href="#read-lines" id="id60"><span class="hide">read_lines()</span></a></p></li>
+<li><p><a class="reference internal" href="#read-table" id="id61"><span class="hide">read_table()</span></a></p></li>
+<li><p><a class="reference internal" href="#make-dir" id="id62"><span class="hide">make_dir()</span></a></p></li>
+<li><p><a class="reference internal" href="#delete" id="id63"><span class="hide">delete()</span></a></p></li>
+<li><p><a class="reference internal" href="#write" id="id64"><span class="hide">write()</span></a></p></li>
+<li><p><a class="reference internal" href="#write-line" id="id65"><span class="hide">write_line()</span></a></p></li>
+<li><p><a class="reference internal" href="#write-table" id="id66"><span class="hide">write_table()</span></a></p></li>
+<li><p><a class="reference internal" href="#scan-dir" id="id67"><span class="hide">scan_dir()</span></a></p></li>
+<li><p><a class="reference internal" href="#replace" id="id68"><span class="hide">replace()</span></a></p></li>
+<li><p><a class="reference internal" href="#hash256" id="id69"><span class="hide">hash256()</span></a></p></li>
+<li><p><a class="reference internal" href="#hash" id="id70"><span class="hide">hash()</span></a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#curating" id="id67">Curating</a></p>
+<li><p><a class="reference internal" href="#curating" id="id71">Curating</a></p>
 <ul>
-<li><p><a class="reference internal" href="#test" id="id68"><span class="hide">test()</span></a></p></li>
-<li><p><a class="reference internal" href="#update" id="id69"><span class="hide">update()</span></a></p></li>
-<li><p><a class="reference internal" href="#debug" id="id70"><span class="hide">debug()</span></a></p></li>
-<li><p><a class="reference internal" href="#clear-save" id="id71"><span class="hide">clear_save()</span></a></p></li>
-<li><p><a class="reference internal" href="#curate" id="id72"><span class="hide">curate()</span></a></p></li>
-<li><p><a class="reference internal" href="#curate-regex" id="id73"><span class="hide">curate_regex()</span></a></p></li>
-<li><p><a class="reference internal" href="#load" id="id74"><span class="hide">load()</span></a></p></li>
+<li><p><a class="reference internal" href="#test" id="id72"><span class="hide">test()</span></a></p></li>
+<li><p><a class="reference internal" href="#update" id="id73"><span class="hide">update()</span></a></p></li>
+<li><p><a class="reference internal" href="#debug" id="id74"><span class="hide">debug()</span></a></p></li>
+<li><p><a class="reference internal" href="#clear-save" id="id75"><span class="hide">clear_save()</span></a></p></li>
+<li><p><a class="reference internal" href="#curate" id="id76"><span class="hide">curate()</span></a></p></li>
+<li><p><a class="reference internal" href="#curate-regex" id="id77"><span class="hide">curate_regex()</span></a></p></li>
+<li><p><a class="reference internal" href="#load" id="id78"><span class="hide">load()</span></a></p></li>
 </ul>
 </li>
 </ul>
@@ -365,11 +369,11 @@
 </ul>
 </div>
 <div class="section" id="constants">
-<h2><a class="toc-backref" href="#id2">Constants</a><a class="headerlink" href="#constants" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id4">Constants</a><a class="headerlink" href="#constants" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="regexes">
-<h3><a class="toc-backref" href="#id3">Regexes</a><a class="headerlink" href="#regexes" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id5">Regexes</a><a class="headerlink" href="#regexes" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="invalid-chars">
-<h4><a class="toc-backref" href="#id4"><span class="hide">INVALID_CHARS</span></a><a class="headerlink" href="#invalid-chars" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id6"><span class="hide">INVALID_CHARS</span></a><a class="headerlink" href="#invalid-chars" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.INVALID_CHARS">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">INVALID_CHARS</code><a class="headerlink" href="#fpclib.INVALID_CHARS" title="Permalink to this definition">¶</a></dt>
@@ -379,7 +383,7 @@
 
 </div>
 <div class="section" id="invalid-chars-no-slash">
-<h4><a class="toc-backref" href="#id5"><span class="hide">INVALID_CHARS_NO_SLASH</span></a><a class="headerlink" href="#invalid-chars-no-slash" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id7"><span class="hide">INVALID_CHARS_NO_SLASH</span></a><a class="headerlink" href="#invalid-chars-no-slash" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.INVALID_CHARS_NO_SLASH">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">INVALID_CHARS_NO_SLASH</code><a class="headerlink" href="#fpclib.INVALID_CHARS_NO_SLASH" title="Permalink to this definition">¶</a></dt>
@@ -389,7 +393,7 @@
 
 </div>
 <div class="section" id="date">
-<h4><a class="toc-backref" href="#id6"><span class="hide">DATE</span></a><a class="headerlink" href="#date" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id8"><span class="hide">DATE</span></a><a class="headerlink" href="#date" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.DATE">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">DATE</code><a class="headerlink" href="#fpclib.DATE" title="Permalink to this definition">¶</a></dt>
@@ -399,7 +403,7 @@
 
 </div>
 <div class="section" id="port">
-<h4><a class="toc-backref" href="#id7"><span class="hide">PORT</span></a><a class="headerlink" href="#port" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id9"><span class="hide">PORT</span></a><a class="headerlink" href="#port" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.PORT">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">PORT</code><a class="headerlink" href="#fpclib.PORT" title="Permalink to this definition">¶</a></dt>
@@ -409,7 +413,7 @@
 
 </div>
 <div class="section" id="wayback-link">
-<h4><a class="toc-backref" href="#id8"><span class="hide">WAYBACK_LINK</span></a><a class="headerlink" href="#wayback-link" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id10"><span class="hide">WAYBACK_LINK</span></a><a class="headerlink" href="#wayback-link" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.WAYBACK_LINK">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">WAYBACK_LINK</code><a class="headerlink" href="#fpclib.WAYBACK_LINK" title="Permalink to this definition">¶</a></dt>
@@ -419,7 +423,7 @@
 
 </div>
 <div class="section" id="protocol">
-<h4><a class="toc-backref" href="#id9"><span class="hide">PROTOCOL</span></a><a class="headerlink" href="#protocol" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id11"><span class="hide">PROTOCOL</span></a><a class="headerlink" href="#protocol" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.PROTOCOL">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">PROTOCOL</code><a class="headerlink" href="#fpclib.PROTOCOL" title="Permalink to this definition">¶</a></dt>
@@ -429,7 +433,7 @@
 
 </div>
 <div class="section" id="proper-protocol">
-<h4><a class="toc-backref" href="#id10"><span class="hide">PROPER_PROTOCOL</span></a><a class="headerlink" href="#proper-protocol" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id12"><span class="hide">PROPER_PROTOCOL</span></a><a class="headerlink" href="#proper-protocol" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.PROPER_PROTOCOL">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">PROPER_PROTOCOL</code><a class="headerlink" href="#fpclib.PROPER_PROTOCOL" title="Permalink to this definition">¶</a></dt>
@@ -439,7 +443,7 @@
 
 </div>
 <div class="section" id="extension">
-<h4><a class="toc-backref" href="#id11"><span class="hide">EXTENSION</span></a><a class="headerlink" href="#extension" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id13"><span class="hide">EXTENSION</span></a><a class="headerlink" href="#extension" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.EXTENSION">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">EXTENSION</code><a class="headerlink" href="#fpclib.EXTENSION" title="Permalink to this definition">¶</a></dt>
@@ -449,7 +453,7 @@
 
 </div>
 <div class="section" id="uuid">
-<h4><a class="toc-backref" href="#id12"><span class="hide">UUID</span></a><a class="headerlink" href="#uuid" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id14"><span class="hide">UUID</span></a><a class="headerlink" href="#uuid" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.UUID">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">UUID</code><a class="headerlink" href="#fpclib.UUID" title="Permalink to this definition">¶</a></dt>
@@ -459,7 +463,7 @@
 
 </div>
 <div class="section" id="starting-parentheses">
-<h4><a class="toc-backref" href="#id13"><span class="hide">STARTING_PARENTHESES</span></a><a class="headerlink" href="#starting-parentheses" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id15"><span class="hide">STARTING_PARENTHESES</span></a><a class="headerlink" href="#starting-parentheses" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.STARTING_PARENTHESES">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">STARTING_PARENTHESES</code><a class="headerlink" href="#fpclib.STARTING_PARENTHESES" title="Permalink to this definition">¶</a></dt>
@@ -474,9 +478,9 @@
 </div>
 </div>
 <div class="section" id="application-paths">
-<h3><a class="toc-backref" href="#id14">Application Paths</a><a class="headerlink" href="#application-paths" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id16">Application Paths</a><a class="headerlink" href="#application-paths" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="secure-player">
-<h4><a class="toc-backref" href="#id15"><span class="hide">SECURE_PLAYER</span></a><a class="headerlink" href="#secure-player" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id17"><span class="hide">SECURE_PLAYER</span></a><a class="headerlink" href="#secure-player" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.SECURE_PLAYER">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">SECURE_PLAYER</code><em class="property"> = 'FPSoftware\\FlashpointSecurePlayer.exe'</em><a class="headerlink" href="#fpclib.SECURE_PLAYER" title="Permalink to this definition">¶</a></dt>
@@ -485,7 +489,7 @@
 
 </div>
 <div class="section" id="java">
-<h4><a class="toc-backref" href="#id16"><span class="hide">JAVA</span></a><a class="headerlink" href="#java" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id18"><span class="hide">JAVA</span></a><a class="headerlink" href="#java" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.JAVA">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">JAVA</code><em class="property"> = 'FPSoftware\\startJava.bat'</em><a class="headerlink" href="#fpclib.JAVA" title="Permalink to this definition">¶</a></dt>
@@ -494,7 +498,7 @@
 
 </div>
 <div class="section" id="java-in-browser">
-<h4><a class="toc-backref" href="#id17"><span class="hide">JAVA_IN_BROWSER</span></a><a class="headerlink" href="#java-in-browser" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id19"><span class="hide">JAVA_IN_BROWSER</span></a><a class="headerlink" href="#java-in-browser" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.JAVA_IN_BROWSER">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">JAVA_IN_BROWSER</code><em class="property"> = 'FPSoftware\\startJavaInBrowser.bat'</em><a class="headerlink" href="#fpclib.JAVA_IN_BROWSER" title="Permalink to this definition">¶</a></dt>
@@ -507,7 +511,7 @@
 
 </div>
 <div class="section" id="basilisk">
-<h4><a class="toc-backref" href="#id18"><span class="hide">BASILISK</span></a><a class="headerlink" href="#basilisk" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id20"><span class="hide">BASILISK</span></a><a class="headerlink" href="#basilisk" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.BASILISK">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">BASILISK</code><em class="property"> = 'FPSoftware\\Basilisk-Portable\\Basilisk-Portable.exe'</em><a class="headerlink" href="#fpclib.BASILISK" title="Permalink to this definition">¶</a></dt>
@@ -516,7 +520,7 @@
 
 </div>
 <div class="section" id="flash-players">
-<h4><a class="toc-backref" href="#id19"><span class="hide">FLASH_PLAYERS</span></a><a class="headerlink" href="#flash-players" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id21"><span class="hide">FLASH_PLAYERS</span></a><a class="headerlink" href="#flash-players" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.FLASH_PLAYERS">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">FLASH_PLAYERS</code><a class="headerlink" href="#fpclib.FLASH_PLAYERS" title="Permalink to this definition">¶</a></dt>
@@ -601,7 +605,7 @@
 
 </div>
 <div class="section" id="flash">
-<h4><a class="toc-backref" href="#id20"><span class="hide">FLASH</span></a><a class="headerlink" href="#flash" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id22"><span class="hide">FLASH</span></a><a class="headerlink" href="#flash" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.FLASH">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">FLASH</code><em class="property"> = 'FPSoftware\\Flash\\flashplayer_32_sa.exe'</em><a class="headerlink" href="#fpclib.FLASH" title="Permalink to this definition">¶</a></dt>
@@ -610,7 +614,7 @@
 
 </div>
 <div class="section" id="shockwave-players">
-<h4><a class="toc-backref" href="#id21"><span class="hide">SHOCKWAVE_PLAYERS</span></a><a class="headerlink" href="#shockwave-players" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id23"><span class="hide">SHOCKWAVE_PLAYERS</span></a><a class="headerlink" href="#shockwave-players" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.SHOCKWAVE_PLAYERS">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">SHOCKWAVE_PLAYERS</code><a class="headerlink" href="#fpclib.SHOCKWAVE_PLAYERS" title="Permalink to this definition">¶</a></dt>
@@ -707,7 +711,7 @@
 
 </div>
 <div class="section" id="shockwave">
-<h4><a class="toc-backref" href="#id22"><span class="hide">SHOCKWAVE</span></a><a class="headerlink" href="#shockwave" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id24"><span class="hide">SHOCKWAVE</span></a><a class="headerlink" href="#shockwave" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.SHOCKWAVE">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">SHOCKWAVE</code><em class="property"> = 'FPSoftware\\Shockwave\\PJ101\\SPR.exe'</em><a class="headerlink" href="#fpclib.SHOCKWAVE" title="Permalink to this definition">¶</a></dt>
@@ -716,7 +720,7 @@
 
 </div>
 <div class="section" id="unity">
-<h4><a class="toc-backref" href="#id23"><span class="hide">UNITY</span></a><a class="headerlink" href="#unity" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id25"><span class="hide">UNITY</span></a><a class="headerlink" href="#unity" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.UNITY">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">UNITY</code><em class="property"> = 'FPSoftware\\startUnity.bat'</em><a class="headerlink" href="#fpclib.UNITY" title="Permalink to this definition">¶</a></dt>
@@ -725,7 +729,7 @@
 
 </div>
 <div class="section" id="active-x">
-<h4><a class="toc-backref" href="#id24"><span class="hide">ACTIVE_X</span></a><a class="headerlink" href="#active-x" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id26"><span class="hide">ACTIVE_X</span></a><a class="headerlink" href="#active-x" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.ACTIVE_X">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">ACTIVE_X</code><em class="property"> = 'FPSoftware\\startActiveX.bat'</em><a class="headerlink" href="#fpclib.ACTIVE_X" title="Permalink to this definition">¶</a></dt>
@@ -738,7 +742,7 @@
 
 </div>
 <div class="section" id="groove">
-<h4><a class="toc-backref" href="#id25"><span class="hide">GROOVE</span></a><a class="headerlink" href="#groove" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id27"><span class="hide">GROOVE</span></a><a class="headerlink" href="#groove" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.GROOVE">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">GROOVE</code><em class="property"> = 'FPSoftware\\startGroove.bat'</em><a class="headerlink" href="#fpclib.GROOVE" title="Permalink to this definition">¶</a></dt>
@@ -751,7 +755,7 @@
 
 </div>
 <div class="section" id="svr">
-<h4><a class="toc-backref" href="#id26"><span class="hide">SVR</span></a><a class="headerlink" href="#svr" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id28"><span class="hide">SVR</span></a><a class="headerlink" href="#svr" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.SVR">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">SVR</code><em class="property"> = 'FPSoftware\\startSVR.bat'</em><a class="headerlink" href="#fpclib.SVR" title="Permalink to this definition">¶</a></dt>
@@ -764,7 +768,7 @@
 
 </div>
 <div class="section" id="applications">
-<h4><a class="toc-backref" href="#id27"><span class="hide">APPLICATIONS</span></a><a class="headerlink" href="#applications" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id29"><span class="hide">APPLICATIONS</span></a><a class="headerlink" href="#applications" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.APPLICATIONS">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">APPLICATIONS</code><em class="property"> = {'FPSoftware\\Basilisk-Portable\\Basilisk-Portable.exe', 'FPSoftware\\Flash\\2r11\\SwFlsh32.exe', 'FPSoftware\\Flash\\3r8\\SwFlsh32.exe', 'FPSoftware\\Flash\\4r4\\FlashPla.exe', 'FPSoftware\\Flash\\4r7\\FlashPla.exe', 'FPSoftware\\Flash\\5r30\\FlashPla.exe', 'FPSoftware\\Flash\\6r21\\SAFlashPlayer.exe', 'FPSoftware\\Flash\\6r4\\SAFlashPlayer.exe', 'FPSoftware\\Flash\\7r14\\SAFlashPlayer.exe', 'FPSoftware\\Flash\\8r22\\SAFlashPlayer.exe', 'FPSoftware\\Flash\\9r16\\SAFlashPlayer.exe', 'FPSoftware\\Flash\\flashplayer11_9r900_152_win_sa_debug.exe', 'FPSoftware\\Flash\\flashplayer14_0r0_179_win_sa.exe', 'FPSoftware\\Flash\\flashplayer19_0r0_245_sa.exe', 'FPSoftware\\Flash\\flashplayer27_0r0_187_win_sa.exe', 'FPSoftware\\Flash\\flashplayer28_0r0_161_win_sa.exe', 'FPSoftware\\Flash\\flashplayer29_0r0_171_win_sa.exe', 'FPSoftware\\Flash\\flashplayer9r277_win_sa.exe', 'FPSoftware\\Flash\\flashplayer_10_3r183_90_win_sa.exe', 'FPSoftware\\Flash\\flashplayer_32_sa.exe', 'FPSoftware\\FlashpointSecurePlayer.exe', 'FPSoftware\\Shockwave\\PJ101\\Projector.exe', 'FPSoftware\\Shockwave\\PJ101\\SPR.exe', 'FPSoftware\\Shockwave\\PJ101\\SPRD.exe', 'FPSoftware\\Shockwave\\PJ101\\SPRS.exe', 'FPSoftware\\Shockwave\\PJ1103\\Projector.exe', 'FPSoftware\\Shockwave\\PJ1103\\SPR.exe', 'FPSoftware\\Shockwave\\PJ1103\\SPRD.exe', 'FPSoftware\\Shockwave\\PJ1103\\SPRS.exe', 'FPSoftware\\Shockwave\\PJ1159\\Projector.exe', 'FPSoftware\\Shockwave\\PJ1159\\SPR.exe', 'FPSoftware\\Shockwave\\PJ1159\\SPRD.exe', 'FPSoftware\\Shockwave\\PJ1159\\SPRS.exe', 'FPSoftware\\Shockwave\\PJ12\\Projector.exe', 'FPSoftware\\Shockwave\\PJ12\\SPR.exe', 'FPSoftware\\Shockwave\\PJ12\\SPRD.exe', 'FPSoftware\\Shockwave\\PJ12\\SPRS.exe', 'FPSoftware\\Shockwave\\PJ851\\Projector.exe', 'FPSoftware\\Shockwave\\PJ851\\SPR.exe', 'FPSoftware\\Shockwave\\PJ851\\SPRD.exe', 'FPSoftware\\Shockwave\\PJ851\\SPRS.exe', 'FPSoftware\\Shockwave\\PJ9\\Projector.exe', 'FPSoftware\\Shockwave\\PJ9\\SPR.exe', 'FPSoftware\\Shockwave\\PJ9\\SPRD.exe', 'FPSoftware\\Shockwave\\PJ9\\SPRS.exe', 'FPSoftware\\startActiveX.bat', 'FPSoftware\\startGroove.bat', 'FPSoftware\\startJava.bat', 'FPSoftware\\startJavaInBrowser.bat', 'FPSoftware\\startSVR.bat', 'FPSoftware\\startUnity.bat'}</em><a class="headerlink" href="#fpclib.APPLICATIONS" title="Permalink to this definition">¶</a></dt>
@@ -778,9 +782,9 @@
 </div>
 </div>
 <div class="section" id="other">
-<h3><a class="toc-backref" href="#id28">Other</a><a class="headerlink" href="#other" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id30">Other</a><a class="headerlink" href="#other" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="languages">
-<h4><a class="toc-backref" href="#id29"><span class="hide">LANGUAGES</span></a><a class="headerlink" href="#languages" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id31"><span class="hide">LANGUAGES</span></a><a class="headerlink" href="#languages" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.LANGUAGES">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">LANGUAGES</code><em class="property"> = {'aa', 'ab', 'ae', 'af', 'ak', 'am', 'an', 'ar', 'as', 'av', 'ay', 'az', 'ba', 'be', 'bg', 'bh', 'bi', 'bm', 'bn', 'bo', 'br', 'bs', 'ca', 'ce', 'ch', 'co', 'cr', 'cs', 'cu', 'cv', 'cy', 'da', 'de', 'dv', 'dz', 'ee', 'el', 'en', 'eo', 'es', 'et', 'eu', 'fa', 'ff', 'fi', 'fj', 'fo', 'fr', 'fy', 'ga', 'gd', 'gl', 'gn', 'gu', 'gv', 'ha', 'he', 'hi', 'ho', 'hr', 'ht', 'hu', 'hy', 'hz', 'ia', 'id', 'ie', 'ig', 'ii', 'ik', 'io', 'is', 'it', 'iu', 'ja', 'jv', 'ka', 'kg', 'ki', 'kj', 'kk', 'kl', 'km', 'kn', 'ko', 'kr', 'ks', 'ku', 'kv', 'kw', 'ky', 'la', 'lb', 'lg', 'li', 'ln', 'lo', 'lt', 'lu', 'lv', 'mg', 'mh', 'mi', 'mk', 'ml', 'mn', 'mr', 'ms', 'mt', 'my', 'na', 'nb', 'nd', 'ne', 'ng', 'nl', 'nn', 'no', 'nr', 'nv', 'ny', 'oc', 'oj', 'om', 'or', 'os', 'pa', 'pi', 'pl', 'ps', 'pt', 'qu', 'rm', 'rn', 'ro', 'ru', 'rw', 'sa', 'sc', 'sd', 'se', 'sg', 'si', 'sk', 'sl', 'sm', 'sn', 'so', 'sq', 'sr', 'ss', 'st', 'su', 'sv', 'sw', 'ta', 'te', 'tg', 'th', 'ti', 'tk', 'tl', 'tn', 'to', 'tr', 'ts', 'tt', 'tw', 'ty', 'ug', 'uk', 'ur', 'uz', 've', 'vi', 'vo', 'wa', 'wo', 'xh', 'yi', 'yo', 'za', 'zh', 'zu'}</em><a class="headerlink" href="#fpclib.LANGUAGES" title="Permalink to this definition">¶</a></dt>
@@ -794,9 +798,9 @@
 </div>
 </div>
 <div class="section" id="flags">
-<h3><a class="toc-backref" href="#id30">Flags</a><a class="headerlink" href="#flags" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id32">Flags</a><a class="headerlink" href="#flags" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="everything">
-<h4><a class="toc-backref" href="#id31"><span class="hide">EVERYTHING</span></a><a class="headerlink" href="#everything" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id33"><span class="hide">EVERYTHING</span></a><a class="headerlink" href="#everything" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.EVERYTHING">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">EVERYTHING</code><em class="property"> = int('1111', 2)</em><a class="headerlink" href="#fpclib.EVERYTHING" title="Permalink to this definition">¶</a></dt>
@@ -805,7 +809,7 @@
 
 </div>
 <div class="section" id="meta">
-<h4><a class="toc-backref" href="#id32"><span class="hide">META</span></a><a class="headerlink" href="#meta" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id34"><span class="hide">META</span></a><a class="headerlink" href="#meta" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.META">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">META</code><em class="property"> = int('1000', 2)</em><a class="headerlink" href="#fpclib.META" title="Permalink to this definition">¶</a></dt>
@@ -814,7 +818,7 @@
 
 </div>
 <div class="section" id="images">
-<h4><a class="toc-backref" href="#id33"><span class="hide">IMAGES</span></a><a class="headerlink" href="#images" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id35"><span class="hide">IMAGES</span></a><a class="headerlink" href="#images" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.IMAGES">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">IMAGES</code><em class="property"> = int('0110', 2)</em><a class="headerlink" href="#fpclib.IMAGES" title="Permalink to this definition">¶</a></dt>
@@ -823,7 +827,7 @@
 
 </div>
 <div class="section" id="logo">
-<h4><a class="toc-backref" href="#id34"><span class="hide">LOGO</span></a><a class="headerlink" href="#logo" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id36"><span class="hide">LOGO</span></a><a class="headerlink" href="#logo" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.LOGO">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">LOGO</code><em class="property"> = int('0100', 2)</em><a class="headerlink" href="#fpclib.LOGO" title="Permalink to this definition">¶</a></dt>
@@ -832,7 +836,7 @@
 
 </div>
 <div class="section" id="ss">
-<h4><a class="toc-backref" href="#id35"><span class="hide">SS</span></a><a class="headerlink" href="#ss" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id37"><span class="hide">SS</span></a><a class="headerlink" href="#ss" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.SS">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">SS</code><em class="property"> = int('0010', 2)</em><a class="headerlink" href="#fpclib.SS" title="Permalink to this definition">¶</a></dt>
@@ -841,7 +845,7 @@
 
 </div>
 <div class="section" id="content">
-<h4><a class="toc-backref" href="#id36"><span class="hide">CONTENT</span></a><a class="headerlink" href="#content" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id38"><span class="hide">CONTENT</span></a><a class="headerlink" href="#content" title="Permalink to this headline">¶</a></h4>
 <dl class="py data">
 <dt id="fpclib.CONTENT">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">CONTENT</code><em class="property"> = int('0001', 2)</em><a class="headerlink" href="#fpclib.CONTENT" title="Permalink to this definition">¶</a></dt>
@@ -852,9 +856,9 @@
 </div>
 </div>
 <div class="section" id="id1">
-<h2><a class="toc-backref" href="#id37">Other</a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id39">Other</a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="debug-level">
-<h3><a class="toc-backref" href="#id38"><span class="hide">DEBUG_LEVEL</span></a><a class="headerlink" href="#debug-level" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id40"><span class="hide">DEBUG_LEVEL</span></a><a class="headerlink" href="#debug-level" title="Permalink to this headline">¶</a></h3>
 <dl class="py data">
 <dt id="fpclib.DEBUG_LEVEL">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">DEBUG_LEVEL</code><em class="property"> = 1</em><a class="headerlink" href="#fpclib.DEBUG_LEVEL" title="Permalink to this definition">¶</a></dt>
@@ -876,7 +880,7 @@
 
 </div>
 <div class="section" id="tabulation">
-<h3><a class="toc-backref" href="#id39"><span class="hide">TABULATION</span></a><a class="headerlink" href="#tabulation" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id41"><span class="hide">TABULATION</span></a><a class="headerlink" href="#tabulation" title="Permalink to this headline">¶</a></h3>
 <dl class="py data">
 <dt id="fpclib.TABULATION">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">TABULATION</code><em class="property"> = 0</em><a class="headerlink" href="#fpclib.TABULATION" title="Permalink to this definition">¶</a></dt>
@@ -889,7 +893,7 @@
 
 </div>
 <div class="section" id="platforms">
-<h3><a class="toc-backref" href="#id40"><span class="hide">PLATFORMS</span></a><a class="headerlink" href="#platforms" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id42"><span class="hide">PLATFORMS</span></a><a class="headerlink" href="#platforms" title="Permalink to this headline">¶</a></h3>
 <dl class="py data">
 <dt id="fpclib.PLATFORMS">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">PLATFORMS</code><a class="headerlink" href="#fpclib.PLATFORMS" title="Permalink to this definition">¶</a></dt>
@@ -902,7 +906,7 @@
 
 </div>
 <div class="section" id="tags">
-<h3><a class="toc-backref" href="#id41"><span class="hide">TAGS</span></a><a class="headerlink" href="#tags" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id43"><span class="hide">TAGS</span></a><a class="headerlink" href="#tags" title="Permalink to this headline">¶</a></h3>
 <dl class="py data">
 <dt id="fpclib.TAGS">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">TAGS</code><a class="headerlink" href="#fpclib.TAGS" title="Permalink to this definition">¶</a></dt>
@@ -916,9 +920,9 @@
 </div>
 </div>
 <div class="section" id="exceptions">
-<h2><a class="toc-backref" href="#id42">Exceptions</a><a class="headerlink" href="#exceptions" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id44">Exceptions</a><a class="headerlink" href="#exceptions" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="invalidcharactererror">
-<h3><a class="toc-backref" href="#id43"><span class="hide">InvalidCharacterError</span></a><a class="headerlink" href="#invalidcharactererror" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id45"><span class="hide">InvalidCharacterError</span></a><a class="headerlink" href="#invalidcharactererror" title="Permalink to this headline">¶</a></h3>
 <dl class="py class">
 <dt id="fpclib.InvalidCharacterError">
 <em class="property">class </em><code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">InvalidCharacterError</code><a class="headerlink" href="#fpclib.InvalidCharacterError" title="Permalink to this definition">¶</a></dt>
@@ -927,7 +931,7 @@
 
 </div>
 <div class="section" id="invalidfileerror">
-<h3><a class="toc-backref" href="#id44"><span class="hide">InvalidFileError</span></a><a class="headerlink" href="#invalidfileerror" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id46"><span class="hide">InvalidFileError</span></a><a class="headerlink" href="#invalidfileerror" title="Permalink to this headline">¶</a></h3>
 <dl class="py class">
 <dt id="fpclib.InvalidFileError">
 <em class="property">class </em><code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">InvalidFileError</code><a class="headerlink" href="#fpclib.InvalidFileError" title="Permalink to this definition">¶</a></dt>
@@ -936,7 +940,7 @@
 
 </div>
 <div class="section" id="emptylocationerror">
-<h3><a class="toc-backref" href="#id45"><span class="hide">EmptyLocationError</span></a><a class="headerlink" href="#emptylocationerror" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id47"><span class="hide">EmptyLocationError</span></a><a class="headerlink" href="#emptylocationerror" title="Permalink to this headline">¶</a></h3>
 <dl class="py class">
 <dt id="fpclib.EmptyLocationError">
 <em class="property">class </em><code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">EmptyLocationError</code><a class="headerlink" href="#fpclib.EmptyLocationError" title="Permalink to this definition">¶</a></dt>
@@ -945,7 +949,7 @@
 
 </div>
 <div class="section" id="invalidmetadataerror">
-<h3><a class="toc-backref" href="#id46"><span class="hide">InvalidMetadataError</span></a><a class="headerlink" href="#invalidmetadataerror" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id48"><span class="hide">InvalidMetadataError</span></a><a class="headerlink" href="#invalidmetadataerror" title="Permalink to this headline">¶</a></h3>
 <dl class="py class">
 <dt id="fpclib.InvalidMetadataError">
 <em class="property">class </em><code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">InvalidMetadataError</code><a class="headerlink" href="#fpclib.InvalidMetadataError" title="Permalink to this definition">¶</a></dt>
@@ -959,11 +963,11 @@
 </div>
 </div>
 <div class="section" id="functions">
-<h2><a class="toc-backref" href="#id47">Functions</a><a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id49">Functions</a><a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="internet">
-<h3><a class="toc-backref" href="#id48">Internet</a><a class="headerlink" href="#internet" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id50">Internet</a><a class="headerlink" href="#internet" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="download">
-<h4><a class="toc-backref" href="#id49"><span class="hide">download()</span></a><a class="headerlink" href="#download" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id51"><span class="hide">download()</span></a><a class="headerlink" href="#download" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.download">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">url</span></em>, <em class="sig-param"><span class="n">loc</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.download" title="Permalink to this definition">¶</a></dt>
@@ -982,7 +986,7 @@
 
 </div>
 <div class="section" id="download-all">
-<h4><a class="toc-backref" href="#id50"><span class="hide">download_all()</span></a><a class="headerlink" href="#download-all" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id52"><span class="hide">download_all()</span></a><a class="headerlink" href="#download-all" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.download_all">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">download_all</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">urls</span></em>, <em class="sig-param"><span class="n">loc</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">preserve</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">keep_vars</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">ignore_errs</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.download_all" title="Permalink to this definition">¶</a></dt>
@@ -1006,7 +1010,7 @@
 
 </div>
 <div class="section" id="download-image">
-<h4><a class="toc-backref" href="#id51"><span class="hide">download_image()</span></a><a class="headerlink" href="#download-image" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id53"><span class="hide">download_image()</span></a><a class="headerlink" href="#download-image" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.download_image">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">download_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">url</span></em>, <em class="sig-param"><span class="n">loc</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.download_image" title="Permalink to this definition">¶</a></dt>
@@ -1025,7 +1029,7 @@
 
 </div>
 <div class="section" id="normalize">
-<h4><a class="toc-backref" href="#id52"><span class="hide">normalize()</span></a><a class="headerlink" href="#normalize" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id54"><span class="hide">normalize()</span></a><a class="headerlink" href="#normalize" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.normalize">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">normalize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">url</span></em>, <em class="sig-param"><span class="n">preserve</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">keep_vars</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">keep_prot</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.normalize" title="Permalink to this definition">¶</a></dt>
@@ -1048,7 +1052,7 @@
 
 </div>
 <div class="section" id="read-url">
-<h4><a class="toc-backref" href="#id53"><span class="hide">read_url()</span></a><a class="headerlink" href="#read-url" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id55"><span class="hide">read_url()</span></a><a class="headerlink" href="#read-url" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.read_url">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">read_url</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">url</span></em>, <em class="sig-param"><span class="n">ignore_errs</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">content</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.read_url" title="Permalink to this definition">¶</a></dt>
@@ -1070,7 +1074,7 @@
 
 </div>
 <div class="section" id="get-soup">
-<h4><a class="toc-backref" href="#id54"><span class="hide">get_soup()</span></a><a class="headerlink" href="#get-soup" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id56"><span class="hide">get_soup()</span></a><a class="headerlink" href="#get-soup" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.get_soup">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">get_soup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">url</span></em>, <em class="sig-param"><span class="n">parser</span><span class="o">=</span><span class="default_value">'html.parser'</span></em>, <em class="sig-param"><span class="n">ignore_errs</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.get_soup" title="Permalink to this definition">¶</a></dt>
@@ -1092,7 +1096,7 @@
 
 </div>
 <div class="section" id="get-fpdata">
-<h4><a class="toc-backref" href="#id55"><span class="hide">get_fpdata()</span></a><a class="headerlink" href="#get-fpdata" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id57"><span class="hide">get_fpdata()</span></a><a class="headerlink" href="#get-fpdata" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.get_fpdata">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">get_fpdata</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">page</span></em>, <em class="sig-param"><span class="n">ignore_errs</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.get_fpdata" title="Permalink to this definition">¶</a></dt>
@@ -1115,9 +1119,9 @@
 </div>
 </div>
 <div class="section" id="file-io">
-<h3><a class="toc-backref" href="#id56">File IO</a><a class="headerlink" href="#file-io" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id58">File IO</a><a class="headerlink" href="#file-io" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="read">
-<h4><a class="toc-backref" href="#id57"><span class="hide">read()</span></a><a class="headerlink" href="#read" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id59"><span class="hide">read()</span></a><a class="headerlink" href="#read" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.read">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">read</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.read" title="Permalink to this definition">¶</a></dt>
@@ -1143,7 +1147,7 @@
 
 </div>
 <div class="section" id="read-lines">
-<h4><a class="toc-backref" href="#id58"><span class="hide">read_lines()</span></a><a class="headerlink" href="#read-lines" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id60"><span class="hide">read_lines()</span></a><a class="headerlink" href="#read-lines" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.read_lines">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">read_lines</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_name</span></em>, <em class="sig-param"><span class="n">ignore_lines</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.read_lines" title="Permalink to this definition">¶</a></dt>
@@ -1172,7 +1176,7 @@
 
 </div>
 <div class="section" id="read-table">
-<h4><a class="toc-backref" href="#id59"><span class="hide">read_table()</span></a><a class="headerlink" href="#read-table" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id61"><span class="hide">read_table()</span></a><a class="headerlink" href="#read-table" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.read_table">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">read_table</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_name</span></em>, <em class="sig-param"><span class="n">delimiter</span><span class="o">=</span><span class="default_value">','</span></em>, <em class="sig-param"><span class="n">ignore_lines</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.read_table" title="Permalink to this definition">¶</a></dt>
@@ -1205,7 +1209,7 @@
 
 </div>
 <div class="section" id="make-dir">
-<h4><a class="toc-backref" href="#id60"><span class="hide">make_dir()</span></a><a class="headerlink" href="#make-dir" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id62"><span class="hide">make_dir()</span></a><a class="headerlink" href="#make-dir" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.make_dir">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">make_dir</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">folder</span></em>, <em class="sig-param"><span class="n">change</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">overwrite</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.make_dir" title="Permalink to this definition">¶</a></dt>
@@ -1237,7 +1241,7 @@
 
 </div>
 <div class="section" id="delete">
-<h4><a class="toc-backref" href="#id61"><span class="hide">delete()</span></a><a class="headerlink" href="#delete" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id63"><span class="hide">delete()</span></a><a class="headerlink" href="#delete" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.delete">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">delete</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.delete" title="Permalink to this definition">¶</a></dt>
@@ -1261,7 +1265,7 @@
 
 </div>
 <div class="section" id="write">
-<h4><a class="toc-backref" href="#id62"><span class="hide">write()</span></a><a class="headerlink" href="#write" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id64"><span class="hide">write()</span></a><a class="headerlink" href="#write" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.write">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">write</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_name</span></em>, <em class="sig-param"><span class="n">contents</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">force</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.write" title="Permalink to this definition">¶</a></dt>
@@ -1287,7 +1291,7 @@
 
 </div>
 <div class="section" id="write-line">
-<h4><a class="toc-backref" href="#id63"><span class="hide">write_line()</span></a><a class="headerlink" href="#write-line" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id65"><span class="hide">write_line()</span></a><a class="headerlink" href="#write-line" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.write_line">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">write_line</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_name</span></em>, <em class="sig-param"><span class="n">line</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">force</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.write_line" title="Permalink to this definition">¶</a></dt>
@@ -1314,7 +1318,7 @@
 
 </div>
 <div class="section" id="write-table">
-<h4><a class="toc-backref" href="#id64"><span class="hide">write_table()</span></a><a class="headerlink" href="#write-table" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id66"><span class="hide">write_table()</span></a><a class="headerlink" href="#write-table" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.write_table">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">write_table</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_name</span></em>, <em class="sig-param"><span class="n">table</span></em>, <em class="sig-param"><span class="n">delimiter</span><span class="o">=</span><span class="default_value">','</span></em>, <em class="sig-param"><span class="n">force</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.write_table" title="Permalink to this definition">¶</a></dt>
@@ -1341,8 +1345,66 @@
 </dd></dl>
 
 </div>
+<div class="section" id="scan-dir">
+<h4><a class="toc-backref" href="#id67"><span class="hide">scan_dir()</span></a><a class="headerlink" href="#scan-dir" title="Permalink to this headline">¶</a></h4>
+<dl class="py function">
+<dt id="fpclib.scan_dir">
+<code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">scan_dir</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">folder</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">regex</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">recursive</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.scan_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scans the directory <code class="code docutils literal notranslate"><span class="pre">folder</span></code> recursively and returns all files and sub-folders as two lists.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder</strong> (<em>str</em>) – A directory to scan. Defaults to the current working directory.</p></li>
+<li><p><strong>regex</strong> (<em>str|re</em>) – If given, this function will only return files whose full paths match this regex. This has no effect on sub-folders.</p></li>
+<li><p><strong>recursive</strong> (<em>bool</em>) – If False, this function will not scan sub-folders recursively. You might be better off using <code class="code docutils literal notranslate"><span class="pre">os.walk()</span></code> if you set this to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>files and subfolders as two lists in that order. <code class="code docutils literal notranslate"><span class="pre">return</span> <span class="pre">files,</span> <span class="pre">subfolders</span></code></p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="#fpclib.InvalidCharacterError" title="fpclib.InvalidCharacterError"><strong>InvalidCharacterError</strong></a> – If <code class="code docutils literal notranslate"><span class="pre">folder</span></code> contains invalid characters.</p></li>
+<li><p><strong>FileExistsError</strong> – If <code class="code docutils literal notranslate"><span class="pre">folder</span></code> is not a folder.</p></li>
+<li><p><strong>FileNotFoundError</strong> – If <code class="code docutils literal notranslate"><span class="pre">folder</span></code> does not exist.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Note</dt>
+<dd class="field-even"><p>Any slashes (<code class="code docutils literal notranslate"><span class="pre">/</span></code>) in file paths will be replaced with backslashes (:code:<a href="#id2"><span class="problematic" id="id3">`</span></a>`) in the output, and this is what regexes match with.</p>
+</dd>
+<dt class="field-odd">Since 1.4</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="replace">
+<h4><a class="toc-backref" href="#id68"><span class="hide">replace()</span></a><a class="headerlink" href="#replace" title="Permalink to this headline">¶</a></h4>
+<dl class="py function">
+<dt id="fpclib.replace">
+<code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">replace</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">files</span></em>, <em class="sig-param"><span class="n">old</span></em>, <em class="sig-param"><span class="n">new</span></em>, <em class="sig-param"><span class="n">regex</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ignore_errs</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.replace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replaces all instances of <code class="code docutils literal notranslate"><span class="pre">old</span></code> with <code class="code docutils literal notranslate"><span class="pre">new</span></code> in <code class="code docutils literal notranslate"><span class="pre">files</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>files</strong> (<em>[</em><em>str</em><em>,</em><em>...</em><em>]</em><em>|str</em>) – A string or list of strings pointing to files to have their contents changed.</p></li>
+<li><p><strong>old</strong> (<em>str|re</em>) – A regex or string to replace. If this is a string, it will not be treated as a regex. Use <code class="code docutils literal notranslate"><span class="pre">re.compile()</span></code> to pass in a regex object.</p></li>
+<li><p><strong>new</strong> (<em>str</em>) – A string of text to replace with.</p></li>
+<li><p><strong>regex</strong> (<em>str|re</em>) – If given, this function will only replace in files whose full paths match this regex. It must be a real regex (i.e., you can’t use “*” in place of “.*”)!</p></li>
+<li><p><strong>ignore_errs</strong> (<em>bool</em>) – If False, this function will throw an error at the end if <code class="code docutils literal notranslate"><span class="pre">files</span></code> had invalid files.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p>A bulk ValueError if <code class="code docutils literal notranslate"><span class="pre">files</span></code> has any invalid files and <code class="code docutils literal notranslate"><span class="pre">ignore_errs</span></code> is False. Errors will be thrown at the end of the function after everything that could be replaced was replaced.</p>
+</dd>
+<dt class="field-odd">Since 1.4</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</dd></dl>
+
+</div>
 <div class="section" id="hash256">
-<h4><a class="toc-backref" href="#id65"><span class="hide">hash256()</span></a><a class="headerlink" href="#hash256" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id69"><span class="hide">hash256()</span></a><a class="headerlink" href="#hash256" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.hash256">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">hash256</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.hash256" title="Permalink to this definition">¶</a></dt>
@@ -1363,7 +1425,7 @@
 
 </div>
 <div class="section" id="hash">
-<h4><a class="toc-backref" href="#id66"><span class="hide">hash()</span></a><a class="headerlink" href="#hash" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id70"><span class="hide">hash()</span></a><a class="headerlink" href="#hash" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.hash">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">hash</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.hash" title="Permalink to this definition">¶</a></dt>
@@ -1385,9 +1447,9 @@
 </div>
 </div>
 <div class="section" id="curating">
-<h3><a class="toc-backref" href="#id67">Curating</a><a class="headerlink" href="#curating" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id71">Curating</a><a class="headerlink" href="#curating" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="test">
-<h4><a class="toc-backref" href="#id68"><span class="hide">test()</span></a><a class="headerlink" href="#test" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id72"><span class="hide">test()</span></a><a class="headerlink" href="#test" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.test">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">test</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.test" title="Permalink to this definition">¶</a></dt>
@@ -1402,7 +1464,7 @@
 
 </div>
 <div class="section" id="update">
-<h4><a class="toc-backref" href="#id69"><span class="hide">update()</span></a><a class="headerlink" href="#update" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id73"><span class="hide">update()</span></a><a class="headerlink" href="#update" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.update">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.update" title="Permalink to this definition">¶</a></dt>
@@ -1416,7 +1478,7 @@
 
 </div>
 <div class="section" id="debug">
-<h4><a class="toc-backref" href="#id70"><span class="hide">debug()</span></a><a class="headerlink" href="#debug" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id74"><span class="hide">debug()</span></a><a class="headerlink" href="#debug" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.debug">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">debug</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em>, <em class="sig-param"><span class="n">mode</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">items</span></em>, <em class="sig-param"><span class="n">pre</span><span class="o">=</span><span class="default_value">'[INFO] '</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.debug" title="Permalink to this definition">¶</a></dt>
@@ -1437,7 +1499,7 @@
 
 </div>
 <div class="section" id="clear-save">
-<h4><a class="toc-backref" href="#id71"><span class="hide">clear_save()</span></a><a class="headerlink" href="#clear-save" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id75"><span class="hide">clear_save()</span></a><a class="headerlink" href="#clear-save" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.clear_save">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">clear_save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">loc</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.clear_save" title="Permalink to this definition">¶</a></dt>
@@ -1452,7 +1514,7 @@
 
 </div>
 <div class="section" id="curate">
-<h4><a class="toc-backref" href="#id72"><span class="hide">curate()</span></a><a class="headerlink" href="#curate" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id76"><span class="hide">curate()</span></a><a class="headerlink" href="#curate" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.curate">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">curate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">items</span></em>, <em class="sig-param"><span class="n">curation_class</span></em>, <em class="sig-param"><span class="n">use_title</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">save</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">ignore_errs</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">overwrite</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">validate</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.curate" title="Permalink to this definition">¶</a></dt>
@@ -1483,7 +1545,7 @@
 
 </div>
 <div class="section" id="curate-regex">
-<h4><a class="toc-backref" href="#id73"><span class="hide">curate_regex()</span></a><a class="headerlink" href="#curate-regex" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id77"><span class="hide">curate_regex()</span></a><a class="headerlink" href="#curate-regex" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.curate_regex">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">curate_regex</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">items</span></em>, <em class="sig-param"><span class="n">links</span></em>, <em class="sig-param"><span class="n">use_title</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">save</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">ignore_errs</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">overwrite</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">validate</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.curate_regex" title="Permalink to this definition">¶</a></dt>
@@ -1514,7 +1576,7 @@
 
 </div>
 <div class="section" id="load">
-<h4><a class="toc-backref" href="#id74"><span class="hide">load()</span></a><a class="headerlink" href="#load" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id78"><span class="hide">load()</span></a><a class="headerlink" href="#load" title="Permalink to this headline">¶</a></h4>
 <dl class="py function">
 <dt id="fpclib.load">
 <code class="sig-prename descclassname">fpclib.</code><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">curation</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.load" title="Permalink to this definition">¶</a></dt>

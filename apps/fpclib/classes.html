@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Classes &mdash; fpclib 1.4 documentation</title>
+  <title>Classes &mdash; fpclib 1.5 documentation</title>
   
 
   
@@ -420,11 +420,14 @@
 <code class="sig-prename descclassname">Curation.</code><code class="sig-name descname">set_meta</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.Curation.set_meta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the metadata with <code class="code docutils literal notranslate"><span class="pre">kwargs</span></code>. This method does not do error checking.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>kwargs</strong> (<em>**</em>) – A list of arguments to set the metadata with. To see what you can use for <code class="code docutils literal notranslate"><span class="pre">kwargs</span></code>, see <a class="reference internal" href="#fpclib.Curation.ARGS" title="fpclib.Curation.ARGS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Curation.ARGS</span></code></a>. Any value passed in that is not in <a class="reference internal" href="#fpclib.Curation.ARGS" title="fpclib.Curation.ARGS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Curation.ARGS</span></code></a> will still be stored and can be retrieved through <a class="reference internal" href="#fpclib.Curation.get_meta" title="fpclib.Curation.get_meta"><code class="xref py py-func docutils literal notranslate"><span class="pre">Curation.get_meta()</span></code></a>.</p>
+<dt class="field-odd">Since 1.5</dt>
+<dd class="field-odd"><p>You can also just set the metadata directly through the curation instead; e.g., <code class="code docutils literal notranslate"><span class="pre">curation.title</span> <span class="pre">=</span> <span class="pre">'Title</span> <span class="pre">Goes</span> <span class="pre">Here'</span></code></p>
 </dd>
-<dt class="field-even">Note</dt>
-<dd class="field-even"><p>For example, to set the title of a curation you would use <code class="code docutils literal notranslate"><span class="pre">curation.set_meta(title='Title</span> <span class="pre">Goes</span> <span class="pre">Here')</span></code></p>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>kwargs</strong> (<em>**</em>) – A list of arguments to set the metadata with. To see what you can use for <code class="code docutils literal notranslate"><span class="pre">kwargs</span></code>, see <a class="reference internal" href="#fpclib.Curation.ARGS" title="fpclib.Curation.ARGS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Curation.ARGS</span></code></a>. Any value passed in that is not in <a class="reference internal" href="#fpclib.Curation.ARGS" title="fpclib.Curation.ARGS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Curation.ARGS</span></code></a> will still be stored and can be retrieved through <a class="reference internal" href="#fpclib.Curation.get_meta" title="fpclib.Curation.get_meta"><code class="xref py py-func docutils literal notranslate"><span class="pre">Curation.get_meta()</span></code></a>.</p>
+</dd>
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><p>For example, to set the title of a curation you would use <code class="code docutils literal notranslate"><span class="pre">curation.set_meta(title='Title</span> <span class="pre">Goes</span> <span class="pre">Here')</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -437,11 +440,14 @@
 <code class="sig-prename descclassname">Curation.</code><code class="sig-name descname">get_meta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fpclib.Curation.get_meta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the metadata/args referenced by <code class="code docutils literal notranslate"><span class="pre">key</span></code>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>key</strong> (<em>str</em>) – The name of an argument to get the value of. You can either use the keys referenced by <a class="reference internal" href="#fpclib.Curation.ARGS" title="fpclib.Curation.ARGS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Curation.ARGS</span></code></a> or the name of the argument you passed in through <a class="reference internal" href="#fpclib.Curation.set_meta" title="fpclib.Curation.set_meta"><code class="xref py py-func docutils literal notranslate"><span class="pre">Curation.set_meta()</span></code></a>.</p>
+<dt class="field-odd">Since 1.5</dt>
+<dd class="field-odd"><p>You can also just get the metadata directly through the curation instead; e.g., <code class="code docutils literal notranslate"><span class="pre">myVar</span> <span class="pre">=</span> <span class="pre">curation.title</span></code></p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The meta referenced by <code class="code docutils literal notranslate"><span class="pre">key</span></code>, the data associated with it, or None if it hasn’t been set.</p>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>key</strong> (<em>str</em>) – The name of an argument to get the value of. You can either use the keys referenced by <a class="reference internal" href="#fpclib.Curation.ARGS" title="fpclib.Curation.ARGS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Curation.ARGS</span></code></a> or the name of the argument you passed in through <a class="reference internal" href="#fpclib.Curation.set_meta" title="fpclib.Curation.set_meta"><code class="xref py py-func docutils literal notranslate"><span class="pre">Curation.set_meta()</span></code></a>.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The meta referenced by <code class="code docutils literal notranslate"><span class="pre">key</span></code>, the data associated with it, or None if it hasn’t been set.</p>
 </dd>
 </dl>
 </dd></dl>

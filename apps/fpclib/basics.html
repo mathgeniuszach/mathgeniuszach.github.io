@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>The Basics &mdash; fpclib 1.4 documentation</title>
+  <title>The Basics &mdash; fpclib 1.5 documentation</title>
   
 
   
@@ -330,21 +330,26 @@
 <div class="section" id="a-single-curation">
 <h2><a class="toc-backref" href="#id7">A Single Curation</a><a class="headerlink" href="#a-single-curation" title="Permalink to this headline">¶</a></h2>
 <p>Before curating entire lists of games/animations with fpclib, it’s important to understand how to use the library to curate a single game/animation by itself first. As shown on the <a class="reference internal" href="index.html"><span class="doc">Home</span></a> page, here’s some very basic code you can use to curate a game:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">fpclib</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import fpclib curation</span>
+<span class="kn">from</span> <span class="nn">fpclib</span> <span class="kn">import</span> <span class="n">Curation</span>
 
-<span class="n">curation</span> <span class="o">=</span> <span class="n">fpclib</span><span class="o">.</span><span class="n">Curation</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s1">&#39;https://www.newgrounds.com/portal/view/218014&#39;</span><span class="p">)</span>
+<span class="c1"># Create a curation from a given url</span>
+<span class="n">curation</span> <span class="o">=</span> <span class="n">Curation</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s1">&#39;https://www.newgrounds.com/portal/view/218014&#39;</span><span class="p">)</span>
+<span class="c1"># Set the logo of the curation</span>
 <span class="n">curation</span><span class="o">.</span><span class="n">logo</span> <span class="o">=</span> <span class="s1">&#39;https://picon.ngfiles.com/218000/flash_218014_medium.gif&#39;</span>
-<span class="n">curation</span><span class="o">.</span><span class="n">set_meta</span><span class="p">(</span>
-    <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Interactive Buddy&#39;</span><span class="p">,</span>
-    <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Simulation&#39;</span><span class="p">,</span> <span class="s1">&#39;Toy&#39;</span><span class="p">],</span>
-    <span class="n">dev</span><span class="o">=</span><span class="s1">&#39;Shock Value&#39;</span><span class="p">,</span>
-    <span class="n">pub</span><span class="o">=</span><span class="s1">&#39;Newgrounds&#39;</span><span class="p">,</span>
-    <span class="n">ver</span><span class="o">=</span><span class="s1">&#39;1.01&#39;</span><span class="p">,</span>
-    <span class="n">date</span><span class="o">=</span><span class="s1">&#39;2005-02-08&#39;</span>
-<span class="p">)</span>
+
+<span class="c1"># You can set metadata through the object directly or through the set_meta method</span>
+<span class="n">curation</span><span class="o">.</span><span class="n">set_meta</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Interactive Buddy&#39;</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Simulation&#39;</span><span class="p">,</span> <span class="s1">&#39;Toy&#39;</span><span class="p">])</span>
+<span class="n">curation</span><span class="o">.</span><span class="n">set_meta</span><span class="p">(</span><span class="n">dev</span><span class="o">=</span><span class="s1">&#39;Shock Value&#39;</span><span class="p">,</span> <span class="n">pub</span><span class="o">=</span><span class="s1">&#39;Wrong Publisher&#39;</span><span class="p">)</span>
+<span class="n">curation</span><span class="o">.</span><span class="n">pub</span> <span class="o">=</span> <span class="s1">&#39;Newgrounds&#39;</span>
+<span class="n">curation</span><span class="o">.</span><span class="n">ver</span> <span class="o">=</span> <span class="s1">&#39;1.01&#39;</span>
+<span class="n">curation</span><span class="o">.</span><span class="n">date</span> <span class="o">=</span> <span class="s1">&#39;2005-02-08&#39;</span>
+
+<span class="c1"># Add an additional app</span>
 <span class="n">curation</span><span class="o">.</span><span class="n">set_meta</span><span class="p">(</span><span class="n">cmd</span><span class="o">=</span><span class="s1">&#39;http://uploads.ungrounded.net/218000/218014_DAbuddy_latest.swf&#39;</span><span class="p">)</span>
 <span class="n">curation</span><span class="o">.</span><span class="n">add_app</span><span class="p">(</span><span class="s1">&#39;Kongregate v1.02&#39;</span><span class="p">,</span> <span class="s1">&#39;http://chat.kongregate.com/gamez/0003/0303/live/ib2.swf?kongregate_game_version=1363985380&#39;</span><span class="p">)</span>
 
+<span class="c1"># Export this curation to the current working directory</span>
 <span class="n">curation</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -353,7 +358,7 @@
 <li><p>Import the library with <code class="code docutils literal notranslate"><span class="pre">import</span> <span class="pre">fpclib</span></code></p></li>
 <li><p>Create a new <a class="reference internal" href="classes.html#fpclib.Curation" title="fpclib.Curation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Curation</span></code></a> object. You don’t have to set it’s url immediately, but it should be set before you call <a class="reference internal" href="classes.html#fpclib.Curation.save" title="fpclib.Curation.save"><code class="xref py py-func docutils literal notranslate"><span class="pre">Curation.save()</span></code></a>.</p></li>
 <li><p>Set the url of the curation’s logo. You can also set the screenshot with <a class="reference internal" href="classes.html#fpclib.Curation.ss" title="fpclib.Curation.ss"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Curation.ss</span></code></a>. Note that this will automatically be converted to a png file when the curation is saved. You do not need to set the logo or screenshot for every curation.</p></li>
-<li><p>Set the curation’s metadata using <a class="reference internal" href="classes.html#fpclib.Curation.set_meta" title="fpclib.Curation.set_meta"><code class="xref py py-func docutils literal notranslate"><span class="pre">Curation.set_meta()</span></code></a>. You can put as many or little arguments into this function as you want. To see what arguments map to which parts of the curation’s metadata, see <a class="reference internal" href="classes.html#fpclib.Curation.ARGS" title="fpclib.Curation.ARGS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Curation.ARGS</span></code></a>. Note that descriptions and notes support multiple line strings (split lines with <code class="code docutils literal notranslate"><span class="pre">\\n</span></code>).</p></li>
+<li><p>Set the curation’s metadata using <a class="reference internal" href="classes.html#fpclib.Curation.set_meta" title="fpclib.Curation.set_meta"><code class="xref py py-func docutils literal notranslate"><span class="pre">Curation.set_meta()</span></code></a> or directly through the object. You can put as many or little arguments into the function as you want. To see what arguments (or attributes) map to which parts of the curation’s metadata, see <a class="reference internal" href="classes.html#fpclib.Curation.ARGS" title="fpclib.Curation.ARGS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Curation.ARGS</span></code></a>. Note that descriptions and notes support multiple line strings (split lines with <code class="code docutils literal notranslate"><span class="pre">\\n</span></code>).</p></li>
 <li><p>Add an additional app with <a class="reference internal" href="classes.html#fpclib.Curation.add_app" title="fpclib.Curation.add_app"><code class="xref py py-func docutils literal notranslate"><span class="pre">Curation.add_app()</span></code></a>. You can also create extras, a message, or delete additional applications with other functions too (see the functions after <a class="reference internal" href="classes.html#fpclib.Curation.add_app" title="fpclib.Curation.add_app"><code class="xref py py-func docutils literal notranslate"><span class="pre">Curation.add_app()</span></code></a>).</p></li>
 <li><p>Finally, Save the curation to a folder with <a class="reference internal" href="classes.html#fpclib.Curation.save" title="fpclib.Curation.save"><code class="xref py py-func docutils literal notranslate"><span class="pre">Curation.save()</span></code></a>. This accepts an argument named <code class="code docutils literal notranslate"><span class="pre">use_title</span></code> which if you set to True, will generate the curation folder with the curation’s title instead of its id (see <a class="reference internal" href="classes.html#fpclib.Curation.id" title="fpclib.Curation.id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Curation.id</span></code></a>).</p></li>
 </ol>

@@ -32,16 +32,26 @@ There are numerous benefits of using fpclib to help you curate:
 
 Here's some example code of using the library to curate "Interactive Buddy" from Newgrounds::
 
+    # Import fpclib curation
     from fpclib import Curation
 
+    # Create a curation from a given url
     curation = Curation(url='https://www.newgrounds.com/portal/view/218014')
+    # Set the logo of the curation
     curation.logo = 'https://picon.ngfiles.com/218000/flash_218014_medium.gif'
+    
+    # You can set metadata through the object directly or through the set_meta method
     curation.set_meta(title='Interactive Buddy', tags=['Simulation', 'Toy'])
-    curation.set_meta(dev='Shock Value', pub='Newgrounds')
-    curation.set_meta(ver='1.01', date='2005-02-08')
+    curation.set_meta(dev='Shock Value', pub='Wrong Publisher')
+    curation.pub = 'Newgrounds'
+    curation.ver = '1.01'
+    curation.date = '2005-02-08'
+    
+    # Add an additional app
     curation.set_meta(cmd='http://uploads.ungrounded.net/218000/218014_DAbuddy_latest.swf')
     curation.add_app('Kongregate v1.02', 'http://chat.kongregate.com/gamez/0003/0303/live/ib2.swf?kongregate_game_version=1363985380')
 
+    # Export this curation to the current working directory
     curation.save()
 
 You can also test the library by running the script directly or with :func:`fpclib.test()`, which will also curate "Interactive Buddy" in the current working directory, delete the curation, and check an invalid curation.

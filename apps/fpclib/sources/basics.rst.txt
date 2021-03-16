@@ -94,21 +94,26 @@ A Single Curation
 
 Before curating entire lists of games/animations with fpclib, it's important to understand how to use the library to curate a single game/animation by itself first. As shown on the :doc:`Home </index>` page, here's some very basic code you can use to curate a game::
 
-    import fpclib
+    # Import fpclib curation
+    from fpclib import Curation
 
-    curation = fpclib.Curation(url='https://www.newgrounds.com/portal/view/218014')
+    # Create a curation from a given url
+    curation = Curation(url='https://www.newgrounds.com/portal/view/218014')
+    # Set the logo of the curation
     curation.logo = 'https://picon.ngfiles.com/218000/flash_218014_medium.gif'
-    curation.set_meta(
-        title='Interactive Buddy',
-        tags=['Simulation', 'Toy'],
-        dev='Shock Value',
-        pub='Newgrounds',
-        ver='1.01',
-        date='2005-02-08'
-    )
+    
+    # You can set metadata through the object directly or through the set_meta method
+    curation.set_meta(title='Interactive Buddy', tags=['Simulation', 'Toy'])
+    curation.set_meta(dev='Shock Value', pub='Wrong Publisher')
+    curation.pub = 'Newgrounds'
+    curation.ver = '1.01'
+    curation.date = '2005-02-08'
+    
+    # Add an additional app
     curation.set_meta(cmd='http://uploads.ungrounded.net/218000/218014_DAbuddy_latest.swf')
     curation.add_app('Kongregate v1.02', 'http://chat.kongregate.com/gamez/0003/0303/live/ib2.swf?kongregate_game_version=1363985380')
 
+    # Export this curation to the current working directory
     curation.save()
 
 Here's what each step in this code does:
@@ -116,7 +121,7 @@ Here's what each step in this code does:
 #. Import the library with :code:`import fpclib`
 #. Create a new :class:`Curation` object. You don't have to set it's url immediately, but it should be set before you call :func:`Curation.save()`.
 #. Set the url of the curation's logo. You can also set the screenshot with :attr:`Curation.ss`. Note that this will automatically be converted to a png file when the curation is saved. You do not need to set the logo or screenshot for every curation.
-#. Set the curation's metadata using :func:`Curation.set_meta()`. You can put as many or little arguments into this function as you want. To see what arguments map to which parts of the curation's metadata, see :attr:`Curation.ARGS`. Note that descriptions and notes support multiple line strings (split lines with :code:`\\n`).
+#. Set the curation's metadata using :func:`Curation.set_meta()` or directly through the object. You can put as many or little arguments into the function as you want. To see what arguments (or attributes) map to which parts of the curation's metadata, see :attr:`Curation.ARGS`. Note that descriptions and notes support multiple line strings (split lines with :code:`\\n`).
 #. Add an additional app with :func:`Curation.add_app()`. You can also create extras, a message, or delete additional applications with other functions too (see the functions after :func:`Curation.add_app()`).
 #. Finally, Save the curation to a folder with :func:`Curation.save()`. This accepts an argument named :code:`use_title` which if you set to True, will generate the curation folder with the curation's title instead of its id (see :attr:`Curation.id`).
 

@@ -320,6 +320,16 @@ File IO
 
 .. autofunction:: write_table
 
+:hide:`scan_dir()`
+^^^^^^^^^^^^^^^^^^
+
+.. autofunction:: scan_dir
+
+:hide:`replace()`
+^^^^^^^^^^^^^^^^^
+
+.. autofunction:: replace
+
 :hide:`hash256()`
 ^^^^^^^^^^^^^^^^^
 
