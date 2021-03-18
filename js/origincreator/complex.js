@@ -398,11 +398,11 @@ function copyListItem(btn, named) {
     
     // Clone element (and <br>)
     var clone = pnl.clone();
-    clone.before("<br>");
     clone.attr("name", i+1);
     clone.removeClass("_"+i);
     clone.addClass("_"+(i+1));
     clone.insertAfter(pnl);
+    clone.before("<br>");
     //clone.click(selectPanel);
     clone.find(">.zlist-id").val(itemID);
     
