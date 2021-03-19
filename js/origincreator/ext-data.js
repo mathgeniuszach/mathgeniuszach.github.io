@@ -2645,35 +2645,37 @@ var advancement_data = {
         "name": "Rewards",
         "type": "sub",
         "desc": "An optional object representing the rewards provided when this advancement is obtained.",
-        "recipes": {
-            "name": "Recipes",
-            "type": "list",
-            "desc": "A list of recipes to unlock.",
-            "data": {
-                "": {
-                    "type": "ns"
+        "data": {
+            "recipes": {
+                "name": "Recipes",
+                "type": "list",
+                "desc": "A list of recipes to unlock.",
+                "data": {
+                    "": {
+                        "type": "ns"
+                    }
                 }
-            }
-        },
-        "loot": {
-            "name": "Loot",
-            "type": "list",
-            "desc": "A list of loot tables to give to the player.",
+            },
             "loot": {
-                "": {
-                    "type": "ns"
+                "name": "Loot",
+                "type": "list",
+                "desc": "A list of loot tables to give to the player.",
+                "loot": {
+                    "": {
+                        "type": "ns"
+                    }
                 }
+            },
+            "experience": {
+                "name": "XP",
+                "type": "int",
+                "desc": "An amount of experience.",
+            },
+            "function": {
+                "name": "Function",
+                "type": "ns",
+                "desc": "A function to run. Function tags are not allowed."
             }
-        },
-        "experience": {
-            "name": "XP",
-            "type": "int",
-            "desc": "An amount of experience.",
-        },
-        "function": {
-            "name": "Function",
-            "type": "ns",
-            "desc": "A function to run. Function tags are not allowed."
         }
     }
 };
