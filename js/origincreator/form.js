@@ -508,9 +508,8 @@ function loadEntries(level, rootElem, data, form, del) {
                         save();
                     }
 
-                    let keys = Object.keys(v);
-                    
                     if (v) {
+                        let keys = Object.keys(v);
                         let elems = elem.find(">div");
                         // Create or remove elements to match length
                         let cl = elems.length;
