@@ -3,7 +3,8 @@ var empty_data = {
     "$": 3, // Version number to know how to convert data
     "meta": {
         "name": "My Pack",
-        "id": "mypack"
+        "id": "mypack",
+        "pack_format": 6
     },
     "tags/": {
         "blocks/": {},
@@ -25,14 +26,6 @@ var data = {
         "name": "My Pack",
         "id": "mypack"
     },
-    "origin_layers/": {
-        "origins:origin": {
-            "replace": false,
-            "origins": []
-        }
-    },
-    "origins/": {},
-    "powers/": {},
     "tags/": {
         "blocks/": {},
         "entity_types/": {},
@@ -97,4 +90,12 @@ if (!simplified) {
         {"text": "origins", "type": "origins"},
         {"text": "powers", "type": "powers"}
     );
+    data["origin_layers/"] = {
+        "origins:origin": {
+            "replace": false,
+            "origins": []
+        }
+    };
+    data["origins/"] = {};
+    data["powers/"] = {};
 }
