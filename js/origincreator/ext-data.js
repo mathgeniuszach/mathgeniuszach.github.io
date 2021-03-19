@@ -2642,6 +2642,9 @@ var advancement_data = {
         }
     },
     "rewards": {
+        "name": "Rewards",
+        "type": "sub",
+        "desc": "An optional object representing the rewards provided when this advancement is obtained.",
         "recipes": {
             "name": "Recipes",
             "type": "list",
