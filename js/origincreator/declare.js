@@ -24,7 +24,8 @@ var data = {
     "$": 3, // Version number to know how to convert data
     "meta": {
         "name": "My Pack",
-        "id": "mypack"
+        "id": "mypack",
+        "pack_format": 6
     },
     "tags/": {
         "blocks/": {},
