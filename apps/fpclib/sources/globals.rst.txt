@@ -141,14 +141,6 @@ Application Paths
 
 .. autodata:: APPLICATIONS
 
-Other
------
-
-:hide:`LANGUAGES`
-^^^^^^^^^^^^^^^^^
-
-.. autodata:: LANGUAGES
-
 Flags
 -----
 
@@ -187,6 +179,34 @@ Flags
 
 .. autodata:: CONTENT
    :annotation: = int('0001', 2)
+
+Other
+-----
+
+:hide:`LANGUAGES`
+^^^^^^^^^^^^^^^^^
+
+.. autodata:: LANGUAGES
+
+:hide:`LIBRARIES`
+^^^^^^^^^^^^^^^^^
+
+.. autodata:: LIBRARIES
+
+:hide:`PLAY_MODES`
+^^^^^^^^^^^^^^^^^^
+
+.. autodata:: PLAY_MODES
+
+:hide:`STATUSES`
+^^^^^^^^^^^^^^^^
+
+.. autodata:: STATUSES
+
+:hide:`MONTHS`
+^^^^^^^^^^^^^^
+
+.. autodata:: MONTHS
 
 Other
 =====

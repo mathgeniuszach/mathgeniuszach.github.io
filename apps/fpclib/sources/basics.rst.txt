@@ -73,6 +73,8 @@ File IO
    write
    write_line
    write_table
+   scan_dir
+   replace
    hash256
    hash
 
