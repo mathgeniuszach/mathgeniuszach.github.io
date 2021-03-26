@@ -208,6 +208,21 @@ Other
 
 .. autodata:: MONTHS
 
+:hide:`DP_US`
+^^^^^^^^^^^^^
+
+.. autodata:: DP_US
+
+:hide:`DP_UK`
+^^^^^^^^^^^^^
+
+.. autodata:: DP_UK
+
+:hide:`DP_ISO`
+^^^^^^^^^^^^^^
+
+.. autodata:: DP_ISO
+
 Other
 =====
 

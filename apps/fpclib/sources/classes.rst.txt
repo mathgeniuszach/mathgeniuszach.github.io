@@ -10,8 +10,6 @@ Curation
 
 .. autoclass:: Curation
    
-   .. autofunction:: __init__
-   
 Attributes
 ----------
 
@@ -159,3 +157,16 @@ BrokenCuration
 ==============
 
 .. autoclass:: BrokenCuration
+
+DateParser
+==========
+
+.. autoclass:: DateParser
+
+Methods
+-------
+
+:hide:`parse()`
+^^^^^^^^^^^^^^^
+
+.. automethod:: DateParser.parse
