@@ -232,6 +232,7 @@ var content_box = {
                                     d[newName] = d[otext+"/"];
                                     delete d[otext+"/"];
                                 }
+                                activeUName = newName
                                 if (node.state.selected) {
                                     if (types.includes(activeType)) $("#div-"+activeType+">h2").text(activePath+"/"+newName);
                                     else $("#div-other>h2").text(activePath+"/"+newName);
