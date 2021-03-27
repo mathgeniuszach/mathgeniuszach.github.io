@@ -256,6 +256,7 @@ function transformData(iData) {
 }
 
 function createFile(folder, id, iData, type, path, dName=".json") {
+    console.log()
     // stringify data
     var sData = iData;
 
@@ -309,8 +310,7 @@ function createRData(dFolder, itemData, type, path="") {
             }
         } else {
             // Handle folders
-            path += id;
-            createRData(dFolder, iData, type, path);
+            createRData(dFolder, iData, type, path + id);
         }
     }
 }
