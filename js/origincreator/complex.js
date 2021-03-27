@@ -163,19 +163,7 @@ var content_box = {
                     "separator_before": true,
                     "label": "Cut",
                     "action": function (e) {
-                        var ndata = findNodeData(node, true);
-
-                        // Copy
-                        clipedTree = true;
-                        if (isFile(node)) dataClipboard = JSON.stringify(ndata[node.text]);
-                        else dataClipboard = JSON.stringify([node.text, node.type, ndata[node.text+"/"]]);
-
-                        // Delete
-                        if (isFile(node)) delete ndata[node.text];
-                        else delete ndata[node.text+"/"];
-                        contentBox.delete_node(node);
-                        if (node.state.selected) changeScreen("help");
-                        save();
+                        cutNodeItem(node);
                     },
                     "_disabled": function () {
                         return !isFreeNode(node) || node.id === fnode;
@@ -184,14 +172,7 @@ var content_box = {
                 "copy": {
                     "label": "Copy",
                     "action": function (e) {
-                        if (isFreeNode(node)) {
-                            // Copy
-                            var ndata = findNodeData(node, true);
-                            clipedTree = true;
-                            if (isFile(node)) dataClipboard = JSON.stringify([node.text, node.type, ndata[node.text]]);
-                            else dataClipboard = JSON.stringify([node.text, node.type, ndata[node.text+"/"]]);
-                            save();
-                        }
+                        copyNodeItem(node);
                     },
                     "_disabled": function () {
                         return !isFreeNode(node) || node.id === fnode;
@@ -200,17 +181,7 @@ var content_box = {
                 "paste": {
                     "label": "Paste",
                     "action": function (e) {
-                        if (!isFile(node)) {
-                            var o = JSON.parse(dataClipboard);
-                            var nnode = contentBox.create_node(node);
-                            contentBox.rename_node(nnode, o[0]);
-                            contentBox.set_type(nnode, o[1]);
-                            
-                            var d = findNodeData(node);
-                            var newName = fixName(nnode, d);
-                            d[newName] = o[2];
-                            save();
-                        }
+                        pasteNodeItem(node);
                     },
                     "_disabled": function () {
                         return !clipedTree || !dataClipboard || isFile(node) || node.id === fnode;
@@ -248,12 +219,7 @@ var content_box = {
                 "delete": {
                     "label": "Delete",
                     "action": function (e) {
-                        var ndata = findNodeData(node, true);
-                        if (isFile(node)) delete ndata[node.text];
-                        else delete ndata[node.text+"/"];
-                        contentBox.delete_node(node);
-                        if (node.state.selected) changeScreen("help");
-                        save();
+                        deleteNodeItem(node);
                     },
                     "_disabled": function () {
                         return node.type == "meta" || node.id === fnode;
@@ -300,6 +266,57 @@ function addTreeFile() {
         data[newName] = {};
         save();
     });
+}
+
+function cutNodeItem(node) {
+    if (isFreeNode(node) && node.id !== fnode) {
+        var ndata = findNodeData(node, true);
+
+        // Copy
+        clipedTree = true;
+        if (isFile(node)) dataClipboard = JSON.stringify(ndata[node.text]);
+        else dataClipboard = JSON.stringify([node.text, node.type, ndata[node.text+"/"]]);
+
+        // Delete
+        if (isFile(node)) delete ndata[node.text];
+        else delete ndata[node.text+"/"];
+        contentBox.delete_node(node);
+        if (node.state.selected) changeScreen("help");
+        save();
+    }
+}
+function deleteNodeItem(node) {
+    if (node.type != "meta" && node.id !== fnode) {
+        var ndata = findNodeData(node, true);
+        if (isFile(node)) delete ndata[node.text];
+        else delete ndata[node.text+"/"];
+        contentBox.delete_node(node);
+        if (node.state.selected) changeScreen("help");
+        save();
+    }
+}
+function copyNodeItem(node) {
+    if (isFreeNode(node) && node.id !== fnode) {
+        // Copy
+        var ndata = findNodeData(node, true);
+        clipedTree = true;
+        if (isFile(node)) dataClipboard = JSON.stringify([node.text, node.type, ndata[node.text]]);
+        else dataClipboard = JSON.stringify([node.text, node.type, ndata[node.text+"/"]]);
+        save();
+    }
+}
+function pasteNodeItem(node) {
+    if (clipedTree && dataClipboard && !isFile(node) && node.id !== fnode) {
+        var o = JSON.parse(dataClipboard);
+        var nnode = contentBox.create_node(node);
+        contentBox.rename_node(nnode, o[0]);
+        contentBox.set_type(nnode, o[1]);
+        
+        var d = findNodeData(node);
+        var newName = fixName(nnode, d);
+        d[newName] = o[2];
+        save();
+    }
 }
 
 function addListItem(btn, relevel=0, namedID=null) {

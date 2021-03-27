@@ -2166,7 +2166,7 @@ var power_data = {
                     "desc": "The minimum number of stacks. Negative numbers are allowed."
                 },
                 "max_stacks": {
-                    "name": "Min Stacks",
+                    "name": "Max Stacks",
                     "type": "int",
                     "desc": "The maximum number of stacks."
                 },

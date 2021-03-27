@@ -328,7 +328,30 @@ function resetIRaw() {
 }
 
 function keyDown(e) {
-    if (selected) {
+    // Check if content box item is selected, and if so, do special things
+    if (document.activeElement.classList.contains("jstree-anchor")) {
+        node = contentBox.get_node(document.activeElement.parentElement);
+        if (node) {
+            if (e.keyCode == 46) {
+                deleteNodeItem(node);
+            } else if (e.ctrlKey) {
+                switch (e.keyCode) {
+                    case 88:
+                        // Cut
+                        cutNodeItem(node);
+                        break;
+                    case 67:
+                        // Copy
+                        copyNodeItem(node);
+                        break;
+                    //case 86:
+                    //    // Paste
+                    //    pasteNodeItem(node);
+                    //    break;
+                }
+            }
+        }
+    } else if (selected) {
         if (e.keyCode == 46) {
             // Delete key
             if (isNaN(selected.attr("name"))) {
@@ -338,8 +361,7 @@ function keyDown(e) {
             }
             select();
             e.stopPropagation();
-        }
-        if (e.ctrlKey) {
+        } else if (e.ctrlKey) {
             switch (e.keyCode) {
                 case 83: 
                     // Save
