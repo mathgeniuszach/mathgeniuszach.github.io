@@ -26,7 +26,7 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 section {
-    margin: 96px 250px 61px 250px;
+    margin: 96px 75px 61px 250px;
 }
 
 /* content modification */
@@ -77,6 +77,13 @@ aside {
     margin: 96px 20px 61px 20px;
     padding: 5px;
     width: 200px;
+
+    overflow-y: auto;
+    
+    min-width: 170px;
+    max-width: calc(100% - 54px);
+    min-height: 200px;
+    max-height: calc(100% - 169px);
     
     z-index: 10;
     display: flex;
@@ -88,6 +95,11 @@ aside a {
     text-decoration: none;
     color: darkslategrey;
     margin-top: 8px;
+}
+aside img {
+    height: auto;
+    width: 100%;
+    margin: auto;
 }
 aside .side-head {
     border: var(--box-border-width) solid var(--box-border-color);
@@ -336,6 +348,23 @@ footer {
 {
     display: none !important;
 }
-.vakata-context-separator > a{
+.vakata-context-separator > a {
     margin: 0px !important;
+}
+
+.mobile {
+    display: none;
+}
+
+/* mobile specific css */
+@media only screen and (max-width: 850px) {
+    .mobile {
+        display: block;
+    }
+    aside {
+        display: none;
+    }
+    section {
+        margin: 96px 50px 61px 50px;
+    }
 }

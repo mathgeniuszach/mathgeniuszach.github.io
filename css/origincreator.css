@@ -2,16 +2,8 @@
     margin: 96px 20px 61px 250px;
 }*/
 
-body {
-    min-width: 1000px;
-}
-
 aside {
     height: 100%;
-    min-width: 170px;
-    max-width: calc(100% - 54px);
-    min-height: 200px;
-    max-height: calc(100% - 169px);
     resize: both;
     overflow: auto;
 }

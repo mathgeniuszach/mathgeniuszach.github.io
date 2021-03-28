@@ -25,6 +25,10 @@ function dumpAst(ast) {
         console.log(e);
         console.error(`line ${e.line}, col ${e.column}: ${e.message}`);
     } else {
-        return ast.ast.dump();
+        console.log(ast.ast.dump());
     }
+}
+
+function debugComp(script) {
+    dumpAst(createAst(script));
 }
