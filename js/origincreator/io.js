@@ -302,7 +302,8 @@ function createRData(dFolder, itemData, type, path="") {
                     createFile(dFolder, id, iData, type, path, ".mcfunction");
                     break;
                 case "data_scripts/":
-                    createFile(dFolder, id, iData, type, path, ".mcds");
+                    // This is where the compiler should actually kick in
+                    //createFile(dFolder, id, iData, type, path, ".mcds");
                     break;
                 default:
                     createFile(dFolder, id, iData, type, path);

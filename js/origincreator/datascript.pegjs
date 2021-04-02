@@ -42,10 +42,6 @@ token "token"
     / _? c:$("#"+ " " (!eol .)*) eol {
         return ast("Comment").set("data", c);
     }
-    / _? "##" md:mdirective? eol {
-        if (!md) expected("multiline directive");
-        return md;
-    }
     / _? "#" d:directive? eol {
         if (!d) expected("directive");
         return d;
@@ -57,7 +53,8 @@ token "token"
     / ___? ms:(marker ___?)+ {
         return ast("MChain").add(unroll(null, ms, 0));
     }
-    / _? "var" _ v:tvar _? type:$([a-zA-Z.:_\-]+)? ex:(_? "=" _? expr)? _? eol? {
+    / _? "var" _ name:id _? type:$([a-zA-Z.:_\-]+)? _? target:selector? _? ex:(_? "=" _? expr)? _? eol? {
+        var v = ast("Var").set("name", name).set("target", target);
         if (ex) v.add(ex[3]);
         v.set("init", true).set("type", type || "dummy");
         return v;
@@ -71,8 +68,8 @@ token "token"
     / _? v:tvar _? "><" _? v2:tvar _? eol? {
         return ast("Swap").add(v).add(v2);
     }
-    / _? p:print _? eol? {
-        return p;
+    / _? m:modal _? eol? {
+        return m;
     }
     / _? f:func _? eol? {
         return f;
@@ -85,16 +82,17 @@ token "token"
     }
 
 // Multi directives are directives that span multiple lines, ending on ##.
-mdirective "multiline directive"
-    = name:id args:(_ arg)* &(eol) data:$(!dirend .)* end:dirend? {
-        if (!end) ierror("Expected end of multiline directive");
-        return ast("MDirective").
-            set("name", name).
-            set("args", clean(unroll(null, args, 1))).
-            set("data", data.trim());
-    }
+//mdirective "multiline directive"
+//    = name:("file" / "tag")
+//      args:(_ arg)* &(eol) data:$(!dirend .)* end:dirend? {
+//        if (!end) ierror("Expected end of multiline directive");
+//        return ast("MDirective").
+//            set("name", name).
+//            set("args", clean(unroll(null, args, 1))).
+//            set("data", data.trim());
+//    }
 
-dirend "##" = eol _? "##"
+dirend "#" = eol _? "#" _? eol
 
 // Directives are simple instructions for the compiler that don't get turned into commands.
 directive "directive"
@@ -109,12 +107,10 @@ marker "marker"
     // Free markers
     = "if" ___ cond:cond? e:":"? {
         if (!cond) ierror("Expected complete condition");
-        if (!e) ierror("Expected semicolon to end if marker");
         return ast("If").add(cond);
     }
     / "unless" ___ cond:cond? e:":"? {
         if (!cond) ierror("Expected complete condition");
-        if (!e) ierror("Expected semicolon to end unless marker");
         return ast("Unless").add(cond);
     }
     / "else" e:":"? {
@@ -162,23 +158,29 @@ marker "marker"
         if (!id) ierror("Expected namespaced id for block of code name");
         return ast("Def").set("id", id);
     }
-    / "id" ___ id:mnid? e:":"? {
+    / "name" ___ id:mnid? e:":"? {
         // Same as def, but doesn't prevent function from auto-running
         if (!id) ierror("Expected namespaced id for block of code name");
-        return ast("Id").set("id", id);
+        return ast("Name").set("name", id);
     }
-    / "namespace" ___ id:id? e:":"? {
-        if (!id) ierror("Expected namespaced id for block of code namespace");
-        return ast("Namespace").set("id", id);
+    // / ("namespace" / "space") ___ id:id? e:":"? {
+    //     if (!id) ierror("Expected namespaced id for block of code namespace");
+    //     return ast("Namespace").set("id", id);
+    // }
+    // / "folder" ___ id:id? ids:("/" id)* e:":"? {
+    //     if (!id) ierror("Expected namespaced id for block of code folder");
+    //     return ast("Folder").set("folders", unroll(id, ids, 1));
+    // }
+    / "tick" e:":"? {
+        return ast("Tick");
     }
-    / "folder" ___ id:id? ids:("/" id)* e:":"? {
-        if (!id) ierror("Expected namespaced id for block of code folder");
-        return ast("Folder").set("folders", unroll(id, ids, 1));
+    / "load" e:":"? {
+        return ast("Load");
     }
-    / "inl" e:":"? {
-        // Inline says to not generate this block as a function
-        return ast("Inline");
-    }
+    // / "inl" e:":"? {
+    //     // Inline says to not generate this block as a function
+    //     return ast("Inline");
+    // }
 
 // Function calls are neat! They allow for easy arguments, nesting, and return values not possible with the function command.
 func "function"
@@ -191,10 +193,14 @@ func "function"
         return astv;
     }
 
+modal "modal"
+    = "!" id:modalid "(" args:(___? (modal / carg) ","?)* ___? ")" {
+        return ast("Modal").set("id", id).add(unroll(null, args, 1))
+    }
+
 print "print"
-    = "print(" ___? s:selector? ___? ","? ___? f:string? args:(___? "," ___? (expr / ostring))* ")" {
-        if (!f) ierror("Expected string for print command");
-        var astv = ast("Print").set("s", s || "@a").set("f", f);
+    = "print(" ___? s:selector? ___? ","? ___? f:string? args:(___? "," ___? (ostring / expr))* ")" {
+        var astv = ast("Print").set("s", s || "@a").set("f", f || "");
 
         var v = unroll(null, args, 3);
         if (v) astv.add(v);
@@ -220,7 +226,7 @@ id "identifier" = $([a-zA-Z_][a-zA-Z0-9_\-]*)
 // Namespaced id.
 nid "namespaced id" = $(id ":" (id "/")* id)
 // Maybe namespaced id
-mnid "namespaced id" = $(id (":" id)? ("/" id)*)
+mnid "namespaced id" = $(id (":" id)? (("/" / ".") id)*)
 // Number!
 number "number" = $("-"? [0-9]+)
 float "float" = $("-"? [0-9]+ ("." [0-9]+)?)
@@ -336,8 +342,11 @@ eop
         }
     }
 
-icommand = "<" ___? "/"? id:id args:(_ !("/" [a-zA-Z]) iarg)* ___? ">" {
-    return ast("Command").set("name", id).set("args", clean(unroll(null, args, 2)));
+icommand = "<" ___? s:"~"? id:id args:(_ !("/" [a-zA-Z]) iarg)* ___? ">" {
+    return ast("Command").
+        set("name", id).
+        set("type", s? "success" : "result").
+        set("args", clean(unroll(null, args, 2)));
 }
 
 _ "blank"
@@ -353,11 +362,18 @@ ___ "separator" = (_ / eol)+
 
 // Arguments are anything from simple identifiers to multiline nested monstrosities.
 // I'm proud of how they turned out, honestly. The visual studio code plugin doesn't like it though
-arg "argument" = $((!___ [^(){}\[\]"])+ / string / body)+
+arg "argument" = $((!___ [^(){}"\[\]])+ / string / body)+
 // Marker arguments are like arguments, but end when a colon or comma is found outside a body or string.
-marg "argument" = $((!___ [^(){}\[\]\":,])+ / string / body)+
+marg "argument" = $((!___ [^(){}"\[\]:/,])+ / string / body)+
 
-iarg "argument" = $((!___ [^(){}\[\]"\>])+ / string / body)+
+iarg "argument" = $((!___ [^(){}"\[\]\>])+ / string / body)+
+
+// objectified argument
+carg "argument" = data:$((!___ [^(){}"\[\],])+ / string / body)+ {
+    return ast("String").set("data", data.trim());
+}
+// Modal name
+modalid "modal id" = data:$([^()\[\],]+ / ncallbody)+
 
 // Other is just to catch errors.
 other "argument" = arg:marg {return ":"+arg;}
@@ -373,7 +389,7 @@ ostring = s:string {
     return ast("String").set("data", s);
 }
 
-ibody = ([^(){}\[\]"]+ / string / body)*
+ibody = ([^(){}"\[\]]+ / string / body)*
 body
     = s:$("{" ibody) e:"}"? {
         if (!e) ierror("Expected end of body");
@@ -384,6 +400,11 @@ body
         return s+e;
     }
     / s:$("[" ibody) e:"]"? {
+        if (!e) ierror("Expected end of square body");
+        return s+e;
+    }
+ncallbody
+    = s:$("[" ibody) e:"]"? {
         if (!e) ierror("Expected end of square body");
         return s+e;
     }

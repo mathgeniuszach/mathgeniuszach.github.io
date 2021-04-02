@@ -468,12 +468,12 @@ function loadEntries(level, rootElem, data, form, del) {
 
                 if (itemID.length > 1) {
                     if (data[itemID] === undefined && item.default) data[itemID] = v;
-                } else { // Yes this is hacky and no I don't care
-                    if (typeof(data) == "object") {
+                } else {
+                    if (typeof(v) == "object") {
                         v = item.default || "";
-                    } else {
+                    } /*else { // Why is this code here?
                         v = data || item.default || "";
-                    }
+                    }*/
                 }
             }
 
