@@ -217,8 +217,7 @@ function exportMod() {
         "depends": {
             "fabric-api-base": "*",
             "fabric": "*",
-            "minecraft": ">=1.16.0",
-            "origins": ">=0.6.0"
+            "minecraft": ">=1.16.0"
         },
         "name": meta.name,
         "id": pid,
