@@ -70,18 +70,18 @@ var content_data = [
     //{"text": "data_scripts", "type": "data_scripts"}
 ];
 var jstree_types = {
-    "file": {"icon": "/i/origincreator/file.png", "max_depth": 0},
-    "meta": {"icon": "/i/origincreator/file.png", "max_depth": 0},
-    "origin_layers": {"icon": "/i/origincreator/layer.png"},
-    "origins": {"icon": "/i/origincreator/origin.png"},
-    "powers": {"icon": "/i/origincreator/power.png"},
-    "tags": {"icon": "/i/origincreator/tag.png"},
-    "functions": {"icon": "/i/origincreator/function.png"},
-    "predicates": {"icon": "/i/origincreator/predicate.png"},
-    "advancements": {"icon": "/i/origincreator/advancement.png"},
-    "recipes": {"icon": "/i/origincreator/recipe.png"},
-    "loot_tables": {"icon": "/i/origincreator/loot_table.png"},
-    "data_scripts": {"icon": "/i/origincreator/data_script.png"}
+    "file": {"icon": "i/file.png", "max_depth": 0},
+    "meta": {"icon": "i/file.png", "max_depth": 0},
+    "origin_layers": {"icon": "i/layer.png"},
+    "origins": {"icon": "i/origin.png"},
+    "powers": {"icon": "i/power.png"},
+    "tags": {"icon": "i/tag.png"},
+    "functions": {"icon": "i/function.png"},
+    "predicates": {"icon": "i/predicate.png"},
+    "advancements": {"icon": "i/advancement.png"},
+    "recipes": {"icon": "i/recipe.png"},
+    "loot_tables": {"icon": "i/loot_table.png"},
+    "data_scripts": {"icon": "i/data_script.png"}
 };
 if (!simplified) {
     content_data.push(

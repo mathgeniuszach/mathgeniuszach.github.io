@@ -1,7 +1,8 @@
 // Datascript specification
 var specRaw;
 var spec;
-$.get('/js/origincreator/datascript.pegjs', function(data) {
+$.get('datascript/datascript.pegjs', function(data) {
+    // Hopefully this is done by the time the user compiles things...
     specRaw = data;
 });
 

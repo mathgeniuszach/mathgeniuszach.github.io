@@ -68,17 +68,17 @@ token "token"
     / _? v:tvar _? "><" _? v2:tvar _? eol? {
         return ast("Swap").add(v).add(v2);
     }
-    / _? m:modal _? eol? {
-        return m;
-    }
     / _? f:func _? eol? {
         return f;
     }
-    / _? "after" _ t:$(number "d" / "s" / "t" / "") replace:"r"? {
-        return ast("After").set("t", t).set("replace", replace == "r");
-    }
     / _? "/" c:command _? eol? {
         return c;
+    }
+    / _? "!" m:modal _? eol? {
+        return m;
+    }
+    / _? m:imodal _? eol? {
+        return m;
     }
 
 // Multi directives are directives that span multiple lines, ending on ##.
@@ -184,29 +184,42 @@ marker "marker"
 
 // Function calls are neat! They allow for easy arguments, nesting, and return values not possible with the function command.
 func "function"
-    = id:mnid "(" ___? a:expr? b:(___? "," ___? expr)* ")" {
-        var astv = ast("Function").set("id", id);
+    = g:"#"? id:mnid _? "(" ___? a:expr? b:(___? "," ___? expr)* ")" {
+        var astv = ast("Function").set("id", id).set("group", false);
 
         var v = unroll(a, b, 3);
-        if (v) astv.add(v);
+        if (v) {
+            if (g) ierror("function tag call cannot use arguments");
+            astv.add(v);
+        } else if (g) {
+            astv.set("group", true);
+        }
 
         return astv;
     }
 
+// Modals basically allow for custom-language features
+// Normal modal calls look more like function calls
 modal "modal"
-    = "!" id:modalid "(" args:(___? (modal / carg) ","?)* ___? ")" {
-        return ast("Modal").set("id", id).add(unroll(null, args, 1))
+    = id:modalid _? "(" args:(___? (modal / carg) ","?)* ___? ")" {
+        return ast("Modal").set("id", id.trim()).add(unroll(null, args, 1))
+    }
+// Inline modals look more like commands
+imodal "inline modal"
+    = id:id _? args:(_? (modal / carg) ","?)* {
+        return ast("Modal").set("id", id.trim()).add(unroll(null, args, 1))
     }
 
-print "print"
-    = "print(" ___? s:selector? ___? ","? ___? f:string? args:(___? "," ___? (ostring / expr))* ")" {
-        var astv = ast("Print").set("s", s || "@a").set("f", f || "");
+// Print is obsolete due to modals
+// print "print"
+//     = "print(" ___? s:selector? ___? ","? ___? f:string? args:(___? "," ___? (ostring / expr))* ")" {
+//         var astv = ast("Print").set("s", s || "@a").set("f", f || "");
 
-        var v = unroll(null, args, 3);
-        if (v) astv.add(v);
+//         var v = unroll(null, args, 3);
+//         if (v) astv.add(v);
 
-        return astv;
-    }
+//         return astv;
+//     }
 
 // Commands are minecraft commands, usually prefixed with /. You know this, right?
 // The cool thing is, this implementation supports both multiline and multiple per line commands.
