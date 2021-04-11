@@ -380,7 +380,7 @@ var Search = {
   },
 
   /**
-   * See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
+   * See //developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
    */
   escapeRegExp : function(string) {
     return string.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string

@@ -147,13 +147,13 @@ function getPath(elem, selfish) {
 };
 // Find an item based on a datapath/element id
 function findItem(...datapaths) {
-    return $("._"+datapaths.join(">._").replace(/--/g, ">._").replace(":", "-__-"));
+    return $("._"+datapaths.join(">._").replaceAll(/--/g, ">._").replaceAll(":", "-__-"));
 }
 function findChildItem(parent, ...datapaths) {
-    return parent.find(">._"+datapaths.join(">._").replace(/--/g, ">._").replace(":", "-__-"))
+    return parent.find(">._"+datapaths.join(">._").replaceAll(/--/g, ">._").replaceAll(":", "-__-"))
 }
 function findDOM(...datapaths) {
-    return document.querySelector("._"+datapaths.join(">._").replace(/--/g, ">._").replace(":", "-__-"));
+    return document.querySelector("._"+datapaths.join(">._").replaceAll(/--/g, ">._").replaceAll(":", "-__-"));
 }
 
 function locateForm(datapath, id) {
@@ -163,7 +163,7 @@ function locateForm(datapath, id) {
     
     // Finish finding form location
     for (let i = 1; i < spath.length; i++) {
-        let path = spath[i].replace("-__-", ":");
+        let path = spath[i].replaceAll("-__-", ":");
         if (path[0] == "-") {
             if (path[1] == "_") path = path.substring(2);
             else path = path.substring(1);
@@ -174,7 +174,7 @@ function locateForm(datapath, id) {
         let newFormLoc = formloc[path];
         if (!newFormLoc) continue;
         if (newFormLoc.type == "more") {
-            let v = spath[i+1].replace("-__-", ":");
+            let v = spath[i+1].replaceAll("-__-", ":");
             formloc = newFormLoc.data[v];
             i++;
         } else if (newFormLoc.type == "multi") {
@@ -200,7 +200,7 @@ function locateForm(datapath, id) {
 }
 
 function locateData(datapath, nosub, namedID) {
-    var spath = datapath.replace("-__-", ":").split("--");
+    var spath = datapath.replaceAll("-__-", ":").split("--");
     if (spath[spath.length-2] == "_") spath = spath.slice(0, -2); // Get rid of bad values at the end of list datapath multis
 
     // Find starting location
@@ -735,10 +735,11 @@ function insertForm(loc, header, form, level=0) {
         if (item.name) {
             // Make name link if need be
             let linkname = item.name;
-            if (item.link) linkname = `<a href='${item.link}'>${linkname}</a>`;
+            if (item.link) linkname = `<a href='${item.link}' target="_blank" rel="noopener noreferrer">${linkname}</a>`;
             
             if (item.desc) {
-                code.push(`<span class="iitem" title="${item.desc}">${linkname}:</span>`);
+                let desc = item.desc.replaceAll('"', '&quot;');
+                code.push(`<span class="iitem" title="${desc}">${linkname}:</span>`);
             } else {
                 code.push(`<span class="iitem">${linkname}:</span>`);
             }
@@ -798,24 +799,29 @@ function insertForm(loc, header, form, level=0) {
                 for (let mName of item.options) code.push(`<option value="${mName}">${mName}</option>`);
                 code.push("</select><br>");
 
-                for (let i = 0; i < item.options.length; i++) {
-                    let mName = item.options[i];
-                    let mType = item.types[i];
+                function genMulti(i, cs="nodisplay ") {
+                    var mName = item.options[i];
+                    var mType = item.types[i];
                     if (item.data[i]) {
                         if (item.hide) {
                             // It do be a subpanel though! In order to handle mojang's greed for recursion, it needs a show button
-                            code.push(`<div ttype="${mType}" llevel="${level+1}" name="${itemID}" class="nodisplay iblock _${itemID} multi-${mName}"><button class="sbutton" onclick='insertPanel(this)'>+</button></div>`);
+                            code.push(`<div ttype="${mType}" llevel="${level+1}" name="${itemID}" class="${cs}iblock _${itemID} multi-${mName}"><button class="sbutton" onclick='insertPanel(this)'>+</button></div>`);
                         } else {
                             // Load just like how more does, without the show button.
-                            code.push(`<div name="${itemID}" class="nodisplay _${itemID} multi-${mName}">`);
+                            code.push(`<div name="${itemID}" class="${cs}_${itemID} multi-${mName}">`);
                             insertForm(code, "", item.data[i], level);
                             code.push("</div>");
                         }
                     } else {
-                        code.push(`<div name="_${mName}" class="nodisplay iblock __${mName} multi-${mName}">`);
+                        code.push(`<div name="_${mName}" class="${cs}iblock __${mName} multi-${mName}">`);
                         insertSimple(code, mType, itemID, item.size, level);
                         code.push("</div>");
                     }
+                }
+
+                genMulti(0, "");
+                for (let i = 1; i < item.options.length; i++) {
+                    genMulti(i);
                 }
 
                 code.push("<br></div>");
@@ -942,7 +948,7 @@ function insertPanel(btn) {
 }
 function removePanel(btn) {
     // Remove data from raw data
-    var spath = getPath(btn).replace("-__-", ":").split("--");
+    var spath = getPath(btn).replaceAll("-__-", ":").split("--");
     var key = spath[spath.length-1];
     if (key[0] == "-") {
         if (key[1] == "_") key = key.substring(2);

@@ -92,13 +92,13 @@ exports.default = void 0;
  * Browser-compatible JavaScript MD5
  *
  * Modification of JavaScript MD5
- * https://github.com/blueimp/JavaScript-MD5
+ * //github.com/blueimp/JavaScript-MD5
  *
  * Copyright 2011, Sebastian Tschan
- * https://blueimp.net
+ * //blueimp.net
  *
  * Licensed under the MIT license:
- * https://opensource.org/licenses/MIT
+ * //opensource.org/licenses/MIT
  *
  * Based on
  * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
@@ -389,7 +389,7 @@ function rng() {
     getRandomValues = typeof crypto !== 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto) || typeof msCrypto !== 'undefined' && typeof msCrypto.getRandomValues === 'function' && msCrypto.getRandomValues.bind(msCrypto);
 
     if (!getRandomValues) {
-      throw new Error('crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported');
+      throw new Error('crypto.getRandomValues() not supported. See //github.com/uuidjs/uuid#getrandomvalues-not-supported');
     }
   }
 
@@ -524,7 +524,7 @@ for (let i = 0; i < 256; ++i) {
 
 function stringify(arr, offset = 0) {
   // Note: Be careful editing this code!  It's been tuned for performance
-  // and works in ways you may not expect. See https://github.com/uuidjs/uuid/pull/434
+  // and works in ways you may not expect. See //github.com/uuidjs/uuid/pull/434
   const uuid = (byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] + byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + '-' + byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + '-' + byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + '-' + byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + '-' + byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] + byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] + byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]]).toLowerCase(); // Consistency check for valid UUID.  If this throws, it's likely due to one
   // of the following:
   // - One or more input array values don't map to a hex octet (leading to
@@ -556,7 +556,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 // **`v1()` - Generate time-based UUID**
 //
-// Inspired by https://github.com/LiosK/UUID.js
+// Inspired by //github.com/LiosK/UUID.js
 // and http://docs.python.org/library/uuid.html
 let _nodeId;
 
@@ -564,7 +564,7 @@ let _clockseq; // Previous uuid creation time
 
 
 let _lastMSecs = 0;
-let _lastNSecs = 0; // See https://github.com/uuidjs/uuid for API details
+let _lastNSecs = 0; // See //github.com/uuidjs/uuid for API details
 
 function v1(options, buf, offset) {
   let i = buf && offset || 0;

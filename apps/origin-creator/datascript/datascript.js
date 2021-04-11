@@ -21,8 +21,8 @@ function parseScript(script) {
     if (!spec) spec = peg.generate(specRaw);
 
     // Parser
-    var astp = new asty();
-    return pegutil.parse(spec, script, {
+    var astp = new ASTY();
+    return PEGUtil.parse(spec, script, {
         "startRule": "start",
         "makeAST": function (line, column, offset, args) {
             return astp.create.apply(astp, args).pos(line, column, offset);

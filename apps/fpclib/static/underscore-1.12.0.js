@@ -8,7 +8,7 @@
   }()));
 }(this, (function () {
   //     Underscore.js 1.12.0
-  //     https://underscorejs.org
+  //     //underscorejs.org
   //     (c) 2009-2020 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
   //     Underscore may be freely distributed under the MIT license.
 
@@ -355,7 +355,7 @@
   // Internal recursive comparison function for `_.isEqual`.
   function eq(a, b, aStack, bStack) {
     // Identical objects are equal. `0 === -0`, but they aren't identical.
-    // See the [Harmony `egal` proposal](https://wiki.ecmascript.org/doku.php?id=harmony:egal).
+    // See the [Harmony `egal` proposal](//wiki.ecmascript.org/doku.php?id=harmony:egal).
     if (a === b) return a !== 0 || 1 / a === 1 / b;
     // `null` or `undefined` only equal to itself (strict comparison).
     if (a == null || b == null) return false;
@@ -595,7 +595,7 @@
 
   // Assigns a given object with all the own properties in the passed-in
   // object(s).
-  // (https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)
+  // (//developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)
   var extendOwn = createAssigner(keys);
 
   // Fill in a given object with default properties.
@@ -1007,7 +1007,7 @@
 
   // Internal helper for collection methods to determine whether a collection
   // should be iterated as an array or as an object.
-  // Related: https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
+  // Related: //people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
   // Avoids a very nasty iOS 8 JIT bug on ARM-64. #2094
   var isArrayLike = createSizePropertyCheck(getLength);
 
@@ -1499,7 +1499,7 @@
   }
 
   // Sample **n** random values from a collection using the modern version of the
-  // [Fisher-Yates shuffle](https://en.wikipedia.org/wiki/Fisher–Yates_shuffle).
+  // [Fisher-Yates shuffle](//en.wikipedia.org/wiki/Fisher–Yates_shuffle).
   // If **n** is not specified, returns a single random element.
   // The internal `guard` argument allows it to work with `_.map`.
   function sample(obj, n, guard) {
@@ -1787,7 +1787,7 @@
 
   // Generate an integer Array containing an arithmetic progression. A port of
   // the native Python `range()` function. See
-  // [the Python documentation](https://docs.python.org/library/functions.html#range).
+  // [the Python documentation](//docs.python.org/library/functions.html#range).
   function range(start, stop, step) {
     if (stop == null) {
       stop = start || 0;

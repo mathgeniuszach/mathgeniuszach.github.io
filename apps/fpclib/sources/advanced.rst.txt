@@ -20,7 +20,7 @@ fpclib supports using the :func:`curate()` function to curate multiple games/ani
 
     import fpclib
 
-    urls = [('https://www.newgrounds.com/portal/view/218014', {'title': 'Interactive Buddy'}), ('https://www.newgrounds.com/portal/view/59593', {'title': 'Alien Hominid'})]
+    urls = [('//www.newgrounds.com/portal/view/218014', {'title': 'Interactive Buddy'}), ('//www.newgrounds.com/portal/view/59593', {'title': 'Alien Hominid'})]
     fpclib.curate(urls, fpclib.Curation, True)
 
 The :func:`curate()` function also offers the options to save curations in folders based on their titles instead of their ids, save progress in the case of a error, and ignore errors and return them at the end of the function. Click on the function to figure out more about the things you can do with it.
@@ -45,12 +45,12 @@ Check out the code below, which takes full advantage of this fact::
             swf = json.loads(re.findall(r'embedController\\(\\[(.+),callback:', text)[0]+'}')['url']
             self.set_meta(cmd=fpclib.normalize(swf)) # Normalizes the url to make it use http.
 
-    urls = ['https://www.newgrounds.com/portal/view/218014', 'https://www.newgrounds.com/portal/view/59593']
+    urls = ['//www.newgrounds.com/portal/view/218014', '//www.newgrounds.com/portal/view/59593']
     fpclib.curate(urls, NewgroundsCuration, True)
 
 This is possible because of the hidden method :func:`Curation.parse()`, which does nothing until you overwrite it. This method is called with a BeautifulSoup object created from the webpage's source url (see :func:`Curation.soupify()`). Through that one soup object it's possible to parse the entire webpage for metadata that changes between games/animations.
 
-If you aren't familiar with using BeautifulSoup, you should read through the `BeautifulSoup documenation <https://www.crummy.com/software/BeautifulSoup/bs4/doc/>`_.
+If you aren't familiar with using BeautifulSoup, you should read through the `BeautifulSoup documenation <//www.crummy.com/software/BeautifulSoup/bs4/doc/>`_.
 
 Overwriting Other Methods
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -74,7 +74,7 @@ You can also overwrite other :class:`Curation` class methods to change their fun
             super().get_files()
             fpclib.download('http://www.example.com') # Download the http://www.example.com/index.html file into the content folder.
 
-    urls = ['https://www.newgrounds.com/portal/view/218014', 'https://www.newgrounds.com/portal/view/59593']
+    urls = ['//www.newgrounds.com/portal/view/218014', '//www.newgrounds.com/portal/view/59593']
     fpclib.curate(urls, NewgroundsCuration, True)
 
 Though this example isn't entirely useful, it does reveal a good point: if you don't want to completely overwrite a method and remove all of it's functionality, you'll have to use the :code:`super()` function to call the original method you are overwriting. You also need to provide it with the right arguments (ignoring the :code:`self` argument). Whether you put this at the beginning or end of the new function will determine if it gets run before or after your new code.

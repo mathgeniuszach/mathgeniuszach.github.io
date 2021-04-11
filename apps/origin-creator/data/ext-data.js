@@ -929,7 +929,7 @@ var damage_predicate_super = {
 var predicate_data = {};
 predicate_data.info = {
     "type": "info",
-    "info": "<a href='https://minecraft.gamepedia.com/Predicate'>Wiki Format</a>"
+    "info": "<a href='https://minecraft.gamepedia.com/Predicate' target='_blank' rel='noopener noreferrer'>Wiki Format</a>"
 };
 predicate_data.condition = {
     "name": "Type",
@@ -1142,9 +1142,9 @@ predicate_data.__type_options = {
 };
 
 var advancement_data = {
-    "info": {
+    "iinfo": {
         "type": "info",
-        "info": "<a href='https://minecraft.gamepedia.com/Advancement/JSON_format'>Wiki Format</a>"
+        "info": "<a href='https://minecraft.gamepedia.com/Advancement/JSON_format' target='_blank' rel='noopener noreferrer'>Wiki Format</a>"
     },
     "display": {
         "name": "Display",
@@ -1152,15 +1152,21 @@ var advancement_data = {
         "desc": "The optional display data.",
         "data": {
             "icon": {
-                "item": {
-                    "name": "Item Icon",
-                    "type": "ns",
-                    "desc": "The item id to use as this advancement's icon."
-                },
-                "nbt": {
-                    "name": "Icon NBT",
-                    "type": "textarea",
-                    "desc": "The nbt data of the item to use for this advancement."
+                "name": "Icon",
+                "type": "sub",
+                "desc": "The item to use as this advancement's icon.",
+                "data": {
+                    "item": {
+                        "name": "Item Icon",
+                        "type": "ns",
+                        "desc": "The item id to use as this advancement's icon."
+                    },
+                    "nbt": {
+                        "name": "Icon NBT",
+                        "type": "textarea",
+                        "desc": "The nbt data of the item to use for this advancement.",
+                        "size": true
+                    }
                 }
             },
             "title": {
@@ -2754,7 +2760,7 @@ var shapeless_recipe_data = {
 var recipe_data = {
     "id": {
         "type": "info",
-        "info": "<a href='https://minecraft.gamepedia.com/Recipe'>Wiki Format</a>"
+        "info": "<a href='https://minecraft.gamepedia.com/Recipe' target='_blank' rel='noopener noreferrer'>Wiki Format</a>"
     },
     "type": {
         "name": "Type",
@@ -3343,9 +3349,9 @@ var loot_entry_data = {
 Object.assign(loot_entry_copy, loot_entry_data);
 
 var loot_table_data = {
-    "info": {
+    "iinfo": {
         "type": "info",
-        "info": "<a href='https://minecraft.gamepedia.com/Loot_table'>Wiki Format</a>"
+        "info": "<a href='https://minecraft.gamepedia.com/Loot_table' target='_blank' rel='noopener noreferrer'>Wiki Format</a>"
     },
     "type": {
         "name": "Type",

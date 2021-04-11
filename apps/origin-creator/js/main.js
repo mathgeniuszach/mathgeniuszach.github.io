@@ -119,7 +119,7 @@ $(document).ready(function() {
     // If external data is available, try to load that first. If not, just load normal data.
     if (extDataLoc) {
         // This website is very helpful
-        $.get('https://api.allorigins.win/raw?url=' + encodeURIComponent(extDataLoc) + '&callback=?', function(data) {
+        $.get('//api.allorigins.win/raw?url=' + encodeURIComponent(extDataLoc) + '&callback=?', function(data) {
             try {
                 loadData(data);
             } catch (err) {

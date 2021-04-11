@@ -1,23 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script data-ad-client="ca-pub-8932289367183622" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
-    <script src="https://pegjs.org/vendor/pegjs/peg.js"></script>
+    <!-- Main things -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="/js/main.js"></script>
 
-    <script src="/js/peg-util.js"></script>
+    <!-- Ace and JSTree for the UI. -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+
+    <!-- PEG Parser for datascript -->
+    <script src="//cdn.jsdelivr.net/npm/asty@1.8.14/lib/asty.browser.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/pegjs-util@1.4.21/PEGUtil.min.js"></script>
+    <script src="//pegjs.org/vendor/pegjs/peg.js"></script>
+
+    <!-- Browserified libraries. -->
     <script src="/js/vm.js"></script>
     <script src="/js/uuid.js"></script>
     
+    <!-- Data for the origin creator. -->
+    <script src="data/spec.js"></script>
     <script src="data/inception.js"></script>
     <script src="data/ext-data.js"></script>
     <script src="data/data.js"></script>
 
+    <!-- Origin creator code. -->
     <script src="js/util.js"></script>
-    <script src="/js/main.js"></script>
     <script src="js/declare.js"></script>
     <script src="js/main.js"></script>
     <script src="js/io.js"></script>
@@ -26,11 +34,15 @@
 
     <script src="datascript/datascript.js"></script>
     
-    <!-- Cheat by getting these files from another github.io site unlikely to go down -->
-    <!-- And if it does go down, my site is probably down too -->
-    <script src="https://stuk.github.io/jszip/vendor/FileSaver.js"></script>
-    <script src="https://stuk.github.io/jszip/dist/jszip.min.js"></script>
+    <!--
+        Libraries for exporting to a mod or a datapack.
+        Cheat by getting these files from another github.io site unlikely to go down
+        And if it does go down, my site is probably down to
+    -->
+    <script src="//stuk.github.io/jszip/vendor/FileSaver.js"></script>
+    <script src="//stuk.github.io/jszip/dist/jszip.min.js"></script>
     
+    <!-- Website metadata and styles -->
     <meta charset="UTF-8">
     <meta name="keywords" content="MGZ, xMGZx, mathgeniuszach, Zach K, Origins, Datapack, data-pack, data pack">
     <meta name="author" content="Zach K">
@@ -77,9 +89,9 @@
         <div class="mobile panel"><b>NOTE: The Origin Creator is not supported on mobile devices or small windows.</b></div>
         <h1>Origin Creator</h1>
         <div class="content" id="div-help">
-            <p>This is a tool for creating custom <a href="https://minecraft.gamepedia.com/Data_Pack">datapacks</a> for Minecraft in a more visual manner. <span class="non-simple">It also mainly supports the <a href="https://www.curseforge.com/minecraft/mc-mods/origins">Origins</a> mod.</span></p>
+            <p>This is a tool for creating custom <a href="//minecraft.gamepedia.com/Data_Pack">datapacks</a> for Minecraft in a more visual manner. <span class="non-simple">It also mainly supports the <a href="//www.curseforge.com/minecraft/mc-mods/origins">Origins</a> mod.</span></p>
             <p>There may be bugs and performance issues (second-long loading times).</p>
-            <p>Join my <a href="https://discord.gg/pBFqEcXvW5">Discord</a> if you want to talk about the tool or some of my other projects.</p>
+            <p>Join my <a href="//discord.gg/pBFqEcXvW5">Discord</a> if you want to talk about the tool or some of my other projects.</p>
             
             <h2>Usage</h2>
             <p>You can click the "Help" button in the top left to return to this page at any time.</p>
@@ -96,15 +108,15 @@
             
             <p>For information, here's what each of the different groups are:</p>
             <ul>
-                <li class="non-simple"><a href="https://github.com/apace100/origins-fabric/wiki/Defining-an-origin-in-JSON">Origin Layers</a><br><span class="tabbed">Layers are groups of origins. Usually you will only need to use the origins:origin layer to enable people to select your origin when they first join a world. You can also make your own layers if you want to do additional things like <a href="https://github.com/apace100/origins-fabric/wiki/Origin-conditions-in-layers">conditional origins</a>.</span></li>
-                <li class="non-simple"><a href="https://github.com/apace100/origins-fabric/wiki/Defining-an-origin-in-JSON">Origins</a><br><span class="tabbed">Groups of powers that people can have and/or choose from, like the Blazeborn or the Enderian on the <a href="https://www.curseforge.com/minecraft/mc-mods/origins">Origins homepage</a>.</span></li>
-                <li class="non-simple"><a href="https://github.com/apace100/origins-fabric/wiki/Defining-a-power-in-JSON">Powers</a><br><span class="tabbed">Abilities and Disabilities that origins can have. They are very versitile.</span></li>
-                <li><a href="https://minecraft.gamepedia.com/Tag">Tags</a><br><span class="tabbed">Lists of things. Note that any tag you create must be located in one of the predefined folders so minecraft knows the type of tag it is.</span></li>
-                <li><a href="https://minecraft.gamepedia.com/Function_(Java_Edition)">Functions</a><br><span class="tabbed">Files containing a sequence of minecraft commands to run in order.</span></li>
-                <li><a href="https://minecraft.gamepedia.com/Predicate">Predicates</a><br><span class="tabbed">Data-driven conditions that the <code>/execute if</code> command can check for.</span></li>
-                <li><a href="https://minecraft.gamepedia.com/Recipe">Recipes</a><br><span class="tabbed">Custom crafting recipes for a variety of crafting blocks. Because the format is complex, the editor isn't as visual. Check out <a href="https://crafting.thedestruc7i0n.ca/">this</a> tool to create a recipe in a more visual way. You can load individual recipes simply by pressing the "Toggle Raw" button at the top of an already created recipe, pasting the json code in there, and pressing "Save Raw".</span></li>
-                <li><a href="https://minecraft.gamepedia.com/Loot_table">Loot Tables</a><br><span class="tabbed">Data structures storing how everything from how dungeon chests are generated to how mobs drop loot.</span></li>
-                <li><a href="https://minecraft.gamepedia.com/Advancement/JSON_format">Advancements</a><br><span class="tabbed">Goals the player can attempt to reach. Since most of the format is a bit complex, this editor isn't as visual. Check out <a href="https://advancements.thedestruc7i0n.ca/">this</a> tool to create a bunch of advancements in a more visual way. You can merge any exported datapack (instead of importing it) to include them in your pack.</span></li>
+                <li class="non-simple"><a href="//github.com/apace100/origins-fabric/wiki/Defining-an-origin-in-JSON">Origin Layers</a><br><span class="tabbed">Layers are groups of origins. Usually you will only need to use the origins:origin layer to enable people to select your origin when they first join a world. You can also make your own layers if you want to do additional things like <a href="//github.com/apace100/origins-fabric/wiki/Origin-conditions-in-layers">conditional origins</a>.</span></li>
+                <li class="non-simple"><a href="//github.com/apace100/origins-fabric/wiki/Defining-an-origin-in-JSON">Origins</a><br><span class="tabbed">Groups of powers that people can have and/or choose from, like the Blazeborn or the Enderian on the <a href="//www.curseforge.com/minecraft/mc-mods/origins">Origins homepage</a>.</span></li>
+                <li class="non-simple"><a href="//github.com/apace100/origins-fabric/wiki/Defining-a-power-in-JSON">Powers</a><br><span class="tabbed">Abilities and Disabilities that origins can have. They are very versitile.</span></li>
+                <li><a href="//minecraft.gamepedia.com/Tag">Tags</a><br><span class="tabbed">Lists of things. Note that any tag you create must be located in one of the predefined folders so minecraft knows the type of tag it is.</span></li>
+                <li><a href="//minecraft.gamepedia.com/Function_(Java_Edition)">Functions</a><br><span class="tabbed">Files containing a sequence of minecraft commands to run in order.</span></li>
+                <li><a href="//minecraft.gamepedia.com/Predicate">Predicates</a><br><span class="tabbed">Data-driven conditions that the <code>/execute if</code> command can check for.</span></li>
+                <li><a href="//minecraft.gamepedia.com/Recipe">Recipes</a><br><span class="tabbed">Custom crafting recipes for a variety of crafting blocks. Because the format is complex, the editor isn't as visual. Check out <a href="//crafting.thedestruc7i0n.ca/">this</a> tool to create a recipe in a more visual way. You can load individual recipes simply by pressing the "Toggle Raw" button at the top of an already created recipe, pasting the json code in there, and pressing "Save Raw".</span></li>
+                <li><a href="//minecraft.gamepedia.com/Loot_table">Loot Tables</a><br><span class="tabbed">Data structures storing how everything from how dungeon chests are generated to how mobs drop loot.</span></li>
+                <li><a href="//minecraft.gamepedia.com/Advancement/JSON_format">Advancements</a><br><span class="tabbed">Goals the player can attempt to reach. Since most of the format is a bit complex, this editor isn't as visual. Check out <a href="//advancements.thedestruc7i0n.ca/">this</a> tool to create a bunch of advancements in a more visual way. You can merge any exported datapack (instead of importing it) to include them in your pack.</span></li>
                 <li>Data Scripts<br><span class="tabbed">An unfinished programming language for creating mcfunctions and other files easier. This is just a teaser for now, and I don't know when it will be ready!</span></li>
             </ul>
             
@@ -117,8 +129,8 @@
                 <li>This page auto-saves on your computer everytime a field loses focus, so refreshing or closing the page won't lose your progress. There's a save button in the top left too if you feel unsure. If you want to reset the pack back do it's default state, press "Reset".</li>
                 <li>Pressing the "+" button in any subpanel will add content to that panel and change the button to a "-" button. Pressing this new button will remove any content (and data stored) in that panel.</li>
                 <li>Want to save multiple projects? Click the "Raw Data" button, type anything into the "Save" box, and press the "Load" button to the bottom right. The page will be reloaded and you will store data in a separate location. The default save location is available if you put nothing in the save box and press "Load".</li>
-                <li class="non-simple">Check out the official <a href="https://github.com/apace100/origins-fabric/wiki">wiki</a> for more information on what each thing in the Origins mod does.</li>
-                <li class="non-simple">Check out the #origin-ideas chat in the official <a href="https://discord.gg/4mTMHu3"> Origins Discord.</a></li>
+                <li class="non-simple">Check out the official <a href="//github.com/apace100/origins-fabric/wiki">wiki</a> for more information on what each thing in the Origins mod does.</li>
+                <li class="non-simple">Check out the #origin-ideas chat in the official <a href="//discord.gg/4mTMHu3"> Origins Discord.</a></li>
                 <li class="non-simple">Test things out! If you aren't sure something will work, test it out in Minecraft! Failure is an important step in creativity.</li>
                 <li class="non-simple">
                     Here are some good design principles to make origins/powers interesting:

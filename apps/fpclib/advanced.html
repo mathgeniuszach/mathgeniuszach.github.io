@@ -201,7 +201,7 @@
 <p>fpclib supports using the <a class="reference internal" href="globals.html#fpclib.curate" title="fpclib.curate"><code class="xref py py-func docutils literal notranslate"><span class="pre">curate()</span></code></a> function to curate multiple games/animations from the same website. This function automatically creates <a class="reference internal" href="classes.html#fpclib.Curation" title="fpclib.Curation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Curation</span></code></a> objects with a list of urls and runs the <a class="reference internal" href="classes.html#fpclib.Curation.save" title="fpclib.Curation.save"><code class="xref py py-func docutils literal notranslate"><span class="pre">Curation.save()</span></code></a> method on them. You can pass additional arguments to each curation through a dictionary.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">fpclib</span>
 
-<span class="n">urls</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;https://www.newgrounds.com/portal/view/218014&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Interactive Buddy&#39;</span><span class="p">}),</span> <span class="p">(</span><span class="s1">&#39;https://www.newgrounds.com/portal/view/59593&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Alien Hominid&#39;</span><span class="p">})]</span>
+<span class="n">urls</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;//www.newgrounds.com/portal/view/218014&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Interactive Buddy&#39;</span><span class="p">}),</span> <span class="p">(</span><span class="s1">&#39;//www.newgrounds.com/portal/view/59593&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Alien Hominid&#39;</span><span class="p">})]</span>
 <span class="n">fpclib</span><span class="o">.</span><span class="n">curate</span><span class="p">(</span><span class="n">urls</span><span class="p">,</span> <span class="n">fpclib</span><span class="o">.</span><span class="n">Curation</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -224,12 +224,12 @@
         <span class="n">swf</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;embedController</span><span class="se">\\</span><span class="s1">(</span><span class="se">\\</span><span class="s1">[(.+),callback:&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;}&#39;</span><span class="p">)[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_meta</span><span class="p">(</span><span class="n">cmd</span><span class="o">=</span><span class="n">fpclib</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">swf</span><span class="p">))</span> <span class="c1"># Normalizes the url to make it use http.</span>
 
-<span class="n">urls</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;https://www.newgrounds.com/portal/view/218014&#39;</span><span class="p">,</span> <span class="s1">&#39;https://www.newgrounds.com/portal/view/59593&#39;</span><span class="p">]</span>
+<span class="n">urls</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;//www.newgrounds.com/portal/view/218014&#39;</span><span class="p">,</span> <span class="s1">&#39;//www.newgrounds.com/portal/view/59593&#39;</span><span class="p">]</span>
 <span class="n">fpclib</span><span class="o">.</span><span class="n">curate</span><span class="p">(</span><span class="n">urls</span><span class="p">,</span> <span class="n">NewgroundsCuration</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This is possible because of the hidden method <a class="reference internal" href="classes.html#fpclib.Curation.parse" title="fpclib.Curation.parse"><code class="xref py py-func docutils literal notranslate"><span class="pre">Curation.parse()</span></code></a>, which does nothing until you overwrite it. This method is called with a BeautifulSoup object created from the webpage’s source url (see <a class="reference internal" href="classes.html#fpclib.Curation.soupify" title="fpclib.Curation.soupify"><code class="xref py py-func docutils literal notranslate"><span class="pre">Curation.soupify()</span></code></a>). Through that one soup object it’s possible to parse the entire webpage for metadata that changes between games/animations.</p>
-<p>If you aren’t familiar with using BeautifulSoup, you should read through the <a class="reference external" href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/">BeautifulSoup documenation</a>.</p>
+<p>If you aren’t familiar with using BeautifulSoup, you should read through the <a class="reference external" href="//www.crummy.com/software/BeautifulSoup/bs4/doc/">BeautifulSoup documenation</a>.</p>
 <div class="section" id="overwriting-other-methods">
 <h4><a class="toc-backref" href="#id4">Overwriting Other Methods</a><a class="headerlink" href="#overwriting-other-methods" title="Permalink to this headline">¶</a></h4>
 <p>You can also overwrite other <a class="reference internal" href="classes.html#fpclib.Curation" title="fpclib.Curation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Curation</span></code></a> class methods to change their functionality further. Take for example the <a class="reference internal" href="classes.html#fpclib.Curation.get_files" title="fpclib.Curation.get_files"><code class="xref py py-func docutils literal notranslate"><span class="pre">Curation.get_files()</span></code></a> method:</p>
@@ -250,7 +250,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_files</span><span class="p">()</span>
         <span class="n">fpclib</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">&#39;http://www.example.com&#39;</span><span class="p">)</span> <span class="c1"># Download the http://www.example.com/index.html file into the content folder.</span>
 
-<span class="n">urls</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;https://www.newgrounds.com/portal/view/218014&#39;</span><span class="p">,</span> <span class="s1">&#39;https://www.newgrounds.com/portal/view/59593&#39;</span><span class="p">]</span>
+<span class="n">urls</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;//www.newgrounds.com/portal/view/218014&#39;</span><span class="p">,</span> <span class="s1">&#39;//www.newgrounds.com/portal/view/59593&#39;</span><span class="p">]</span>
 <span class="n">fpclib</span><span class="o">.</span><span class="n">curate</span><span class="p">(</span><span class="n">urls</span><span class="p">,</span> <span class="n">NewgroundsCuration</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -289,11 +289,11 @@
     
     
     
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="//www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    <a href="//github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="//readthedocs.org">Read the Docs</a>. 
 
 </footer>
         </div>
