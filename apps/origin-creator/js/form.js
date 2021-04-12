@@ -497,15 +497,25 @@ function loadEntries(level, rootElem, data, form, del) {
                         // If the type is o__, recreate the named list from leftover fields
                         if (v === undefined) v = {};
 
+                        let changed = false;
                         for (let key of Object.keys(data)) {
-                            if (!item.ignore.includes(key) && key != "o__" && typeof(key) == "object") {
-                                v[key] = data[key];
+                            if (!item.ignore.includes(key) && key != "o__") {
+                                changed = true;
+                                if (typeof(data[key]) == "object") {
+                                    v[key] = data[key];
+                                }
                                 delete data[key];
                             }
                         }
 
-                        data[itemID] = v;
-                        save();
+                        if (changed) {
+                            data[itemID] = v;
+                            save();
+                            // HACK: from here, we reload the entire screen with this newly organized information.
+                            changeScreen(activeType, activeParent, activeUName, activePath);
+                            // Then we exit this function.
+                            return
+                        }
                     }
 
                     if (v) {
