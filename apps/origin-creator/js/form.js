@@ -498,7 +498,7 @@ function loadEntries(level, rootElem, data, form, del) {
                         if (v === undefined) v = {};
 
                         for (let key of Object.keys(data)) {
-                            if (!item.ignore.includes(key) && key != "o__") {
+                            if (!item.ignore.includes(key) && key != "o__" && typeof(key) == "object") {
                                 v[key] = data[key];
                                 delete data[key];
                             }
