@@ -1759,7 +1759,8 @@ var power_data = {
         "name": "Type",
         "type": "options",
         "desc": "The most important field. ID of a power type, defining how this power behaves and which other fields are required. Check the wiki for more information.",
-        "more": "__type_options"
+        "more": "__type_options",
+        "link": "https://origins.readthedocs.io/en/latest/power_types/"
     },
     "__type_options": {
         "type": "more",
