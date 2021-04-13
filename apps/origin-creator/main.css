@@ -26,6 +26,11 @@ input.ientry[type="file"] {
     margin-bottom: 3px;
 }
 
+#other-ace {
+    width: calc(100vw - 300px);
+    height: calc(100vh - 300px);
+}
+
 .content {
     /* TODO: figure out a way to make the page expand with the content */
     /*overflow: scroll;*/

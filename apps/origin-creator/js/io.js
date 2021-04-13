@@ -222,7 +222,7 @@ function exportMod() {
         "name": meta.name,
         "id": pid,
         "version": meta.version || "1.0.0",
-        "description": meta.description.replace("\n", "\\n").replace("\r", ""),
+        "description": meta.description.replaceAll("\n", "\\n").replaceAll("\r", ""),
         "license": "Unknown",
         "pack_format": meta.pack_format || 6
     }

@@ -302,7 +302,7 @@ function insertData(key, type, item, extra) {
             var p = findItem(datapath, extra).find(">div");
             p.addClass("nodisplay");
             findItem(datapath, extra, jqns(v)).removeClass("nodisplay");
-            changeScreen(activeType, activeParent, activeUName, activePath); // HACK: this is lazy, but it's fine.
+            reloadScreen(); // HACK: this is lazy, but it's fine.
         }
         save();
         return;
@@ -430,12 +430,6 @@ function insertData(key, type, item, extra) {
 }
 
 // Internal function called to load data from a dictionary into entries based on a form.
-// +loadEntries(str rootid, dict data, dict form)
-//    - level - 
-//    - rootid - First part of the ID of the html elements to insert into. It does not need to point to an existing element.
-//    - data - Dictionary containing the values to insert into the form, and to clean.
-//    - form - Dictionary of a form containing the metadata of how to insert values.
-//    - id - id of the dictionary, necessary for filling in "id" types.
 function loadEntries(level, rootElem, data, form, del) {
     "use strict";
     if (data && form) {
@@ -512,7 +506,7 @@ function loadEntries(level, rootElem, data, form, del) {
                             data[itemID] = v;
                             save();
                             // HACK: from here, we reload the entire screen with this newly organized information.
-                            changeScreen(activeType, activeParent, activeUName, activePath);
+                            reloadScreen();
                             // Then we exit this function.
                             return
                         }
@@ -640,7 +634,7 @@ function loadEntries(level, rootElem, data, form, del) {
                             tt = item.types[k];
                             if (
                                 tt == t ||
-                                t == "object" && (tt == "sub" && Object.keys(v).length || tt == "info") ||
+                                t == "object" && (tt == "sub" && Object.keys(v).length || tt == "info" || tt == "ace") ||
                                 t == "string" && (tt == "ns" || tt == "text" || tt == "textarea") ||
                                 t == "number" && (tt == "double" || tt == "int") ||
                                 t == "boolean" && tt == "checkbox"
@@ -656,6 +650,7 @@ function loadEntries(level, rootElem, data, form, del) {
                     let sel = elem.find(">select");
                     let name = item.options[j || 0];
                     let div = elem.find(">.multi-"+name);
+                    let entry = div.find(">._"+itemID);
 
                     sel.val(name);
                     div.removeClass("nodisplay");
@@ -664,12 +659,27 @@ function loadEntries(level, rootElem, data, form, del) {
                         } else if (tt == "sub") {
                             loadEntries(level+1, div, v, form[itemID].data[j], true);
                         } else {
-                            if (v === undefined) v = "";
-                            div.find(">._"+itemID).val(v);
+                            if (entry.is("div")) {
+                                // Ace code editors need to be set specifically
+                                if (v === undefined) {
+                                    ace.edit(entry.attr("id")).setValue("", -1);
+                                } else {
+                                    ace.edit(entry.attr("id")).setValue(JSON.stringify(v, null, 4), -1);
+                                }
+                            } else {
+                                // Invalid values get transformed into strings
+                                if (v === undefined) v = "";
+                                entry.val(v);
+                            }
                         }
                     } else {
                         // FIXME: Hopefully no issues here...
-                        div.find(">._"+itemID).val("");
+                        // Basically, if the value given does not fit into any multi field, give back nothing
+                        if (entry.is("div")) {
+                            ace.edit(entry.attr("id")).setValue("", -1);
+                        } else {
+                            entry.val("");
+                        }
                     }
                     break;
                 case "id": // ID values are not based on the dictionary, but rather a unique value.
@@ -765,7 +775,6 @@ function insertForm(loc, header, form, level=0) {
         
         // Append custom input dependent on the type
         let cs = "panel";
-        let pnl;
         switch (item.type) {
             case "info":
                 cs = "panel";
@@ -812,7 +821,7 @@ function insertForm(loc, header, form, level=0) {
                 function genMulti(i, cs="nodisplay ") {
                     var mName = item.options[i];
                     var mType = item.types[i];
-                    if (item.data[i]) {
+                    if (item.data && item.data[i]) {
                         if (item.hide) {
                             // It do be a subpanel though! In order to handle mojang's greed for recursion, it needs a show button
                             code.push(`<div ttype="${mType}" llevel="${level+1}" name="${itemID}" class="${cs}iblock _${itemID} multi-${mName}"><button class="sbutton" onclick='insertPanel(this)'>+</button></div>`);

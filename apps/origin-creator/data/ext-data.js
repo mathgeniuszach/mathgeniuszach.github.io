@@ -1171,7 +1171,10 @@ var advancement_data = {
             },
             "title": {
                 "name": "Title",
-                "type": "ace",
+                "type": "multi",
+                "options": ["simple", "complex"],
+                "types": ["text", "ace"],
+                "panel": true,
                 "desc": "The title for this advancement, specified as either text in quotes or a json text component. Click to see the wiki for the json text format",
                 "link": "https://minecraft.gamepedia.com/Raw_JSON_text_format"
             },
@@ -1188,7 +1191,10 @@ var advancement_data = {
             },
             "description": {
                 "name": "Description",
-                "type": "ace",
+                "type": "multi",
+                "options": ["simple", "complex"],
+                "types": ["textarea", "ace"],
+                "panel": true,
                 "desc": "The description of the advancement, specified as either text in quotes or a json text component. Click to see the wiki for the json text format",
                 "link": "https://minecraft.gamepedia.com/Raw_JSON_text_format"
             },

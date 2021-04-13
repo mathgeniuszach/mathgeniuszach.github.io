@@ -30,9 +30,10 @@ function swapNodes(a, b) {
 var aceQueue = [];
 function setupAce(elem, mode) {
     var editor = ace.edit(elem);
-    //editor.setTheme("ace/theme/monokai");
     editor.session.setMode(mode);
+    editor.setTheme("ace/theme/contrast");
     editor.setShowPrintMargin(false);
+    editor.$blockScrolling = Infinity;
     $("#"+elem).mouseup(function(e) {editor.resize()});
     return editor;
 }

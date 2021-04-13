@@ -39,12 +39,16 @@ var editOptions = {};
 // Function to normalize strings
 function ns(str) {
     "use strict";
-    return str.replace(/\s+/g, '_').replace(/[^\w:./#_]+/g, '').toLowerCase();
+    if (typeof(str) == "string") {
+        return str.replaceAll(/\s+/g, '_').replaceAll(/[^\w:./#_*]+/g, '').toLowerCase();
+    } else {
+        return "";
+    }
 }
 // CSS selectors are dumb so this exists
 function jqns(str) {
     "use strict";
-    return ns(str).replace(/:/g, '-__-');
+    return ns(str).replaceAll(/:/g, '-__-');
 }
 
 // Things to do when the document is done loading
@@ -93,7 +97,7 @@ $(document).ready(function() {
     $("#btn-download-i-raw").click(downloadActiveRaw);
     
     // Document key handlers
-    $(document).click(select);
+    $(document).mousedown(select);
     $(document).keydown(keyDown);
 
     // If simple, remove references to origins related stuff
@@ -135,6 +139,10 @@ $(document).ready(function() {
     }
 });
 
+function reloadScreen() {
+    changeScreen(activeType, activeParent, activeUName, activePath);
+}
+
 // Function to change the screen and load any data into entry fields
 function changeScreen(type, activeP, uname, path) {
     "use strict";
@@ -143,6 +151,8 @@ function changeScreen(type, activeP, uname, path) {
     activeParent = activeP;
     activeUName = uname;
     activePath = path;
+
+    var tname = uname || type;
     
     // Hide all screens
     $(".content").addClass("nodisplay");
@@ -160,29 +170,36 @@ function changeScreen(type, activeP, uname, path) {
             $("#div-other").removeClass('nodisplay');
 
             // Other panel is handled specially
-            active = activeP[uname || type];
+            active = activeP[tname];
             if (typeof(active) != "string") {
                 if (!active) active = "";
                 else active = JSON.stringify(active);
-                activeP[uname || type] = active;
+                activeP[tname] = active;
             }
 
             // Gotta load in the other panel now
+            // Also, set custom ace mode
+            if (tname.endsWith(".json")) {
+                otherEditor.session.setMode("ace/mode/json");
+            } else if (tname.endsWith(".mcfunction") || type == "functions") {
+                otherEditor.session.setMode("ace/mode/mcfunction");
+            } else {
+                otherEditor.session.setMode("ace/mode/text");
+            }
             otherEditor.setValue(active, -1);
-            otherEditor.session.setMode("ace/mode/text");
             // Show raw editor
             $("#div-i-raw").addClass("nodisplay");
         } else {
             activeElem = $("#div-"+type);
             
-            active = activeP[uname || type];
+            active = activeP[tname];
             if (!active || typeof(active) != "object") {
                 try {
                     active = JSON.parse(active);
                 } catch (err) {}
 
                 if (!active || typeof(active) != "object" || Array.isArray(active)) active = {};
-                activeP[uname || type] = active;
+                activeP[tname] = active;
             }
             
             // Load data into entry fields
@@ -297,8 +314,8 @@ function grabData() {
     if (saveLoc) loc += "save="+saveLoc+"&";
     if (extDataLoc) loc += "data="+encodeURIComponent(extDataLoc)+"&";
     
-    if (saveLoc || extDataLoc) location.replace(loc);
-    else location.replace("/apps/origincreator.html");
+    if (saveLoc || extDataLoc) location.replaceAll(loc);
+    else location.replaceAll("/apps/origincreator.html");
 }
 
 function toggleIRaw() {
@@ -314,7 +331,7 @@ function saveIRaw() {
     try {
         var d = JSON.parse(iRawEditor.getValue());
         activeParent[activeUName] = d;
-        changeScreen(activeType, activeParent, activeUName, activePath); // Not really hacky here tbh
+         // Not really hacky here tbh
         window.localStorage.setItem("origin-creator-data"+saveLoc, JSON.stringify(data));
         $("#i-raw-err").text("Data loaded successfully.");
     } catch (err) {
@@ -323,6 +340,7 @@ function saveIRaw() {
     }
 }
 function resetIRaw() {
+    $("#i-raw-err").text("");
     var v = JSON.stringify(active, null, 4) || "";
     iRawEditor.setValue(v, -1);
 }
@@ -418,7 +436,7 @@ function loadClipboard(o) {
         locateData(path)[id] = d;
         save();
         // Load entries
-        changeScreen(activeType, activeParent, activeUName, activePath); // HACK: only loading the item itself is necessary
+        reloadScreen(); // HACK: only loading the item itself is necessary
     } finally {
         select();
     }
