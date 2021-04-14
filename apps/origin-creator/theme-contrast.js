@@ -89,8 +89,7 @@ var cssCode = `
     font-weight: bold;
 }
 .ace-con .ace_support.ace_function.ace_dom {
-    color: rgb(40, 119, 156);
-    font-weight: bold;
+    color: rgb(70, 106, 184);
     font-style: italic;
 }
 
@@ -100,7 +99,7 @@ var cssCode = `
 
 .ace-con .ace_support.ace_type,
 .ace-con .ace_support.ace_class {
-    color: rgb(133, 139, 187);
+    color: rgb(49, 75, 134);
     font-weight: bold;
 }
 

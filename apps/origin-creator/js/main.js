@@ -346,8 +346,13 @@ function resetIRaw() {
 }
 
 function keyDown(e) {
+    if (e.ctrlKey && e.keyCode == 83) {
+        // Save
+        save();
+        return false;
+    }
     // Check if content box item is selected, and if so, do special things
-    if (document.activeElement.classList.contains("jstree-anchor")) {
+    else if (document.activeElement.classList.contains("jstree-anchor")) {
         node = contentBox.get_node(document.activeElement.parentElement);
         if (node) {
             if (e.keyCode == 46) {

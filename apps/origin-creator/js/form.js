@@ -986,10 +986,10 @@ function removePanel(btn) {
 var otherOptions = {};
 // Ace functions
 function saveOther() {
-    if (activeType == "other" || activeType == "functions") {
-        activeParent[activeUName] = otherEditor.getValue();
-        save();
-    }
+    // if (activeType == "other" || activeType == "functions") {
+    activeParent[activeUName] = otherEditor.getValue();
+    save();
+    // }
 }
 function changeAutosave(value) {
     if (otherOptions.autosave) {

@@ -180,65 +180,79 @@ function putLoadedData(d, type, folders, id) {
 
 function exportDatapack() {
     "use strict";
-    
-    var meta = data.meta;
-    if (!meta.description) meta.description = "";
-    
-    var zip = new JSZip();
-    // Handle icon
-    var icon = meta.icon;
-    if (icon) {
-        delete meta.icon;
-        zip.file("pack.png", icon.substring(22), {base64: true});
+    block();
+    try {
+        var meta = data.meta;
+        if (!meta.description) meta.description = "";
+        
+        var zip = new JSZip();
+        // Handle icon
+        var icon = meta.icon;
+        if (icon) {
+            delete meta.icon;
+            zip.file("pack.png", icon.substring(22), {base64: true});
+        }
+        // Handle meta
+        zip.file("pack.mcmeta", `{"pack": ${JSON.stringify(meta)}}`);
+        // Re add icon if necessary
+        if (icon) meta.icon = icon;
+        
+        createData(zip.folder("data"));
+        
+        zip.generateAsync({"type": "blob"}).then(function(content) {
+            saveAs(content, meta.id+".zip");
+        });
+    } catch (err) {
+        console.error(err);
+        alert("Could not export to datapack;\n" + err)
+    } finally {
+        unblock();
     }
-    // Handle meta
-    zip.file("pack.mcmeta", `{"pack": ${JSON.stringify(meta)}}`);
-    // Re add icon if necessary
-    if (icon) meta.icon = icon;
-    
-    createData(zip.folder("data"));
-    
-    zip.generateAsync({"type": "blob"}).then(function(content) {
-        saveAs(content, meta.id+".zip");
-    });
 }
 
 function exportMod() {
     "use strict";
-    
-    var meta = data.meta;
-    if (!meta.name) meta.name = "Mod";
-    if (!pid) pid = "originsmod";
-    if (!meta.description) meta.description = "";
-    
-    var outdata = {
-        "schemaVersion": 1,
-        "environment": "*",
-        "depends": {
-            "fabric-api-base": "*",
-            "fabric": "*",
-            "minecraft": ">=1.16.0"
-        },
-        "name": meta.name,
-        "id": pid,
-        "version": meta.version || "1.0.0",
-        "description": meta.description.replaceAll("\n", "\\n").replaceAll("\r", ""),
-        "license": "Unknown",
-        "pack_format": meta.pack_format || 6
+    block();
+    try {
+        var meta = data.meta;
+        if (!meta.name) meta.name = "Mod";
+        if (!pid) pid = "originsmod";
+        if (!meta.description) meta.description = "";
+        
+        var outdata = {
+            "schemaVersion": 1,
+            "environment": "*",
+            "depends": {
+                "fabric-api-base": "*",
+                "fabric": "*",
+                "minecraft": ">=1.16.0"
+            },
+            "name": meta.name,
+            "id": pid,
+            "version": meta.version || "1.0.0",
+            "description": meta.description.replaceAll("\n", "\\n").replaceAll("\r", ""),
+            "license": "Unknown",
+            "pack_format": meta.pack_format || 6
+        }
+        if (meta.icon) outdata.icon = "pack.png";
+        if (meta.authors) outdata.authors = data.meta.authors.split(",").map(function(e) {return e.trim()});
+        
+        var zip = new JSZip();
+        zip.file("fabric.mod.json", JSON.stringify(outdata));
+        if (meta.icon) zip.file("pack.png", meta.icon.substring(22), {"base64": true});
+        zip.folder("META-INF").file("MANIFEST.MF", "Manifest-Version: 1.0\n\n");
+        
+        createData(zip.folder("data"));
+        
+        zip.generateAsync({"type": "blob"}).then(function(content) {
+            saveAs(content, data.meta.id+".jar");
+        });
+    } catch (err) {
+        console.error(err);
+        alert("Could not export to mod;\n" + err)
+    } finally {
+        unblock();
     }
-    if (meta.icon) outdata.icon = "pack.png";
-    if (meta.authors) outdata.authors = data.meta.authors.split(",").map(function(e) {return e.trim()});
-    
-    var zip = new JSZip();
-    zip.file("fabric.mod.json", JSON.stringify(outdata));
-    if (meta.icon) zip.file("pack.png", meta.icon.substring(22), {"base64": true});
-    zip.folder("META-INF").file("MANIFEST.MF", "Manifest-Version: 1.0\n\n");
-    
-    createData(zip.folder("data"));
-    
-    zip.generateAsync({"type": "blob"}).then(function(content) {
-        saveAs(content, data.meta.id+".jar");
-    });
 }
 
 function transformData(iData) {
