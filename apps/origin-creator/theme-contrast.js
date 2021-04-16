@@ -124,7 +124,7 @@ var cssCode = `
 }
 
 .ace-con .ace_constant.ace_numeric {
-    color: rgb(128, 150, 6);
+    color: rgb(147, 163, 0);
 }
 
 .ace-con .ace_variable {
@@ -136,7 +136,7 @@ var cssCode = `
 }
 
 .ace-con .ace_entity.ace_name.ace_function {
-    color: #0000A2;
+    color: #ff0080;
 }
 
 

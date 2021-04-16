@@ -27,22 +27,28 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
             "start": [
                 {
                     "token": "comment",
-                    "regex": "(\\s*#.*?$)"
+                    "regex": "(\\s*#.*?$)",
+                    "push": "main__1"
                 },
                 {
                     "token": "support.function.dom",
                     "regex": "(\\s*execute( |$))",
-                    "push": "main__1"
+                    "push": "main__2"
                 },
                 {
                     "token": "support.type",
                     "regex": "(\\s*(scoreboard|data)( |$))",
-                    "push": "main__2"
+                    "push": "main__3"
+                },
+                {
+                    "token": "support.function",
+                    "regex": "(\\s*function( |$))",
+                    "push": "main__4"
                 },
                 {
                     "token": "support.function",
                     "regex": "(\\s*.*?( |$))",
-                    "push": "main__3"
+                    "push": "main__5"
                 },
                 {
                     defaultToken: "text",
@@ -50,33 +56,13 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
             ],
             "main__1": [
                 {
-                    "token": "keyword",
-                    "regex": "(run |$)",
+                    "token": "comment",
+                    "regex": "(?!\\s*\\.)",
                     "next": "pop"
                 },
                 {
-                    "token": "keyword",
-                    "regex": "(align|anchored|as|at|facing|in|positioned|rotated|if|unless|store)"
-                },
-                {
-                    "token": "constant.numeric",
-                    "regex": "((((\\.\\.|~|\\^)?-?\\d*?\\.?\\d+\\w*(\\.\\.)?)|~|\\^)( |$))"
-                },
-                {
-                    "token": "constant.language.boolean",
-                    "regex": "((true|false)( |$))"
-                },
-                {
-                    "token": "keyword.operator",
-                    "regex": "((<|<=|=|>|>=|\\*|actionbar|add|after|all|amount|append|as|available|base|before|block|blocks|blue|bossbar|buffer|center|chest|clear|color|copy|damage|data|destroy|disable|displayname|distance|empty|enable|enabled|entity|everything|eyes|facing|feet|filtered|first|fish|flush|force|from|function|get|give|grant|green|head|hearts|hollow|insert|integer|ips|join|keep|kill|last|leave|legs|levels|list|loot|mainhand|masked|matches|max|merge|mine|modifier|modify|move|multiply|multiply_base|name|normal|notched_10|notched_12|notched_20|notched_6|objectives|off|offhand|on|only|operation|outline|pink|players|points|predicate|prepend|progress|purple|query|rain|red|reload|remove|rendertype|replace|report|reset|result|revoke|score|set|setdisplay|spawn|start|stop|storage|style|subtitle|success|take|through|thunder|time|times|title|under|until|uuids|value|visible|warning|white|yellow)( |$))"
-                },
-                {
-                    "token": "constant.character",
-                    "regex": "(#?\\w+:[\\w/]+( |$))"
-                },
-                {
-                    "token": "text",
-                    "regex": "(.*?( |$))"
+                    "token": "comment",
+                    "regex": "(.*?$)"
                 },
                 {
                     defaultToken: "text",
@@ -84,13 +70,17 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
             ],
             "main__2": [
                 {
-                    "token": "comment",
-                    "regex": "(^(?=.{0,1})(?:|))",
+                    "token": "keyword",
+                    "regex": "(run )",
                     "next": "pop"
                 },
                 {
+                    "token": "keyword",
+                    "regex": "((align|anchored|as|at|facing|in|positioned|rotated|if|unless|store)( |$))"
+                },
+                {
                     "token": "constant.numeric",
-                    "regex": "((((\\.\\.|~|\\^)?-?\\d*?\\.?\\d+\\w*(\\.\\.)?)|~|\\^)( |$))"
+                    "regex": "((~|\\^)?-?\\d*?\\.?\\d+|~|\\^|-?\\d+\\.\\.-?\\d*|\\.\\.-?\\d+)"
                 },
                 {
                     "token": "constant.language.boolean",
@@ -103,6 +93,10 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                 {
                     "token": "constant.character",
                     "regex": "(#?\\w+:[\\w/]+( |$))"
+                },
+                {
+                    "token": "support.function",
+                    "regex": "(\\.)"
                 },
                 {
                     "token": "text",
@@ -120,7 +114,7 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                 },
                 {
                     "token": "constant.numeric",
-                    "regex": "((((\\.\\.|~|\\^)?-?\\d*?\\.?\\d+\\w*(\\.\\.)?)|~|\\^)( |$))"
+                    "regex": "((~|\\^)?-?\\d*?\\.?\\d+|~|\\^|-?\\d+\\.\\.-?\\d*|\\.\\.-?\\d+)"
                 },
                 {
                     "token": "constant.language.boolean",
@@ -133,6 +127,58 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                 {
                     "token": "constant.character",
                     "regex": "(#?\\w+:[\\w/]+( |$))"
+                },
+                {
+                    "token": "support.function",
+                    "regex": "(\\.)"
+                },
+                {
+                    "token": "text",
+                    "regex": "(.*?( |$))"
+                },
+                {
+                    defaultToken: "text",
+                }
+            ],
+            "main__4": [
+                {
+                    "token": "comment",
+                    "regex": "(^(?=.{0,1})(?:|))",
+                    "next": "pop"
+                },
+                {
+                    "token": "entity.name.function",
+                    "regex": "(.*?( |$))"
+                },
+                {
+                    defaultToken: "text",
+                }
+            ],
+            "main__5": [
+                {
+                    "token": "comment",
+                    "regex": "(^(?=.{0,1})(?:|))",
+                    "next": "pop"
+                },
+                {
+                    "token": "constant.numeric",
+                    "regex": "((~|\\^)?-?\\d*?\\.?\\d+|~|\\^|-?\\d+\\.\\.-?\\d*|\\.\\.-?\\d+)"
+                },
+                {
+                    "token": "constant.language.boolean",
+                    "regex": "((true|false)( |$))"
+                },
+                {
+                    "token": "keyword.operator",
+                    "regex": "((<|<=|=|>|>=|\\*|actionbar|add|after|all|amount|append|as|available|base|before|block|blocks|blue|bossbar|buffer|center|chest|clear|color|copy|damage|data|destroy|disable|displayname|distance|empty|enable|enabled|entity|everything|eyes|facing|feet|filtered|first|fish|flush|force|from|function|get|give|grant|green|head|hearts|hollow|insert|integer|ips|join|keep|kill|last|leave|legs|levels|list|loot|mainhand|masked|matches|max|merge|mine|modifier|modify|move|multiply|multiply_base|name|normal|notched_10|notched_12|notched_20|notched_6|objectives|off|offhand|on|only|operation|outline|pink|players|points|predicate|prepend|progress|purple|query|rain|red|reload|remove|rendertype|replace|report|reset|result|revoke|score|set|setdisplay|spawn|start|stop|storage|style|subtitle|success|take|through|thunder|time|times|title|under|until|uuids|value|visible|warning|white|yellow)( |$))"
+                },
+                {
+                    "token": "constant.character",
+                    "regex": "(#?\\w+:[\\w/]+( |$))"
+                },
+                {
+                    "token": "support.function",
+                    "regex": "(\\.)"
                 },
                 {
                     "token": "text",

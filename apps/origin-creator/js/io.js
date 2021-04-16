@@ -234,6 +234,7 @@ function exportMod() {
             "license": "Unknown",
             "pack_format": meta.pack_format || 6
         }
+        if (!simplified) outdata.depends.origins = ">=0.7.0";
         if (meta.icon) outdata.icon = "pack.png";
         if (meta.authors) outdata.authors = data.meta.authors.split(",").map(function(e) {return e.trim()});
         
