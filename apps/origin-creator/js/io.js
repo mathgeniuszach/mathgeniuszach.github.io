@@ -313,7 +313,17 @@ function createRData(dFolder, itemData, type, path="") {
             // Handle leafy files
             switch (type) {
                 case "functions/":
-                    createFile(dFolder, id, iData, type, path, ".mcfunction");
+                    // Format iData
+                    let fData = iData
+                        .replaceAll(/\r\n|\r/g, "\n")
+                        .replaceAll(/\n\s*\.\s*/g, " ")
+                        .split("\n");
+                    for (let i = 0; i < fData.length; i++) {
+                        fData[i] = fData[i].trim()
+                    }
+
+                    // We use \r\n because it is multi-platform
+                    createFile(dFolder, id, fData.join("\r\n"), type, path, ".mcfunction");
                     break;
                 case "data_scripts/":
                     // This is where the compiler should actually kick in

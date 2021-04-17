@@ -97,13 +97,18 @@ var cssCode = `
     color: rgb(6, 150, 14);
 }
 
-.ace-con .ace_support.ace_type,
-.ace-con .ace_support.ace_class {
+.ace-con .ace_support.ace_type {
     color: rgb(49, 75, 134);
     font-weight: bold;
 }
+.ace-con .ace_support.ace_class {
+    color: rgb(0, 134, 18);
+}
 
 .ace-con .ace_keyword.ace_operator {
+    color: rgb(39, 15, 71);
+}
+.ace-con .ace_keyword.ace_other.ace_unit {
     color: rgb(152, 0, 182);
 }
 
