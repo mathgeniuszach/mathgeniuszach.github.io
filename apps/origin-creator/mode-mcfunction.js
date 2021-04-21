@@ -37,7 +37,7 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                 },
                 {
                     "token": "support.type",
-                    "regex": "(\\s*/?(scoreboard|data)( |$))",
+                    "regex": "(\\s*/?(scoreboard|data|var)( |$))",
                     "push": "main__3"
                 },
                 {
@@ -47,13 +47,22 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                 },
                 {
                     "token": "support.function",
-                    "regex": "(\\s*/?(say|script\\s+run)?( |$))",
+                    "regex": "(\\s*/?def( |$))",
                     "push": "main__5"
+                },
+                {
+                    "token": "keyword.operator",
+                    "regex": "(})"
+                },
+                {
+                    "token": "support.function",
+                    "regex": "(\\s*/?(say|script\\s+run)( |$))",
+                    "push": "main__6"
                 },
                 {
                     "token": "support.function",
                     "regex": "(\\s*(\\.|.*?( |$)))",
-                    "push": "main__6"
+                    "push": "main__7"
                 },
                 {
                     defaultToken: "text",
@@ -69,6 +78,101 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                     "token": "support.class",
                     "regex": "(\\[)",
                     "push": "selector_inside"
+                },
+                {
+                    defaultToken: "text",
+                }
+            ],
+            "args__2": [
+                {
+                    "token": "text",
+                    "regex": "( |$)",
+                    "next": "pop"
+                },
+                {
+                    "token": "constant.character",
+                    "regex": "(#)"
+                },
+                {
+                    "token": "keyword.operator",
+                    "regex": "(\\.)"
+                },
+                {
+                    "token": "constant.character",
+                    "regex": "([\\w:#/-]+)"
+                },
+                {
+                    "token": "keyword.operator",
+                    "regex": "({)",
+                    "push": "nbt"
+                },
+                {
+                    "token": "keyword.operator",
+                    "regex": "(\\[)",
+                    "push": "args__3"
+                },
+                {
+                    defaultToken: "text",
+                }
+            ],
+            "args__3": [
+                {
+                    "token": "keyword.operator",
+                    "regex": "(\\])",
+                    "next": "pop"
+                },
+                {
+                    "token": "keyword.other.unit",
+                    "regex": "((<|<=|=|>|>=|\\*|actionbar|add|after|all|amount|append|as|available|base|before|block|blocks|blue|bossbar|buffer|center|chest|clear|color|copy|damage|data|destroy|disable|displayname|distance|empty|enable|enabled|entity|everything|eyes|facing|feet|filtered|first|fish|flush|force|from|function|get|give|grant|green|head|hearts|hollow|insert|integer|ips|join|keep|kill|last|leave|legs|levels|list|loot|mainhand|masked|matches|max|merge|mine|modifier|modify|move|multiply|multiply_base|name|normal|notched_10|notched_12|notched_20|notched_6|objectives|off|offhand|on|only|operation|outline|pink|players|points|predicate|prepend|progress|purple|query|rain|red|reload|remove|rendertype|replace|report|reset|result|revoke|score|set|setdisplay|spawn|start|stop|storage|style|subtitle|success|take|through|thunder|time|times|title|under|until|uuids|value|visible|warning|white|yellow)( |$))"
+                },
+                {
+                    "token": "support.class",
+                    "regex": "(@\\w+)",
+                    "push": "args__1"
+                },
+                {
+                    "token": "constant.character",
+                    "regex": "(#?\\w+:[\\w-/]+( |$))"
+                },
+                {
+                    "token": "support.function",
+                    "regex": "(\\.( |$))"
+                },
+                {
+                    "token": "text",
+                    "regex": "(\\.\\s*)"
+                },
+                {
+                    "token": "keyword.operator",
+                    "regex": "({)",
+                    "push": "nbt"
+                },
+                {
+                    "token": "constant.numeric",
+                    "regex": "(-?\\d+\\.\\.-?\\d*|\\.\\.-?\\d+|(\\^|~)?-?\\d+\\.?\\d*\\w*|\\^|~)"
+                },
+                {
+                    "token": "constant.language.boolean",
+                    "regex": "((true|false)( |$))"
+                },
+                {
+                    "token": "string",
+                    "regex": "(\")",
+                    "push": "vals__1"
+                },
+                {
+                    "token": "string",
+                    "regex": "(')",
+                    "push": "vals__2"
+                },
+                {
+                    "token": "text",
+                    "regex": "(?=[\\w:#/-]*(\\[|\\{|\\.))",
+                    "push": "args__2"
+                },
+                {
+                    "token": "text",
+                    "regex": "(.*?( |$))"
                 },
                 {
                     defaultToken: "text",
@@ -150,7 +254,7 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                 },
                 {
                     "token": "constant.character",
-                    "regex": "(#?\\w+:[\\w/]+( |$))"
+                    "regex": "(#?\\w+:[\\w-/]+( |$))"
                 },
                 {
                     "token": "support.function",
@@ -182,6 +286,11 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                     "token": "string",
                     "regex": "(')",
                     "push": "vals__2"
+                },
+                {
+                    "token": "text",
+                    "regex": "(?=[\\w:#/-]*(\\[|\\{|\\.))",
+                    "push": "args__2"
                 },
                 {
                     "token": "text",
@@ -208,7 +317,7 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                 },
                 {
                     "token": "constant.character",
-                    "regex": "(#?\\w+:[\\w/]+( |$))"
+                    "regex": "(#?\\w+:[\\w-/]+( |$))"
                 },
                 {
                     "token": "support.function",
@@ -240,6 +349,11 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                     "token": "string",
                     "regex": "(')",
                     "push": "vals__2"
+                },
+                {
+                    "token": "text",
+                    "regex": "(?=[\\w:#/-]*(\\[|\\{|\\.))",
+                    "push": "args__2"
                 },
                 {
                     "token": "text",
@@ -265,6 +379,20 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
             ],
             "main__5": [
                 {
+                    "token": "keyword.operator",
+                    "regex": "({)",
+                    "next": "pop"
+                },
+                {
+                    "token": "entity.name.function",
+                    "regex": "([^\\{]+)"
+                },
+                {
+                    defaultToken: "text",
+                }
+            ],
+            "main__6": [
+                {
                     "token": "comment",
                     "regex": "(^(?=.{0,1})(?:|))",
                     "next": "pop"
@@ -277,7 +405,7 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                     defaultToken: "text",
                 }
             ],
-            "main__6": [
+            "main__7": [
                 {
                     "token": "comment",
                     "regex": "(^(?=.{0,1})(?:|))",
@@ -294,7 +422,7 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                 },
                 {
                     "token": "constant.character",
-                    "regex": "(#?\\w+:[\\w/]+( |$))"
+                    "regex": "(#?\\w+:[\\w-/]+( |$))"
                 },
                 {
                     "token": "support.function",
@@ -326,6 +454,11 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                     "token": "string",
                     "regex": "(')",
                     "push": "vals__2"
+                },
+                {
+                    "token": "text",
+                    "regex": "(?=[\\w:#/-]*(\\[|\\{|\\.))",
+                    "push": "args__2"
                 },
                 {
                     "token": "text",
