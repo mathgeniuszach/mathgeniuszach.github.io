@@ -86,7 +86,7 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
             "args__2": [
                 {
                     "token": "text",
-                    "regex": "( |$)",
+                    "regex": "( |$|^)",
                     "next": "pop"
                 },
                 {
@@ -95,7 +95,7 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                 },
                 {
                     "token": "keyword.operator",
-                    "regex": "(\\.)"
+                    "regex": "(\\.|\\,|\\=)"
                 },
                 {
                     "token": "constant.character",
@@ -122,6 +122,11 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                     "next": "pop"
                 },
                 {
+                    "token": "variable.parameter",
+                    "regex": "(\\s*\\w+\\s*(?==!?\\s*))",
+                    "push": "args__4"
+                },
+                {
                     "token": "keyword.other.unit",
                     "regex": "((<|<=|=|>|>=|\\*|actionbar|add|after|all|amount|append|as|available|base|before|block|blocks|blue|bossbar|buffer|center|chest|clear|color|copy|damage|data|destroy|disable|displayname|distance|empty|enable|enabled|entity|everything|eyes|facing|feet|filtered|first|fish|flush|force|from|function|get|give|grant|green|head|hearts|hollow|insert|integer|ips|join|keep|kill|last|leave|legs|levels|list|loot|mainhand|masked|matches|max|merge|mine|modifier|modify|move|multiply|multiply_base|name|normal|notched_10|notched_12|notched_20|notched_6|objectives|off|offhand|on|only|operation|outline|pink|players|points|predicate|prepend|progress|purple|query|rain|red|reload|remove|rendertype|replace|report|reset|result|revoke|score|set|setdisplay|spawn|start|stop|storage|style|subtitle|success|take|through|thunder|time|times|title|under|until|uuids|value|visible|warning|white|yellow)( |$))"
                 },
@@ -146,6 +151,11 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                     "token": "keyword.operator",
                     "regex": "({)",
                     "push": "nbt"
+                },
+                {
+                    "token": "keyword.operator",
+                    "regex": "(\\[)",
+                    "push": "list"
                 },
                 {
                     "token": "constant.numeric",
@@ -178,6 +188,56 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                     defaultToken: "text",
                 }
             ],
+            "args__4": [
+                {
+                    "token": "keyword.operator",
+                    "regex": "(,|(?=\\]))",
+                    "next": "pop"
+                },
+                {
+                    "token": "keyword.operator",
+                    "regex": "(=!?\\s*)"
+                },
+                {
+                    "token": "text",
+                    "regex": "(\\.\\s*)"
+                },
+                {
+                    "token": "keyword.operator",
+                    "regex": "({)",
+                    "push": "nbt"
+                },
+                {
+                    "token": "keyword.operator",
+                    "regex": "(\\[)",
+                    "push": "list"
+                },
+                {
+                    "token": "constant.numeric",
+                    "regex": "(-?\\d+\\.\\.-?\\d*|\\.\\.-?\\d+|(\\^|~)?-?\\d+\\.?\\d*\\w*|\\^|~)"
+                },
+                {
+                    "token": "constant.language.boolean",
+                    "regex": "((true|false)( |$))"
+                },
+                {
+                    "token": "string",
+                    "regex": "(\")",
+                    "push": "vals__1"
+                },
+                {
+                    "token": "string",
+                    "regex": "(')",
+                    "push": "vals__2"
+                },
+                {
+                    "token": "constant.character",
+                    "regex": "([^, \\[\\]\\{\\}]+)"
+                },
+                {
+                    defaultToken: "text",
+                }
+            ],
             "list": [
                 {
                     "token": "keyword.operator",
@@ -192,6 +252,11 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                     "token": "keyword.operator",
                     "regex": "({)",
                     "push": "nbt"
+                },
+                {
+                    "token": "keyword.operator",
+                    "regex": "(\\[)",
+                    "push": "list"
                 },
                 {
                     "token": "constant.numeric",
@@ -270,6 +335,11 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                     "push": "nbt"
                 },
                 {
+                    "token": "keyword.operator",
+                    "regex": "(\\[)",
+                    "push": "list"
+                },
+                {
                     "token": "constant.numeric",
                     "regex": "(-?\\d+\\.\\.-?\\d*|\\.\\.-?\\d+|(\\^|~)?-?\\d+\\.?\\d*\\w*|\\^|~)"
                 },
@@ -331,6 +401,11 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                     "token": "keyword.operator",
                     "regex": "({)",
                     "push": "nbt"
+                },
+                {
+                    "token": "keyword.operator",
+                    "regex": "(\\[)",
+                    "push": "list"
                 },
                 {
                     "token": "constant.numeric",
@@ -438,6 +513,11 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                     "push": "nbt"
                 },
                 {
+                    "token": "keyword.operator",
+                    "regex": "(\\[)",
+                    "push": "list"
+                },
+                {
                     "token": "constant.numeric",
                     "regex": "(-?\\d+\\.\\.-?\\d*|\\.\\.-?\\d+|(\\^|~)?-?\\d+\\.?\\d*\\w*|\\^|~)"
                 },
@@ -476,7 +556,7 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                 },
                 {
                     "token": "variable.parameter",
-                    "regex": "(\\s*\\w+\\s*(?=:))",
+                    "regex": "(\\s*\"?'?\\w+\"?'?\\s*(?=:))",
                     "push": "nbt__1"
                 },
                 {
@@ -501,6 +581,11 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                     "token": "keyword.operator",
                     "regex": "({)",
                     "push": "nbt"
+                },
+                {
+                    "token": "keyword.operator",
+                    "regex": "(\\[)",
+                    "push": "list"
                 },
                 {
                     "token": "constant.numeric",
@@ -635,6 +720,11 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                     "token": "keyword.operator",
                     "regex": "({)",
                     "push": "nbt"
+                },
+                {
+                    "token": "keyword.operator",
+                    "regex": "(\\[)",
+                    "push": "list"
                 },
                 {
                     "token": "constant.numeric",
