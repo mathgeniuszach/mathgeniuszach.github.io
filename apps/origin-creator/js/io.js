@@ -269,14 +269,7 @@ function transformData(iData) {
     return iData;
 }
 
-function createFile(folder, id, iData, type, path, dName=".json") {
-    console.log()
-    // stringify data
-    var sData = iData;
-
-    if (typeof(iData) == "object") sData = JSON.stringify(transformData(iData), null, 4);
-
-    // Get ID
+function splitNamespace(id, dName=".json") {
     var sid = id;
     var namespace = pid;
     var cIndex = id.indexOf(":");
@@ -286,15 +279,31 @@ function createFile(folder, id, iData, type, path, dName=".json") {
     }
     if (sid.indexOf(".") == -1) sid += dName;
 
-    // Create File
-    var loc = folder.folder(namespace);
-    if (type) loc = loc.folder(type);
-    if (path) loc = loc.folder(path);
-    loc.file(sid, sData);
+    return [namespace, sid];
+}
+function createFile(folder, id, iData, type, path, dName=".json") {
+    // stringify data
+    var sData = iData;
+
+    if (typeof(iData) == "object") sData = JSON.stringify(transformData(iData), null, 4);
+
+    // Split namespace and id
+    let [namespace, sid] = splitNamespace(id, dName);
+
+    if (namespace && sid) {
+        // Create File
+        var loc = folder.folder(namespace);
+        if (type) loc = loc.folder(type);
+        if (path) loc = loc.folder(path);
+        loc.file(sid, sData);
+    }
 }
 
 function createData(dFolder) {
     "use strict";
+    // For functions, reset compilation context
+    // resetContext(dFolder);
+
     for (const [type, typeData] of Object.entries(JSON.parse(JSON.stringify(data)))) {
         if (type[type.length-1] != "/") {
             if (type != "meta" && type != "$") {
@@ -309,6 +318,8 @@ function createData(dFolder) {
 }
 function createRData(dFolder, itemData, type, path="") {
     for (const [id, iData] of Object.entries(itemData)) {
+        if (!id) continue;
+
         if (id[id.length-1] != "/") {
             // Handle leafy files
             switch (type) {
@@ -322,8 +333,10 @@ function createRData(dFolder, itemData, type, path="") {
                         fData[i] = fData[i].trim()
                     }
 
-                    // We use \r\n because it is multi-platform
                     createFile(dFolder, id, fData.join("\r\n"), type, path, ".mcfunction");
+
+                    // const sData = compileAst(parseScript(processScript(code)), id);
+                    // createFile(dFolder, id, sData, type, path, ".mcfunction");
                     break;
                 case "data_scripts/":
                     // This is where the compiler should actually kick in

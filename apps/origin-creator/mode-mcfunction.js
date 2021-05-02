@@ -32,12 +32,12 @@ ace.define("ace/mode/mcfunction_highlight_rules", ["require", "exports", "ace/li
                 },
                 {
                     "token": "support.function.dom",
-                    "regex": "(\\s*/?(execute|\\$)( |$))",
+                    "regex": "(\\s*/?(execute)( |$))",
                     "push": "main__2"
                 },
                 {
                     "token": "support.type",
-                    "regex": "(\\s*/?(scoreboard|data|var)( |$))",
+                    "regex": "(\\s*/?(scoreboard|data|var|del)( |$))",
                     "push": "main__3"
                 },
                 {
