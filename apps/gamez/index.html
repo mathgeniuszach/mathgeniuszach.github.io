@@ -22,26 +22,44 @@
 </head>
 <body>
     <header></header>
+    <sbutton></sbutton>
     <aside>
         <div class="side-head">Players</div>
         <div class="group">
             <button onclick="navigator.clipboard.writeText(`${location.origin}${location.pathname}?lobby=${lobby.sid}`)">Copy Invite Link</button>
         </div>
-        <div class="group">
-            Name:&nbsp;<input id="username" type="text" size="15" onkeypress="this.value.length>=15&&event.preventDefault()" onchange="changeName(this.value);">
+        <div class="fields">
+            <span>Name:</span>
+            <input id="username" type="text" size="15" onkeypress="this.value.length>=15&&event.preventDefault()" onchange="changeName(this.value);">
+            <span>Status:</span>
+            <span id="status">Connecting...</span>
         </div>
-        <div id="players" class="panel panel-light">
-        </div>
+        <div id="players" class="panel panel-light"></div>
     </aside>
     <section>
+        <h1 class="nodisplay">GameZ</h1>
+
         <div id="error-div" class="nodisplay">
             <center><b>Your browser does not support WebRTC!</b></center>
         </div>
-        <div id="host-buttons">
+        <div>
+            <button onclick="toggle(q('#help'))">Toggle Help</button>
+            <button onclick="toggle(q('#chat'))">Toggle Chat</button>
+        </div>
+        <div id="help" class="nodisplay">
+            <h2>Help</h2>
+            <p>Welcome to GameZ, a neat little bloat-free multiplayer place for playing games with your friends.</p>
+            <p>To invite someone to your lobby, simply click the "Copy Invite Link" button and share it with anyone you want. When they click the link, they will join your lobby, with you as the host. At any point in time anyone may leave or join your lobby.</p>
+            <p>To start a game as the host, simply press the proper "Start" button next to it. Each game has their own specific options and rules.</p>
+        </div>
+        <div id="chat" class="nodisplay">
 
         </div>
-        <iframe></iframe>
+        <iframe id="game"></iframe>
     </section>
     <footer></footer>
+
+    <!-- For the divs that go on top of everything else -->
+    <div id="dialogs"></div>
 </body>
 </html>

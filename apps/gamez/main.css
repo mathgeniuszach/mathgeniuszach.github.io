@@ -2,11 +2,30 @@ aside {
     height: 100%;
 }
 
+h2 {
+    margin-bottom: 0px;
+}
+
+iframe {
+    border: var(--box-border-width) solid var(--box-border-color);
+    margin: 5px 0px;
+    width: calc(100vw - 300px);
+    height: calc(100vh - 197px);
+}
+
 #players {
     height: 100%;
     margin-top: 5px;
+    overflow-y: scroll;
 }
-#players > div {
+#players hr {
+    margin: 3px 0px;
+}
+#players .heading {
+    text-align: center;
+    font-weight: bold;
+}
+#players .player {
     display: grid;
     align-items: center;
 
@@ -15,30 +34,35 @@ aside {
         "a b b c"
         ". . d d"
 }
-#players > div > * {
+#players .player > * {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
 }
 
-#players > div > b {
+#players .player > b {
     grid-area: a;
     text-align: center;
 }
-#players > div > i {
+#players .player > i {
     grid-area: b;
 }
-#players > div > em {
+#players .player > em {
     grid-area: c;
     text-align: center;
     color: blue;
 }
-#players > div > span {
+#players .player > span {
     grid-area: d;
     font-size: 0.9em;
     color: var(--link-color);
 }
 
 @media only screen and (max-width: 750px) {
-    /* TODO: handle mobile screens */
+    aside {
+        height: calc(100vh - 199px);
+    }
+    iframe {
+        width: calc(100vw - 103px);
+    }
 }
