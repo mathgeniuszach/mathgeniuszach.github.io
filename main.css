@@ -1,9 +1,11 @@
 :root {
     --box-color: #f6f6f6;
+    --box-color-light: #ffffff;
     --box-color-dark: #e7e7e7;
     --box-color-darkest: #d8d8d8;
     --box-color-selected: #ccf6f6;
     --box-border-color: #cccccc;
+    --box-border-color-light: #cccccc;
     --box-border-color-dark: #bbbbbb;
     --box-border-color-darkest: #aaaaaa;
     --box-border-color-selected: #99cccc;
@@ -102,7 +104,8 @@ aside img {
     margin: auto;
 }
 aside .side-head {
-    border: var(--box-border-width) solid var(--box-border-color);
+    border: var(--box-border-width) solid var(--box-border-color-light);
+    background-color: var(--box-color-light);
     padding: 10px 0px;
     font-weight: bold;
     text-align: center;
@@ -113,10 +116,11 @@ aside .side-subhead {
     text-align: center;
 }
 
-aside .button-group {
+aside .group {
     margin-top: 8px;
     display: flex;
     justify-content: center;
+    align-items: center;
 }
 
 /* Header and footer stuff */
@@ -242,16 +246,20 @@ footer {
     padding: 5px;
     display: inline-block;
 }
+.panel-light {
+    border-color: var(--box-border-color-light);
+    background-color: var(--box-color-light);
+}
 .panel-dark {
-    border: var(--box-border-width) solid var(--box-border-color-dark);
+    border-color: var(--box-border-color-dark);
     background-color: var(--box-color-dark);
 }
 .panel-darkest {
-    border: var(--box-border-width) solid var(--box-border-color-darkest);
+    border-color: var(--box-border-color-darkest);
     background-color: var(--box-color-darkest);
 }
 .panel-selected {
-    border: var(--box-border-width) solid var(--box-border-color-selected);
+    border-color: var(--box-border-color-selected);
     background-color: var(--box-color-selected);
 }
 
@@ -368,7 +376,7 @@ footer {
 }
 
 /* mobile specific css */
-@media only screen and (max-width: 850px) {
+@media only screen and (max-width: 750px) {
     .mobile {
         display: block;
     }

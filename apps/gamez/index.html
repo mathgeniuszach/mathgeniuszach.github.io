@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="//unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="/js/main.js"></script>
+    <script src="network.js"></script>
+    <script src="main.js"></script>
+    
+    <meta charset="UTF-8">
+    <meta name="keywords" content="MGZ, xMGZx, mathgeniuszach, Zach K">
+    <meta name="author" content="Zach K">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MGZ's Site - GameZ</title>
+    <meta name="description" content="A neat little bloat-free multiplayer place for playing games with your friends.">
+
+    <link rel="stylesheet" href="/main.css">
+    <link rel="stylesheet" href="main.css">
+
+    <link rel="shortcut icon" href="/favicon.ico">
+</head>
+<body>
+    <header></header>
+    <aside>
+        <div class="side-head">Players</div>
+        <div class="group">
+            <button onclick="navigator.clipboard.writeText(`${location.origin}${location.pathname}?lobby=${lobby.sid}`)">Copy Invite Link</button>
+        </div>
+        <div class="group">
+            Name:&nbsp;<input id="username" type="text" size="15" onkeypress="this.value.length>=15&&event.preventDefault()" onchange="changeName(this.value);">
+        </div>
+        <div id="players" class="panel panel-light">
+        </div>
+    </aside>
+    <section>
+        <div id="error-div" class="nodisplay">
+            <center><b>Your browser does not support WebRTC!</b></center>
+        </div>
+        <div id="host-buttons">
+
+        </div>
+        <iframe></iframe>
+    </section>
+    <footer></footer>
+</body>
+</html>
