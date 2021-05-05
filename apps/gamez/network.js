@@ -17,7 +17,7 @@ class Lobby {
             if (err.type == "browser-incompatible") {
                 q("#error-div").classList.remove("nodisplay");
             } else {
-                console.error("Peer failure", err);
+                console.error("Peer", err);
             }
         });
     }
@@ -57,8 +57,15 @@ class LocalLobby extends Lobby {
             const oldconn = this.conns[uid];
             if (oldconn) oldconn.close();
 
+            // Kick banned players
+            if (uid in banned) {
+                conn.close();
+                return;
+            }
+
             // Setup newer connection
             this.conns[uid] = conn;
+
             // Only on open
             conn.on("open", () => {
                 this.timeouts[uid] = 3;
@@ -72,26 +79,32 @@ class LocalLobby extends Lobby {
 
             // Listen for messages
             conn.on("error", (err) => {
-                console.error(uid, err);
+                console.error(uid, err.type, err);
             });
             conn.on("data", (data) => {
-                switch (data[0]) {
+                const key = data[0];
+                const args = JSON.parse(data[1]);
+
+                switch (key) {
                     case "$r": // Refresh packet received
                         break;
                     case "$c": // Close packet received
                         this.disconnect(uid);
                         break;
                     case "$m": // Metadata packet received
-                        const meta = JSON.parse(data[1]);
-                        setMeta(uid, ...meta);
-                        this.sendAllOthers(uid, "$m", uid, ...meta);
+                        setMeta(uid, ...args);
+                        this.sendAllOthers(uid, "$m", uid, ...args);
+                        break;
+                    case "$t": // Chat packet received
+                        addMsg(uid, args[0]);
+                        this.sendAll("$t", uid, args[0]);
                         break;
                     default:
-                        const func = this.binds[data[0]];
-                        if (func) func(uid, ...JSON.parse(data[1]));
+                        const func = this.binds[key];
+                        if (func) func(uid, ...args);
                         break;
                 }
-                if (data[0] !== "$c") this.timeouts[uid] = 3;
+                if (key !== "$c") this.timeouts[uid] = 3;
             });
         });
 
@@ -187,7 +200,7 @@ class RemoteLobby extends Lobby {
             
             // In the case of any error
             this.conn.on("error", (err) => {
-                console.error("Lobby", err);
+                console.error("Lobby", err.type, err);
             });
             // On successful connection
             this.conn.on("open", () => {
@@ -196,28 +209,33 @@ class RemoteLobby extends Lobby {
                 console.log("Connected to lobby");
                 // Calls a pre-bound function
                 this.conn.on("data", (data) => {
-                    switch (data[0]) {
+                    const key = data[0];
+                    const args = JSON.parse(data[1]);
+
+                    switch (key) {
                         case "$r": // Refresh packet received
                             break;
                         case "$c": // Close packet received
                             this.conn.close();
                             break;
                         case "$p": // Players packet received
-                            const pdata = JSON.parse(data[1]);
-                            groups = pdata[0]
-                            players = pdata[1];
-                            hostid = pdata[2];
+                            groups = args[0]
+                            players = args[1];
+                            hostid = args[2];
                             listPlayers();
                             break;
                         case "$m": // Metadata packet received
-                            setMeta(...JSON.parse(data[1]));
+                            setMeta(...args);
+                            break;
+                        case "$t": // Chat packet received
+                            addMsg(args[0], args[1]);
                             break;
                         default:
-                            const func = this.binds[data[0]];
-                            if (func) func(...JSON.parse(data[1]));
+                            const func = this.binds[key];
+                            if (func) func(...args);
                             break;
                     }
-                    if (data[0] !== "$c") this.timeout = 3;
+                    if (key !== "$c") this.timeout = 3;
                 });
             });
 

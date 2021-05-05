@@ -180,14 +180,14 @@ aside img {
     width: 100%;
     margin: auto;
 }
-aside .side-head {
+.side-head {
     border: var(--box-border-width) solid var(--box-border-color-light);
     background-color: var(--box-color-light);
     padding: 10px 0px;
     font-weight: bold;
     text-align: center;
 }
-aside .side-subhead {
+.side-subhead {
     margin-top: 8px;
     font-weight: bold;
     text-align: center;

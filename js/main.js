@@ -21,14 +21,14 @@ function choose(array) {
 }
 
 // Toggles the sidebar for mobile devices
-function toggleSidebar(btn) {
-    const aside = q("aside");
+function toggleSidebar(btn, query="aside") {
+    const aside = q(query);
 
-    if (aside.className == "shown") {
-        aside.className = "";
+    if (aside.classList.contains("shown")) {
+        aside.classList.remove("shown");
         btn.textContent = "+";
     } else {
-        aside.className = "shown";
+        aside.classList.add("shown");
         btn.textContent = "-";
     }
 }

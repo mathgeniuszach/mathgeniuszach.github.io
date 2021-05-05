@@ -2,15 +2,15 @@ aside {
     height: 100%;
 }
 
-h2 {
+section {
     margin-bottom: 0px;
 }
 
-iframe {
+#game {
     border: var(--box-border-width) solid var(--box-border-color);
-    margin: 5px 0px;
-    width: calc(100vw - 300px);
-    height: calc(100vh - 197px);
+    width: calc(100vw - 523px);
+    height: calc(100vh - 179px);
+    padding: 10px;
 }
 
 #players {
@@ -58,11 +58,78 @@ iframe {
     color: var(--link-color);
 }
 
+#help {
+    margin-bottom: 5px;
+}
+
+#chat {
+    position: fixed;
+    right: 20px;
+    top: 96px;
+    bottom: 59px;
+
+    display: flex;
+    flex-direction: column;
+
+    width: 200px;
+    min-width: 170px;
+    max-width: calc(100% - 54px);
+    min-height: 200px;
+    max-height: calc(100% - 169px);
+}
+#chat > .group {
+    margin-top: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#chat > #chat-box {
+    height: 100%;
+    margin: 5px 0px;
+
+    overflow-y: scroll;
+    overflow-wrap: break-word;
+}
+#chat > input {
+    width: calc(100% - 8px);
+}
+
+#chat .message {
+    margin-top: 2px;
+    font-size: small;
+}
+#chat .message > div {
+    margin-left: 10px;
+}
+
+#show-chat {
+    display: none;
+    position: fixed;
+    font-family: monospace;
+    font-size: large;
+    
+    right: 11px;
+    top: 87px;
+
+    width: 30px;
+    height: 30px;
+}
+
 @media only screen and (max-width: 750px) {
     aside {
         height: calc(100vh - 199px);
     }
-    iframe {
+    #show-chat {
+        display: block;
+    }
+    #chat {
+        display: none;
+        margin-top: 30px;
+    }
+    #chat.shown {
+        display: inherit;
+    }
+    #game {
         width: calc(100vw - 103px);
     }
 }

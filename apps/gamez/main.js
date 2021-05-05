@@ -18,14 +18,21 @@ const userid = (urlParams.has("temp") && nanoid()) || localStorage.getItem("game
 // Username
 let username = (urlParams.has("temp") && choose(NAMES)) || sanatize(localStorage.getItem("gamez-name")) || "player";
 
+
 // lobby, local or remote
 let lobby = null;
 let hostid = userid;
+// Banlist
+let banned = {};
 
 // Player groups 
 let groups = {};
 // Players 
 let players = {};
+
+
+// Currently loaded game
+let game = null;
 
 
 /**
@@ -141,27 +148,75 @@ function reset() {
 // Cleans up things between games.
 function clean() {
     groups = {"": Object.keys(players)};
+
+    if (lobby instanceof LocalLobby) {
+        $("#game").load("games/index.html");
+    }
+}
+
+
+// Adds a message to the chat.
+let lastSender = null;
+function addMsg(id, message) {
+    const msg = message.length > 100 ? msg.slice(0, 97) + "..." : message;
+
+    const cbox = q("#chat-box");
+    if (lastSender !== id) {
+        cbox.insertAdjacentHTML("beforeend", `<div class="message"><b>${players[id].name}</b><br><div>${msg}</div></div>`);
+    } else {
+        cbox.insertAdjacentHTML("beforeend", `<div class="message"><div>${msg}</div></div>`);
+    }
+
+    cbox.scrollTop = 10000000;
+    lastSender = id;
 }
 
 
 $(() => {
     // Set username field to loaded value
     q("#username").value = username;
-    
-    // List default players
-    reset();
-    listPlayers();
 
     // Setup click handler for players
     $("#players").click((e) => {
         const player = e.target.parentElement;
         if (player.classList.contains("player")) {
-            // This is a player, so open up a player box
-            const name = player.querySelector("i").textContent;
-            const id = player.classList[1].slice(1);
-            msgBox(`${name} (${id})`, ["Close"], (i) => {
+            if (lobby) {
+                // This is a player, so open up a player box
+                const name = player.querySelector("i").textContent;
+                const id = player.classList[1].slice(1);
+                if (lobby instanceof RemoteLobby || id === userid) {
+                    msgBox(`${name} (${id})`, ["Close"]);
+                } else {
+                    msgBox(`${name} (${id})`, ["Close", "Kick", "Ban"], (i) => {
+                        switch (i) {
+                            case 2:
+                                banned[id] = true;
+                            case 1:
+                                lobby.disconnect(id);
+                                break;
+                            default:
+                                break;
+                        }
+                    });
+                }
+            }
+        }
+    });
 
-            });
+    // Setup chat to send on enter key
+    $("#chat-field").on("keydown", function (e) {
+        if (lobby) {
+            if (e.which == 13) {
+                if (0 < this.value.length && this.value.length <= 100) {
+                    if (lobby instanceof RemoteLobby) {
+                        lobby.send("$t", this.value);
+                    } else {
+                        addMsg(userid, this.value);
+                        lobby.sendAll("$t", userid, this.value);
+                    }
+                    this.value = "";
+                }
+            }
         }
     });
 
@@ -173,4 +228,8 @@ $(() => {
         // The lobby is local, meaning we are hosting
         lobby = new LocalLobby();
     }
+    
+    // List default players
+    reset();
+    listPlayers();
 });
