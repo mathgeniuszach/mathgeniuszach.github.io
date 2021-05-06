@@ -17,7 +17,7 @@ class Lobby {
             if (err.type == "browser-incompatible") {
                 q("#error-div").classList.remove("nodisplay");
             } else {
-                console.error("Peer", err);
+                console.error(err.type, "Peer", err);
             }
         });
     }
@@ -31,8 +31,19 @@ class Lobby {
     }
 
     // For binding recieving messages
-    bind(type, func) {
-        this.binds[type] = func;
+    bind(key, func) {
+        this.binds[key] = func;
+    }
+
+    // Calls a bound function, or does nothing if it's not bound
+    signal(key, ...args) {
+        const func = this.binds[key];
+        if (func) func(...args);
+    }
+
+    // Clear all binds
+    unbindAll() {
+        this.binds = {};
     }
 }
 
@@ -75,11 +86,16 @@ class LocalLobby extends Lobby {
                 groups[""].push(uid);
                 this.sendPlayers();
                 listPlayers();
+
+                // Send currently loaded game
+                this.send(uid, "$g", loadedGame);
             });
 
             // Listen for messages
             conn.on("error", (err) => {
-                console.error(uid, err.type, err);
+                if (!err.message.startsWith("Connection is not open")) {
+                    console.error(uid, err);
+                }
             });
             conn.on("data", (data) => {
                 const key = data[0];
@@ -99,9 +115,13 @@ class LocalLobby extends Lobby {
                         addMsg(uid, args[0]);
                         this.sendAll("$t", uid, args[0]);
                         break;
+                    case "$i": // Init game packet received
+                        // Called after client has loaded the game.
+                        console.log(uid, "is ready");
+                        if (loadedGame) this.signal("join", uid);
+                        break;
                     default:
-                        const func = this.binds[key];
-                        if (func) func(uid, ...args);
+                        this.signal(key, uid, ...args);
                         break;
                 }
                 if (key !== "$c") this.timeouts[uid] = 3;
@@ -143,6 +163,9 @@ class LocalLobby extends Lobby {
         delete players[id];
         this.sendPlayers();
         listPlayers();
+
+        // Signal
+        this.signal("leave", id);
     }
 
     send(id, type, ...args) {
@@ -200,7 +223,9 @@ class RemoteLobby extends Lobby {
             
             // In the case of any error
             this.conn.on("error", (err) => {
-                console.error("Lobby", err.type, err);
+                if (!err.message.startsWith("Connection is not open")) {
+                    console.error("Lobby", err);
+                }
             });
             // On successful connection
             this.conn.on("open", () => {
@@ -219,7 +244,7 @@ class RemoteLobby extends Lobby {
                             this.conn.close();
                             break;
                         case "$p": // Players packet received
-                            groups = args[0]
+                            groups = args[0];
                             players = args[1];
                             hostid = args[2];
                             listPlayers();
@@ -230,9 +255,11 @@ class RemoteLobby extends Lobby {
                         case "$t": // Chat packet received
                             addMsg(args[0], args[1]);
                             break;
+                        case "$g": // Game packet received
+                            loadGame(args[0]);
+                            break;
                         default:
-                            const func = this.binds[key];
-                            if (func) func(...args);
+                            this.signal(key, ...args);
                             break;
                     }
                     if (key !== "$c") this.timeout = 3;

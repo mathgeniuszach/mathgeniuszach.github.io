@@ -1,0 +1,150 @@
+<div id="buttons">
+    <button onclick="G.clear()">Clear</button>
+    <input id="color-ipt" type="color" onchange="G.color=this.value">
+    <input id="size-ipt" type="number" min="1" onchange="G.setSize(this)">
+    <input id="alt-color-ipt" type="color" onchange="G.altColor=this.value">
+    <input id="alt-size-ipt" type="number" min="1" onchange="G.setSize(this, true)">
+</div>
+<canvas width="500" height="500" oncontextmenu="return false"></canvas>
+
+<style>
+    canvas {
+        background-color: white;
+        border: var(--box-border-width) solid var(--box-border-color-light);
+    }
+    #buttons {
+        display: flex;
+        margin-bottom: 5px;
+    }
+    #buttons > * {
+        margin-right: 5px;
+    }
+    input[type=number] {
+        width: 42px;
+    }
+</style>
+
+<script>(() => {
+    const canvas = q("canvas");
+    const ctx = canvas.getContext("2d");
+    ctx.lineCap = "round";
+
+    let loaded = false;
+    G.color = "#000000";
+    G.altColor = "#FFFFFF";
+    G.size = 3;
+    G.altSize = 3;
+
+    q("#color-ipt").value = G.color;
+    q("#alt-color-ipt").value = G.altColor;
+    q("#size-ipt").value = G.size;
+    q("#alt-size-ipt").value = G.altSize;
+
+    if (isHost()) {
+        // Server only events
+        lobby.bind("join", (id) => {
+            const img = canvas.toDataURL("image/png");
+            lobby.send(id, "screen", img);
+        });
+        loaded = true;
+    } else {
+        // Client only events
+        // Called to update the screen at the start
+        lobby.bind("screen", (data) => {
+            const img = new Image();
+            img.onload = () => {
+                ctx.drawImage(img, 0, 0);
+                loaded = true;
+            };
+            img.src = data;
+        });
+    }
+
+    // Drawing a single line event
+    lobby.bind("draw", (id, x, y, x2, y2, color, size) => {
+        ctx.strokeStyle = sanatize(color);
+        ctx.lineWidth = size;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        ctx.closePath();
+
+        if (isHost()) {
+            lobby.sendAll("draw", id, x, y, x2, y2, color, size);
+        }
+    });
+    function draw(x, y, x2, y2, color, size) {
+        if (loaded) {
+            if (isHost()) {
+                lobby.signal("draw", userid, x, y, x2, y2, color, size);
+            } else {
+                lobby.send("draw", x, y, x2, y2, color, size);
+            }
+        }
+    }
+
+    // Clear canvas event
+    lobby.bind("clear", (id) => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (isHost()) {
+            lobby.sendAll("clear", userid);
+        }
+    });
+    G.clear = () => {
+        if (loaded) {
+            if (isHost()) {
+                lobby.signal("clear", userid);
+            } else {
+                lobby.send("clear");
+            }
+        }
+    }
+
+    // Set stroke size
+    G.setSize = (ipt, alt) => {
+        if (ipt.value < 1) {
+            ipt.value = 1;
+            if (alt) G.altSize = 1;
+            else G.size = 1;
+        } else {
+            if (alt) G.altSize = ipt.value;
+            else G.size = ipt.value;
+        }
+    }
+
+    // Bind onmousedown event
+    canvas.onmousedown = function (e) {
+        e.preventDefault();
+
+        const rect = canvas.getBoundingClientRect();
+        let x = e.clientX - rect.left;
+        let y = e.clientY - rect.top;
+        let size = e.which == 3 ? G.altSize : G.size;
+        let color = e.which == 3 ? G.altColor : G.color;
+
+        draw(x, y, x, y, color, size);
+
+        document.onmousemove = function (e2) {
+            e2.preventDefault();
+            const nx = e2.clientX - rect.left;
+            const ny = e2.clientY - rect.top;
+            draw(x, y, nx, ny, color, size);
+            x = nx;
+            y = ny;
+        }
+        document.onmouseup = function (e2) {
+            e2.preventDefault();
+            document.onmousemove = null;
+            document.onmouseup = null;
+        }
+    }
+
+    if (isHost()) {
+        canvas.insertAdjacentHTML("afterend", '<br><a href="javascript:quit()">Exit Game</a>')
+    } else {
+        // Tell the lobby we are ready
+        lobby.send("$i");
+    }
+})();</script>

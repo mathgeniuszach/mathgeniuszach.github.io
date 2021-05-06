@@ -47,13 +47,20 @@ h2 {
     margin-bottom: 5px;
 }
 
-ul, ol {
+ul, ol, dl {
     list-style: none;
     margin: 5px 0px;
     padding-left: 30px;
 }
 li {
     margin: 10px 0px;
+}
+dt {
+    margin-top: 10px;
+}
+dd {
+    margin-bottom: 10px;
+    margin-left: 20px;
 }
 p {
     margin: 0px;

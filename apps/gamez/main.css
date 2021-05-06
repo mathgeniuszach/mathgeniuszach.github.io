@@ -11,6 +11,8 @@ section {
     width: calc(100vw - 523px);
     height: calc(100vh - 179px);
     padding: 10px;
+
+    overflow: scroll;
 }
 
 #players {
@@ -130,6 +132,6 @@ section {
         display: inherit;
     }
     #game {
-        width: calc(100vw - 103px);
+        width: calc(100vw - 123px);
     }
 }

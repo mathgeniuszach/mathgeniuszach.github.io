@@ -1,7 +1,7 @@
 // Definition of a server for use in PeerJS. Here so I can stop using the free service if I have my own in the future.
 const SERVER = undefined;
 // Evil character regex
-const EVIL_CHAR = /[^\w .,;:]+/g;
+const EVIL_CHAR = /[<>'"`&/\\]+/g;
 // Random temporary names
 const NAMES = ["Joey", "George", "Billy", "Bob"]
 // Player items mapper
@@ -32,7 +32,10 @@ let players = {};
 
 
 // Currently loaded game
-let game = null;
+let loadedGame = null;
+// Global game variables. Useful so that the window isn't filled with variables.
+// Cleaned on game close.
+let G = {};
 
 
 /**
@@ -50,22 +53,34 @@ function sanatize(text) {
  */
 function listPlayers() {
     // Create html list
-    let code = [];
+    const code = [];
 
+    // Sanatize player list
+    for (const player of Object.values(players)) {
+        for (const [key, value] of Object.entries(player)) {
+            const svalue = sanatize(value);
+            if (svalue !== value) player[key] = svalue;
+        }
+    }
+
+    // Populate groups
     for (const [key, pids] of Object.entries(groups)) {
         code.push('<div class="pgroup">');
 
-        if (key) code.push(`<div class="heading"><hr>${key}<hr></div>`);
+        if (key) code.push(`<div class="heading"><hr>${sanatize(key)}<hr></div>`);
         for (let i = 0; i < pids.length; i++) {
-            const pid = pids[i];
+            const pid = sanatize(pids[i]);
+            if (pid !== pids[i]) pids[i] = pid;
+
             const player = players[pid];
             if (player) {
                 // We can identify players by their ids, which are safe to be classes! :D
+                // Also, you can never be too sure about XSS, so sanatize all around!
                 code.push(`<div class="player _${pid}">
                             <b>${sanatize(player.mark)}</b>
                             <i style="color:${sanatize(player.color) || "auto"};">${sanatize(player.name)}</i>
                             <em></em>
-                            <span>${sanatize(player.text)}</span></div>\n`);
+                            <span>${sanatize(player.text).replace(/\r\n|\r|\n/g, "<br>")}</span></div>\n`);
             } else {
                 // If the player doesn't exist in array, then this player has left
                 // Therefore we remove it from the group
@@ -89,17 +104,22 @@ function listPlayers() {
  * @param {string} value Value to change the meta item to
  */
 function setMeta(id, item, value) {
-    switch (item) {
+    // I don't know if css selectors can XSS, but just to be on the safe side
+    const sid = sanatize(id);
+    const sitem = sanatize(item);
+
+    switch (sitem) {
         case "color":
-            players[id].color = value;
-            for (const elem of qq(`#players ._${id} > i`)) {
-                elem.style.color = sanatize(value);
+            const svalue = sanatize(value);
+            players[sid].color = svalue;
+            for (const elem of qq(`#players ._${sid} > i`)) {
+                elem.style.color = svalue;
             }
             break;
         default:
-            if (item in PLAYER_ITEMS) players[id][item] = value;
+            if (sitem in PLAYER_ITEMS) players[sid][sitem] = value;
             
-            for (const elem of qq(`#players ._${id} > ${PLAYER_ITEMS[item] || item}`)) {
+            for (const elem of qq(`#players ._${sid} > ${PLAYER_ITEMS[sitem] || sitem}`)) {
                 elem.textContent = value;
             }
             break;
@@ -123,12 +143,19 @@ function changeName(name) {
 
     // Send a message to everyone that our name has been changed
     if (lobby) {
-        if (lobby instanceof RemoteLobby) {
-            lobby.send("$m", "name", tname);
-        } else {
+        if (isHost()) {
             lobby.sendAll("$m", userid, "name", tname);
+        } else {
+            lobby.send("$m", "name", tname);
         }
     }
+}
+
+/**
+ * Returns true if the user is hosting, and false otherwise.
+ */
+function isHost() {
+    return lobby instanceof LocalLobby;
 }
 
 // Get or generate a persistent unique id
@@ -138,19 +165,50 @@ function getID() {
     return tid;
 }
 
+
 // Safely resets players and other things to default values.
 function reset() {
     players = {
         [userid]: {name: username, mark: "", text: ""}
     };
-    clean();
+    loadGame();
 }
-// Cleans up things between games.
-function clean() {
+// Loads a game/html page locally.
+function loadGame(game) {
+    G = {};
     groups = {"": Object.keys(players)};
+    listPlayers();
 
-    if (lobby instanceof LocalLobby) {
-        $("#game").load("games/index.html");
+    if (lobby) {
+        lobby.unbindAll();
+        if (game) {
+            console.log("Loading game", game);
+            loadedGame = game;
+            $("#game").load(`games/${sanatize(game)}.html`);
+        } else {
+            console.log("Exiting to main menu");
+            loadedGame = null;
+            if (isHost()) {
+                $("#game").load(`games/index.html`);
+            } else {
+                $("#game").load(`games/client.html`);
+            }
+        }
+    }
+}
+// Starts a game.
+function start(game) {
+    // Let everyone know to load a game
+    if (isHost()) {
+        lobby.sendAll("$g", game);
+        loadGame(game);
+    }
+}
+// Quits the currently loaded game
+function quit() {
+    if (isHost()) {
+        lobby.sendAll("$g");
+        loadGame();
     }
 }
 
@@ -158,11 +216,12 @@ function clean() {
 // Adds a message to the chat.
 let lastSender = null;
 function addMsg(id, message) {
-    const msg = message.length > 100 ? msg.slice(0, 97) + "..." : message;
+    const tmsg = sanatize(message);
+    const msg = tmsg.length > 100 ? tmsg.slice(0, 97) + "..." : tmsg;
 
     const cbox = q("#chat-box");
     if (lastSender !== id) {
-        cbox.insertAdjacentHTML("beforeend", `<div class="message"><b>${players[id].name}</b><br><div>${msg}</div></div>`);
+        cbox.insertAdjacentHTML("beforeend", `<div class="message"><b>${sanatize(players[id].name)}</b><br><div>${msg}</div></div>`);
     } else {
         cbox.insertAdjacentHTML("beforeend", `<div class="message"><div>${msg}</div></div>`);
     }
@@ -184,7 +243,7 @@ $(() => {
                 // This is a player, so open up a player box
                 const name = player.querySelector("i").textContent;
                 const id = player.classList[1].slice(1);
-                if (lobby instanceof RemoteLobby || id === userid) {
+                if (!isHost() || id === userid) {
                     msgBox(`${name} (${id})`, ["Close"]);
                 } else {
                     msgBox(`${name} (${id})`, ["Close", "Kick", "Ban"], (i) => {
@@ -208,11 +267,11 @@ $(() => {
         if (lobby) {
             if (e.which == 13) {
                 if (0 < this.value.length && this.value.length <= 100) {
-                    if (lobby instanceof RemoteLobby) {
-                        lobby.send("$t", this.value);
-                    } else {
+                    if (isHost()) {
                         addMsg(userid, this.value);
                         lobby.sendAll("$t", userid, this.value);
+                    } else {
+                        lobby.send("$t", this.value);
                     }
                     this.value = "";
                 }
@@ -229,7 +288,6 @@ $(() => {
         lobby = new LocalLobby();
     }
     
-    // List default players
+    // Reset values and stuff to default
     reset();
-    listPlayers();
 });
