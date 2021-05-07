@@ -1,6 +1,17 @@
-class Lobby {
+// A peer that isn't really a peer, just for testing.
+class OfflinePeer {
     constructor() {
-        this.peer = new Peer(nanoid());
+        this.id = nanoid();
+        q("#status").textContent = "Offline";
+    }
+    on(...args) {}
+    destroy() {}
+}
+
+class Lobby {
+    constructor(offline=false) {
+        if (offline) this.peer = new OfflinePeer();
+        else this.peer = new Peer(nanoid());
         this.binds = {};
 
         // If disconnected from the signalling server, try reconnecting
@@ -48,8 +59,8 @@ class Lobby {
 }
 
 class LocalLobby extends Lobby {
-    constructor() {
-        super();
+    constructor(offline) {
+        super(offline);
         this.sid = this.peer.id;
 
         this.conns = {};

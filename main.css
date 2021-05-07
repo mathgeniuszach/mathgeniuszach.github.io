@@ -362,7 +362,7 @@ footer {
     left: -9999px;
 }
 .nodisplay {
-    display: none;
+    display: none !important;
 }
 .tabbed {
     position: relative;

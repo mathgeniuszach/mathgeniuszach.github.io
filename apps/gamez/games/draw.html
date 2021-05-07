@@ -4,8 +4,11 @@
     <input id="size-ipt" type="number" min="1" onchange="G.setSize(this)">
     <input id="alt-color-ipt" type="color" onchange="G.altColor=this.value">
     <input id="alt-size-ipt" type="number" min="1" onchange="G.setSize(this, true)">
+    <button onclick="G.export()">Export</button>
 </div>
-<canvas width="500" height="500" oncontextmenu="return false"></canvas>
+<canvas width="500" height="500" oncontextmenu="return false" ondragover="return false" ondrop="G.drop(event)"></canvas>
+
+
 
 <style>
     canvas {
@@ -44,20 +47,32 @@
         // Server only events
         lobby.bind("join", (id) => {
             const img = canvas.toDataURL("image/png");
-            lobby.send(id, "screen", img);
+            lobby.send(id, "screen", userid, img);
         });
         loaded = true;
-    } else {
-        // Client only events
-        // Called to update the screen at the start
-        lobby.bind("screen", (data) => {
-            const img = new Image();
-            img.onload = () => {
-                ctx.drawImage(img, 0, 0);
-                loaded = true;
-            };
-            img.src = data;
-        });
+    }
+
+    // Called to update the screen at the start
+    lobby.bind("screen", (id, data) => {
+        const img = new Image();
+        img.onload = () => {
+            ctx.drawImage(img, 0, 0);
+            loaded = true;
+        };
+        img.src = data;
+
+        if (isHost()) {
+            lobby.sendAll("screen", userid, data);
+        }
+    });
+    function screen(data) {
+        if (loaded) {
+            if (isHost()) {
+                lobby.signal("screen", userid, data);
+            } else {
+                lobby.send("screen", data);
+            }
+        }
     }
 
     // Drawing a single line event
@@ -100,6 +115,35 @@
                 lobby.send("clear");
             }
         }
+    };
+
+    // Export image from canvas
+    G.export = () => {
+        dstCanvas = document.createElement("canvas");
+        dstCanvas.width = canvas.width;
+        dstCanvas.height = canvas.height;
+
+        dstCtx = dstCanvas.getContext("2d");
+        dstCtx.fillStyle = "#ffffff";
+        dstCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+        dstCtx.drawImage(canvas, 0, 0);
+
+        dataURL(dstCanvas.toDataURL("image/png"));
+        dstCanvas.remove();
+    };
+
+    // Drop image on canvas
+    G.drop = (e) => {
+        e.preventDefault();
+        const file = e.dataTransfer.files[0];
+        if (file.type.startsWith("image/")) {
+            const reader = new FileReader();
+            reader.addEventListener("load", () => {
+                screen(reader.result);
+            });
+            reader.readAsDataURL(file);
+        }
     }
 
     // Set stroke size
@@ -112,7 +156,7 @@
             if (alt) G.altSize = ipt.value;
             else G.size = ipt.value;
         }
-    }
+    };
 
     // Bind onmousedown event
     canvas.onmousedown = function (e) {
@@ -139,7 +183,7 @@
             document.onmousemove = null;
             document.onmouseup = null;
         }
-    }
+    };
 
     if (isHost()) {
         canvas.insertAdjacentHTML("afterend", '<br><a href="javascript:quit()">Exit Game</a>')
@@ -147,4 +191,4 @@
         // Tell the lobby we are ready
         lobby.send("$i");
     }
-})();</script>
+})()</script>

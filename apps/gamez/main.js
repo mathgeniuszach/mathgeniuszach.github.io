@@ -2,8 +2,10 @@
 const SERVER = undefined;
 // Evil character regex
 const EVIL_CHAR = /[<>'"`&/\\]+/g;
+// Evil character set
+const EVIL_CHAR_SET = new Set("<>'\"`&/\\");
 // Random temporary names
-const NAMES = ["Joey", "George", "Billy", "Bob"]
+const NAMES = ["Joey", "George", "Billy", "Bobby"]
 // Player items mapper
 const PLAYER_ITEMS = {
     "name": "i",
@@ -124,6 +126,9 @@ function setMeta(id, item, value) {
             }
             break;
     }
+
+    // Call signal for name if necessary
+    if (lobby && item === "name") lobby.signal("name", id);
 }
 
 /**
@@ -216,7 +221,7 @@ function quit() {
 // Adds a message to the chat.
 let lastSender = null;
 function addMsg(id, message) {
-    const tmsg = sanatize(message);
+    const tmsg = sanatize(message).trim();
     const msg = tmsg.length > 100 ? tmsg.slice(0, 97) + "..." : tmsg;
 
     const cbox = q("#chat-box");
@@ -266,12 +271,13 @@ $(() => {
     $("#chat-field").on("keydown", function (e) {
         if (lobby) {
             if (e.which == 13) {
-                if (0 < this.value.length && this.value.length <= 100) {
+                const tvalue = this.value.trim();
+                if (0 < tvalue.length && tvalue.length <= 100) {
                     if (isHost()) {
-                        addMsg(userid, this.value);
-                        lobby.sendAll("$t", userid, this.value);
+                        addMsg(userid, tvalue);
+                        lobby.sendAll("$t", userid, tvalue);
                     } else {
-                        lobby.send("$t", this.value);
+                        lobby.send("$t", tvalue);
                     }
                     this.value = "";
                 }
@@ -285,7 +291,7 @@ $(() => {
         lobby = new RemoteLobby(urlParams.get("lobby"));
     } else {
         // The lobby is local, meaning we are hosting
-        lobby = new LocalLobby();
+        lobby = new LocalLobby(urlParams.has("offline"));
     }
     
     // Reset values and stuff to default

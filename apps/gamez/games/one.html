@@ -1,0 +1,536 @@
+<div id="one-players" class="panel panel-light"></div>
+<div class="group">
+    <button id="game-joiner" onclick="G.joinLeaveGame(this)">Join Game</button>
+    <button id="game-ender" onclick="G.endGame()" class="nodisplay">End Game</button>
+</div>
+
+<div id="starting">
+    <p>This is <b>One</b>, the standard match-the-pile's color or number card game. Join/Leave the next game with the button above.</p>
+    <p id="host-msg"></p>
+    
+    <div id="host-options" class="nodisplay">
+        <a href="javascript:quit()">Exit Game</a><br>
+        <div class="panel">
+            <div class="options">
+                <label for="mid-game-join" title="Whether or not people can join mid-game.">Mid-Game Join:</label>
+                <input id="mid-game-join" type="checkbox" onchange="G.midjoin=!G.midjoin">
+            </div>
+            <hr>
+            <div class="options">
+                <label for="deck" title="Some code describing the initial deck.">Deck:</label>
+                <textarea id="deck" spellcheck="false" wrap="off"></textarea>
+            </div>
+            <hr>
+            <button id="starter" onclick="G.startGame()">Start Game</button>
+        </div><br>
+    </div>
+</div>
+
+<div id="playing" class="nodisplay">
+    <div id="order-msg">Turn-order is <b>normal</b></div>
+    <div id="turn-msg">It's someone's turn!</div>
+    <div class="card-group">
+        <a draggable="true" href="javascript:void(0)" id="draw" class="card" style="--s:0%" ondblclick="G.drawCard()" ondragend="G.drawCard()"><div>+</div></a>
+    </div>
+    <div id="discards" class="card-group"></div>
+    <div id="announce-msg">...</div>
+    <b>Your Hand:</b>
+    <div id="hand" class="card-group"></div>
+</div>
+
+<!-- Instructions should always be visible unless the user explicitly hides them
+<div id="instructions">
+    <h2>Instructions</h2>
+    <p>Figure it out for now lol</p>
+</div>
+-->
+
+
+<style>
+    #one-players {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        flex-wrap: wrap;
+
+        box-sizing: border-box;
+        width: 100%;
+        min-height: 125px;
+        margin-bottom: 5px;
+        padding: 0px;
+    }
+    #one-players > div {
+        display: flex;
+        flex-direction: column;
+        margin: 5px;
+        text-align: center;
+
+        width: 150px;
+    }
+    #one-players > div > span {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+    #host-options > div {
+        max-width: 500px;
+        width: 100%;
+        box-sizing: border-box;
+        margin-top: 10px;
+        text-align: center;
+    }
+    .options {
+        display: grid;
+        text-align: right;
+        grid-template-columns: 150px 1fr;
+        gap: 5px;
+    }
+    #host-options textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    #playing {
+        text-align: center;
+    }
+
+    .data {
+        color: var(--link-color);
+    }
+    .card {
+        --h: 0;
+        --s: 100%;
+        --l: 70%;
+        --color: hsl(var(--h), var(--s), calc(var(--l) - 30%));
+        border: var(--box-border-width) solid var(--color);
+        background-color: hsl(var(--h), var(--s), var(--l));
+
+        margin: 2px;
+        padding: 5px;
+
+        display: block;
+        box-sizing: border-box;
+        
+    }
+    .card > div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        width: 20px;
+        height: 30px;
+        color: var(--color);
+        background-color: white;
+        
+        font-size: 100%;
+
+        border: var(--box-border-width) solid var(--color);
+    }
+    .card-group {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+
+        margin: 0px 10px;
+    }
+    #discards,
+    #turn-msg,
+    #announce-msg {
+        margin-bottom: 10px;
+    }
+
+    .card.selected {
+        --l: 85%;
+        --s: 40%;
+    }
+    ._W > div {
+        image-rendering: pixelated;
+        background-image: url("./img/wild.png");
+    }
+    ._W.selected {--s:0%}
+    ._W {--l:40%;--s:0%}
+    ._R {--h:0}
+    ._O {--h:30}
+    ._Y {--h:60}
+    ._G {--h:120}
+    ._C {--h:180}
+    ._B {--h:240}
+    ._P {--h:280}
+    ._M {--h:310}
+
+    .appear {
+        transform: none;
+        animation-name: appear;
+        animation-duration: 0.3s;
+        animation-timing-function: linear;
+    }
+    .disappear {
+        transform: scale(0);
+        animation-name: disappear;
+        animation-duration: 0.3s;
+        animation-timing-function: linear;
+    }
+    @keyframes appear {
+        0% {transform: rotate(270deg) scale(0)}
+        100% {transform: rotate(360deg) scale(1)}
+    }
+    @keyframes disappear {
+        0% {transform: rotate(360deg) scale(1)}
+        100% {transform: rotate(270deg) scale(0)}
+    }
+</style>
+
+<script>(() => {
+    // Create suits
+    const cards = new Set();
+    // Color suits
+    makeCards(cards, "ROYGCBPM", "0123456789sr+");
+    // Wild suit
+    makeCards(cards, "W", "0+");
+
+    let started = false;
+    let ingame = false;
+
+    let scores = {};
+    let cardCounts = {};
+    let playersIngame = [];
+    let discards = [];
+    let turn = 0;
+    let hand;
+
+    // The selected card, either being dragged or just selected.
+    G.selcard = null;
+
+    showScores();
+
+    // Player name change event
+    lobby.bind("name", (id) => {
+        showIngame();
+    });
+
+    if (isHost()) {
+        // Host specific things
+        // Setup html
+        q("#host-msg").innerHTML = "As the host you can change any of the options below options before the game starts. Don't forget that if you want to play you have to join the game too!";
+        q("#host-options").className = "";
+
+        // Load settings
+        q("#deck").value = "1 RYGB 0\n2 RYGB 123456789sr+\n4 W 0+";
+        G.midjoin = false;
+        G.starthand = 7;
+        G.piles = 2;
+
+        // Host specific variables
+        let tdeck = null;
+        let deck = null;
+        let suits = null;
+
+        const playerCards = {};
+
+
+        // Player join and leave events
+        lobby.bind("join", (id) => {
+            lobby.send(id, "init", scores, cardCounts, playersIngame, discards);
+            if (started) lobby.send(id, "start");
+        });
+        lobby.bind("leave", (id) => {
+            // For now, a disconnecting player leaves permanently.
+            // TODO: Later, it should ask the host what they want to do, and freeze the game.
+            if (playersIngame.includes(id)) {
+                removePlayer(id);
+                lobby.sendAll("leave-game", id);
+            }
+        });
+        // Player join and leave game events
+        lobby.bind("join-game", (id) => {
+            if (started && !G.midjoin) return;
+            
+            if (!playersIngame.includes(id)) {
+                addPlayer(id);
+                lobby.sendAll("join-game", id);
+            }
+        });
+        lobby.bind("leave-game", (id) => {
+            if (playersIngame.includes(id)) {
+                removePlayer(id);
+                lobby.sendAll("leave-game", id);
+            }
+        });
+
+        function expandDeck(length=1) {
+            for (let i = 0; i < Math.ceil(length / tdeck.length); i++) {
+                deck.push(...tdeck);
+            }
+            shuffle(deck);
+        }
+
+        G.startGame = () => {
+            // Parse the deck configuration
+            try {
+                [tdeck, suits] = makeDeck(q("#deck").value, cards);
+                suits.delete("W");
+            } catch (err) {
+                console.error(err);
+                msgBox("Invalid Deck Configuration");
+                return;
+            }
+
+            // Shuffle the deck
+            deck = [];
+            expandDeck();
+
+            // Deal out cards
+            for (const pid of playersIngame) {
+                if (deck.length < G.starthand) expandDeck(G.starthand);
+                playerCards[pid] = deck.splice(deck.length-G.starthand, G.starthand);
+                playerCards[pid].sort();
+                cardCounts[pid] = G.starthand;
+                
+                // Give everyone their hand
+                if (pid === userid) {
+                    hand = playerCards[userid];
+                    showHand();
+                } else {
+                    lobby.send(pid, "hand", playerCards[pid]);
+                }
+            }
+
+            const discardElem = q("#discards");
+            // Create discard piles
+            for (let i = 0; i < G.piles; i++) {
+                // Ensure that the next card is not a wild card
+                let card = deck.pop();
+                while (card[0] == "W") {
+                    deck.unshift(card);
+                    card = deck.pop();
+                }
+                // Create a discard pile from the non-wild card
+                discardElem.insertAdjacentHTML("beforeend", makeCard(card, true));
+                discards.push([card]);
+            }
+            // Shuffle once again for posterity
+            shuffle(deck);
+
+            // Initialize everyone, to make sure they're up to date
+            lobby.sendAll("init", scores, cardCounts, playersIngame, discards);
+
+            // Show/Hide game specific elements
+            q("#game-ender").className = "";
+            q("#starting").className = "nodisplay";
+            q("#playing").className = "";
+
+            started = true;
+            lobby.sendAll("start");
+        };
+
+        G.endGame = () => {
+
+        };
+    } else {
+        // Non-host specific things
+        q("#host-msg").textContent = "You have to wait for the host to begin the game.";
+
+        // When the server starts the game (or has already started it)
+        lobby.bind("start", () => {
+            started = true;
+        });
+        // When the server ends the game
+        lobby.bind("end", () => {
+            started = false;
+        });
+        // Send or receive ingame players and scores
+        lobby.bind("init", (lScores, lCardCounts, lPlayersIngame, lDiscards) => {
+            scores = lScores;
+            cardCounts = lCardCounts;
+            playersIngame = lPlayersIngame;
+            discards = lDiscards;
+
+            showScores();
+            showIngame();
+        });
+        // When a new hand is received
+        lobby.bind("hand", (lHand) => {
+            hand = lHand;
+            showHand();
+        });
+
+        // Player join/leave game events
+        lobby.bind("join-game", (id) => {
+            if (id === userid) {
+                // This is our join event, so update some stuff
+                ingame = true;
+                q("#game-joiner").textContent = "Leave Game";
+            }
+            addPlayer(id)
+        });
+        lobby.bind("leave-game", (id) => {
+            if (id === userid) {
+                // This is our leave event, so update some stuff
+                ingame = false;
+                q("#game-joiner").textContent = "Join Game";
+            }
+            removePlayer(id);
+        });
+
+        lobby.send("$i");
+    }
+
+    // Join/Leave game
+    G.joinLeaveGame = (btn) => {
+        if (isHost()) {
+            if (started && !G.midjoin) return;
+
+            ingame = !ingame;
+
+            // Signal joining game
+            if (ingame) {
+                btn.textContent = "Leave Game";
+                lobby.signal("join-game", userid);
+            } else {
+                btn.textContent = "Join Game";
+                lobby.signal("leave-game", userid);
+            }
+        } else {
+            if (ingame) {
+                lobby.send("leave-game", userid);
+            } else {
+                lobby.send("join-game", userid);
+            }
+        }
+    }
+
+    // Show players
+    function showIngame() {
+        const code = [];
+        for (const pid of playersIngame) {
+            const name = (pid === userid ? "(You) ": "") + players[pid].name;
+            code.push(`<div class="panel"><span>${name}</span><span class="data">${cardCounts[pid]} Cards</span></div>`);
+        }
+        q("#one-players").innerHTML = code.join("");
+        const turnp = q(`#one-players > div:nth-child(${turn+1})`);
+        if (turnp) turnp.classList.add("panel-selected");
+    }
+    // Show scores
+    function showScores() {
+
+    }
+    // Show hand
+    function showHand() {
+        const code = [];
+        for (const card of hand) {
+            code.push(makeCard(card));
+        }
+        q("#hand").innerHTML = code.join("");
+    }
+    // Show discard piles
+    function showDiscards() {
+        const code = [];
+        for (const stack of discards) {
+            code.push(makeCard(stack[stack.length-1]));
+        }
+        q("#hand").innerHTML = code.join("");
+    }
+    // Generates html from a card code.
+    function makeCard(code, discard=false) {
+        // Make sure the character code is not illegal
+        if (EVIL_CHAR_SET.has(code[0]) || EVIL_CHAR_SET.has(code[1])) {
+            throw Error("No XSS for you!");
+        }
+
+        let txt = "";
+        if (code[0] == "W") {
+            switch (code[1]) {
+                case "+":
+                    txt = "+4";
+                    break;
+            }
+        } else {
+            switch (code[1]) {
+                case "s":
+                    txt = "ø";
+                    break;
+                case "r":
+                    txt = "↫";
+                    break;
+                case "+":
+                    txt = "+2";
+                    break;
+                default:
+                    txt = code[1];
+                    break;
+            }
+        }
+
+        if (discard) {
+            return `<a draggable="false" href="javascript:void(0)" class="card _${code[0]}" code="${code}"
+                        ondragover="return false"
+                        ondrop="G.playCard(this)"
+                        onclick="G.playCard(this)"
+                    ><div>${txt}</div></a>`;
+        } else {
+            return `<a draggable="true" href="javascript:void(0)" class="card _${code[0]}" code="${code}"
+                        ondragstart="if(G.selcard===this)return false;setTimeout(G.selectCard.bind(null, this), 10)"
+                        ondrag="return true"
+                        ondragend="G.selectCard(null)"
+                        onclick="G.selectCard(this)"
+                    ><div>${txt}</div></a>`;
+        }
+    }
+
+    // Selects an element as a card
+    G.selectCard = (elem) => {
+        if (G.selcard === elem) {
+            if (G.selcard) {
+                // Deselect the card if selected again
+                G.selcard.classList.toggle("selected");
+                G.selcard = null;
+            }
+        } else {
+            if (G.selcard) G.selcard.classList.toggle("selected");
+            G.selcard = elem;
+            if (G.selcard) G.selcard.classList.toggle("selected");
+        }
+    }
+    // Called to play a card on a discard pile
+    G.playCard = (discard) => {
+        if (G.selcard) {
+            // Only if there's a card selected do we do anything
+            if (isHost()) {
+
+            } else {
+
+            }
+            // Deselect selected card
+            G.selectCard(null);
+        }
+    }
+    // Called to draw cards from the deck manually
+    G.drawCard = (count=1) => {
+        if (isHost()) {
+
+        } else {
+
+        }
+    }
+
+    // Add a player ingame
+    function addPlayer(id) {
+        playersIngame.push(id);
+        cardCounts[id] = 0;
+        showIngame();
+    }
+    // Remove a player ingame
+    function removePlayer(id) {
+        const i = playersIngame.indexOf(id);
+        playersIngame.splice(i, 1);
+        delete cardCounts[id];
+
+        if (turn > i) turn--;
+        showIngame();
+    }
+    function setTurn(i) {
+        q(`#one-players > div:nth-child(${turn+1})`).classList.remove("panel-selected");
+        turn = i;
+        q(`#one-players > div:nth-child(${turn+1})`).classList.add("panel-selected");
+    }
+})()</script>

@@ -10,14 +10,31 @@ $(() => {
 // Slightly less secure nanoid
 const nanoid=(t=25)=>{let e="",r=crypto.getRandomValues(new Uint8Array(t));for(;t--;){const n=63&r[t];e+=n<36?n.toString(36):n<62?(n-26).toString(36).toUpperCase():n<63?"x":"X"}return e};
 
-// Sleep method
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+// Shuffles an array
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * i);
+        [array[i], array[j]] = [array[j], array[i]];
+    }
 }
 
 // Chooses a random element of an array
 function choose(array) {
     return array[~~(Math.random() * array.length)];
+}
+
+// Sleep method
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Opens a data url
+function dataURL(url) {
+    var link = document.createElement('a');
+    link.download = 'download.png';
+    link.href = url;
+    link.click();
+    link.remove();
 }
 
 // Toggles the sidebar for mobile devices
@@ -34,11 +51,7 @@ function toggleSidebar(btn, query="aside") {
 }
 // Toggles an element
 function toggle(elem) {
-    if (elem.classList.contains("nodisplay")) {
-        elem.classList.remove("nodisplay");
-    } else {
-        elem.classList.add("nodisplay");
-    }
+    elem.classList.toggle("nodisplay");
 }
 
 
