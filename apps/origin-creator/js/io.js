@@ -230,7 +230,7 @@ function exportMod() {
             "name": meta.name,
             "id": pid,
             "version": meta.version || "1.0.0",
-            "description": meta.description.replaceAll("\n", "\\n").replaceAll("\r", ""),
+            "description": meta.description.replace(/\n/g, "\\n").replace(/\r/g, ""),
             "license": "Unknown",
             "pack_format": meta.pack_format || 6
         }
@@ -326,8 +326,8 @@ function createRData(dFolder, itemData, type, path="") {
                 case "functions/":
                     // Format iData
                     let fData = iData
-                        .replaceAll(/\r\n|\r/g, "\n")
-                        .replaceAll(/\n\s*\.\s*/g, " ")
+                        .replace(/\r\n|\r/g, "\n")
+                        .replace(/\n\s*\.\s*/g, " ")
                         .split("\n");
                     for (let i = 0; i < fData.length; i++) {
                         fData[i] = fData[i].trim()
