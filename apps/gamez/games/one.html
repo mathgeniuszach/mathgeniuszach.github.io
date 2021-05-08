@@ -27,7 +27,7 @@
 </div>
 
 <div id="playing" class="nodisplay">
-    <div id="order-msg">Turn-order is <b>normal</b></div>
+    <div>Turn-order is <b id="rotation">normal</b></div>
     <div id="turn-msg">It's someone's turn!</div>
     <div class="card-group">
         <a draggable="true" href="javascript:void(0)" id="draw" class="card" style="--s:0%" ondblclick="G.drawCard()" ondragend="G.drawCard()"><div>+</div></a>
@@ -92,6 +92,7 @@
 
     #playing {
         text-align: center;
+        margin-top: 10px;
     }
 
     .data {
@@ -101,8 +102,9 @@
         --h: 0;
         --s: 100%;
         --l: 70%;
-        --color: hsl(var(--h), var(--s), calc(var(--l) - 30%));
-        border: var(--box-border-width) solid var(--color);
+        --border-color: hsl(var(--h), var(--s), calc(var(--l) - 30%));
+        --color: var(--border-color);
+        border: var(--box-border-width) solid var(--border-color);
         background-color: hsl(var(--h), var(--s), var(--l));
 
         margin: 2px;
@@ -124,7 +126,7 @@
         
         font-size: 100%;
 
-        border: var(--box-border-width) solid var(--color);
+        border: var(--box-border-width) solid var(--border-color);
     }
     .card-group {
         display: flex;
@@ -158,25 +160,28 @@
     ._P {--h:280}
     ._M {--h:310}
 
-    .appear {
+    .flip {
         transform: none;
-        animation-name: appear;
-        animation-duration: 0.3s;
+        animation-name: flip-card;
+        animation-duration: 0.4s;
         animation-timing-function: linear;
     }
-    .disappear {
-        transform: scale(0);
-        animation-name: disappear;
-        animation-duration: 0.3s;
-        animation-timing-function: linear;
-    }
-    @keyframes appear {
-        0% {transform: rotate(270deg) scale(0)}
-        100% {transform: rotate(360deg) scale(1)}
-    }
-    @keyframes disappear {
-        0% {transform: rotate(360deg) scale(1)}
-        100% {transform: rotate(270deg) scale(0)}
+    @keyframes flip-card {
+        0% {
+            --s: 0%;
+            --l: 70%;
+            --color: #0000;
+            background-image: none;
+            text-decoration: none;
+            transform: scale(1, 1);
+        }
+        50% {
+            --color: #0000;
+            transform: scale(1, 0);
+        }
+        100% {
+            transform: scale(1, 1);
+        }
     }
 </style>
 

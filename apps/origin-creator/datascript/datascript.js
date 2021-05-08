@@ -111,7 +111,7 @@ function compileAst(ast, id) {
 
 // Functions for generating files in the zip, based on extfunc code
 function genFile(id, content, ext=".json") {
-    dataFolder.file(id.replaceAll(":", "/") + ext, content);
+    dataFolder.file(id.replace(/:/g, "/") + ext, content);
 }
 function genScript(id, code) {
     const content = compileAst(parseScript(processScript(code)), id);

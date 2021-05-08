@@ -147,13 +147,13 @@ function getPath(elem, selfish) {
 };
 // Find an item based on a datapath/element id
 function findItem(...datapaths) {
-    return $("._"+datapaths.join(">._").replaceAll(/--/g, ">._").replaceAll(":", "-__-"));
+    return $("._"+datapaths.join(">._").replace(/--/g, ">._").replace(/:/g, "-__-"));
 }
 function findChildItem(parent, ...datapaths) {
-    return parent.find(">._"+datapaths.join(">._").replaceAll(/--/g, ">._").replaceAll(":", "-__-"))
+    return parent.find(">._"+datapaths.join(">._").replace(/--/g, ">._").replace(/:/g, "-__-"))
 }
 function findDOM(...datapaths) {
-    return document.querySelector("._"+datapaths.join(">._").replaceAll(/--/g, ">._").replaceAll(":", "-__-"));
+    return document.querySelector("._"+datapaths.join(">._").replace(/--/g, ">._").replace(/:/g, "-__-"));
 }
 
 function locateForm(datapath, id) {
@@ -163,7 +163,7 @@ function locateForm(datapath, id) {
     
     // Finish finding form location
     for (let i = 1; i < spath.length; i++) {
-        let path = spath[i].replaceAll("-__-", ":");
+        let path = spath[i].replace(/-__-/g, ":");
         if (path[0] == "-") {
             if (path[1] == "_") path = path.substring(2);
             else path = path.substring(1);
@@ -174,7 +174,7 @@ function locateForm(datapath, id) {
         let newFormLoc = formloc[path];
         if (!newFormLoc) continue;
         if (newFormLoc.type == "more") {
-            let v = spath[i+1].replaceAll("-__-", ":");
+            let v = spath[i+1].replace(/-__-/g, ":");
             formloc = newFormLoc.data[v];
             i++;
         } else if (newFormLoc.type == "multi") {
@@ -200,7 +200,7 @@ function locateForm(datapath, id) {
 }
 
 function locateData(datapath, nosub, namedID) {
-    var spath = datapath.replaceAll("-__-", ":").split("--");
+    var spath = datapath.replace(/-__-/g, ":").split("--");
     if (spath[spath.length-2] == "_") spath = spath.slice(0, -2); // Get rid of bad values at the end of list datapath multis
 
     // Find starting location
@@ -758,7 +758,7 @@ function insertForm(loc, header, form, level=0) {
             if (item.link) linkname = `<a href='${item.link}' target="_blank" rel="noopener noreferrer">${linkname}</a>`;
             
             if (item.desc) {
-                let desc = item.desc.replaceAll('"', '&quot;');
+                let desc = item.desc.replace(/"/g, '&quot;');
                 code.push(`<span class="iitem" title="${desc}">${linkname}:</span>`);
             } else {
                 code.push(`<span class="iitem">${linkname}:</span>`);
@@ -967,7 +967,7 @@ function insertPanel(btn) {
 }
 function removePanel(btn) {
     // Remove data from raw data
-    var spath = getPath(btn).replaceAll("-__-", ":").split("--");
+    var spath = getPath(btn).replace(/-__-/g, ":").split("--");
     var key = spath[spath.length-1];
     if (key[0] == "-") {
         if (key[1] == "_") key = key.substring(2);

@@ -40,7 +40,7 @@ var editOptions = {};
 function ns(str) {
     "use strict";
     if (typeof(str) == "string") {
-        return str.replaceAll(/\s+/g, '_').replaceAll(/[^\w:./#_*]+/g, '').toLowerCase();
+        return str.replace(/\s+/g, '_').replace(/[^\w:./#_*]+/g, '').toLowerCase();
     } else {
         return "";
     }
@@ -48,94 +48,100 @@ function ns(str) {
 // CSS selectors are dumb so this exists
 function jqns(str) {
     "use strict";
-    return ns(str).replaceAll(/:/g, '-__-');
+    return ns(str).replace(/:/g, '-__-');
 }
 
 // Things to do when the document is done loading
 $(document).ready(function() {
-    block();
+    try {
+        block();
     
-    var metaDiv = $("#div-meta");
-    insertForm(metaDiv, '<h2>pack - My Origins</h2>\n', forms.meta);
-    for (const type of types) {
-        metaDiv.after(`<div name="${type}" class="content nodisplay _${type}" id="div-${type}"></div>`);
-        insertForm($("#div-"+type), '<h2>' + type + ' - ?</h2>\n', forms[type]);
-    }
-    
-    // Buttons for general overview
-    $("#btn-save").click(save);
-    $("#btn-reset").click(resetPack);
-    $("#btn-help").click(help);
-    
-    // Import and export buttons
-    $("#btn-import").click(function() {$("#ipt-import").click()});
-    $("#ipt-import").change(importThing);
-    $("#btn-merge").click(function() {$("#ipt-merge").click()});
-    $("#ipt-merge").change(mergeThing);
-    $("#btn-datapack").click(exportDatapack);
-    $("#btn-mod").click(exportMod);
-    
-    // Raw data buttons
-    $("#btn-raw-data").click(openRawData);
-    $("#btn-load-raw").click(loadRaw);
-    $("#btn-reset-raw").click(resetRaw);
-    $("#btn-download").click(downloadRaw);
+        var metaDiv = $("#div-meta");
+        insertForm(metaDiv, '<h2>pack - My Origins</h2>\n', forms.meta);
+        for (const type of types) {
+            metaDiv.after(`<div name="${type}" class="content nodisplay _${type}" id="div-${type}"></div>`);
+            insertForm($("#div-"+type), '<h2>' + type + ' - ?</h2>\n', forms[type]);
+        }
+        
+        // Buttons for general overview
+        $("#btn-save").click(save);
+        $("#btn-reset").click(resetPack);
+        $("#btn-help").click(help);
+        
+        // Import and export buttons
+        $("#btn-import").click(function() {$("#ipt-import").click()});
+        $("#ipt-import").change(importThing);
+        $("#btn-merge").click(function() {$("#ipt-merge").click()});
+        $("#ipt-merge").change(mergeThing);
+        $("#btn-datapack").click(exportDatapack);
+        $("#btn-mod").click(exportMod);
+        
+        // Raw data buttons
+        $("#btn-raw-data").click(openRawData);
+        $("#btn-load-raw").click(loadRaw);
+        $("#btn-reset-raw").click(resetRaw);
+        $("#btn-download").click(downloadRaw);
 
-    // Add thing buttons
-    $("#btn-add-type").click(addTreeType);
-    $("#btn-add-file").click(addTreeFile);
+        // Add thing buttons
+        $("#btn-add-type").click(addTreeType);
+        $("#btn-add-file").click(addTreeFile);
 
-    // Things for raw location
-    $("#ipt-save-loc").val(saveLoc);
-    $("#ipt-web-loc").val(extDataLoc);
-    $("#btn-grab").click(grabData);
+        // Things for raw location
+        $("#ipt-save-loc").val(saveLoc);
+        $("#ipt-web-loc").val(extDataLoc);
+        $("#btn-grab").click(grabData);
 
-    // I raw data buttons
-    $("#btn-toggle-i-raw").click(toggleIRaw);
-    $("#btn-save-i-raw").click(saveIRaw);
-    $("#btn-reset-i-raw").click(resetIRaw);
-    $("#btn-download-i-raw").click(downloadActiveRaw);
-    
-    // Document key handlers
-    $(document).mousedown(select);
-    $(document).keydown(keyDown);
+        // I raw data buttons
+        $("#btn-toggle-i-raw").click(toggleIRaw);
+        $("#btn-save-i-raw").click(saveIRaw);
+        $("#btn-reset-i-raw").click(resetIRaw);
+        $("#btn-download-i-raw").click(downloadActiveRaw);
+        
+        // Document key handlers
+        $(document).mousedown(select);
+        $(document).keydown(keyDown);
 
-    // If simple, remove references to origins related stuff
-    if (simplified) {
-        $(".non-simple").remove();
-        for (let i of non_simple) delete data[non_simple];
-    }
+        // If simple, remove references to origins related stuff
+        if (simplified) {
+            $(".non-simple").remove();
+            for (let i of non_simple) delete data[non_simple];
+        }
 
-    // Clipboard
-    dataClipboard =  window.localStorage.getItem("origin-creator-clip");
-    clipedTree = window.localStorage.getItem("origin-creator-cliptree") === "true";
+        // Clipboard
+        dataClipboard =  window.localStorage.getItem("origin-creator-clip");
+        clipedTree = window.localStorage.getItem("origin-creator-cliptree") === "true";
 
-    // jsTree content box
-    contentBox = $("#content-box").jstree(content_box);
-    contentBox.bind("move_node.jstree", moveTreeItem);
-    contentBox.bind("select_node.jstree", selectContent);
+        // jsTree content box
+        contentBox = $("#content-box").jstree(content_box);
+        contentBox.bind("move_node.jstree", moveTreeItem);
+        contentBox.bind("select_node.jstree", selectContent);
 
-    // Make ace raw content
-    otherEditor = setupAce("other-ace", "ace/mode/text");
-    rawEditor = setupAce("raw-data-ace", "ace/mode/json");
-    iRawEditor = setupAce("i-raw-data-ace", "ace/mode/json");
-    
-    // If external data is available, try to load that first. If not, just load normal data.
-    if (extDataLoc) {
-        // This website is very helpful
-        $.get('//api.allorigins.win/raw?url=' + encodeURIComponent(extDataLoc) + '&callback=?', function(data) {
-            try {
-                loadData(data);
-            } catch (err) {
-                console.error(err);
-                load();
-            }
-        }, "text")
-        .fail(function() {load()})
-        .always(function() {unblock()});
-    } else {
-        load();
-        unblock();
+        // Make ace raw content
+        otherEditor = setupAce("other-ace", "ace/mode/text");
+        rawEditor = setupAce("raw-data-ace", "ace/mode/json");
+        iRawEditor = setupAce("i-raw-data-ace", "ace/mode/json");
+        
+        // If external data is available, try to load that first. If not, just load normal data.
+        if (extDataLoc) {
+            // This website is very helpful
+            $.get('//api.allorigins.win/raw?url=' + encodeURIComponent(extDataLoc) + '&callback=?', function(data) {
+                try {
+                    loadData(data);
+                } catch (err) {
+                    console.error(err);
+                    load();
+                }
+            }, "text")
+            .fail(function() {load()})
+            .always(function() {unblock()});
+        } else {
+            load();
+            unblock();
+        }
+    } catch (err) {
+        msgBox("Problem with loading page\n" + String(err), ["Refresh"], (i) => {
+            resetPack();
+        });
     }
 });
 
@@ -314,8 +320,8 @@ function grabData() {
     if (saveLoc) loc += "save="+saveLoc+"&";
     if (extDataLoc) loc += "data="+encodeURIComponent(extDataLoc)+"&";
     
-    if (saveLoc || extDataLoc) location.replaceAll(loc);
-    else location.replaceAll("/apps/origincreator.html");
+    if (saveLoc || extDataLoc) location.replace(loc);
+    else location.replace("/apps/origincreator.html");
 }
 
 function toggleIRaw() {

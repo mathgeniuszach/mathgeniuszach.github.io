@@ -37,7 +37,7 @@ function findNodeData(node, parentData) {
 
 function ss(str) {
     "use strict";
-    return str.replaceAll(/\s+/g, '_').replaceAll(/[^\w:._]+/g, '').toLowerCase();
+    return str.replace(/\s+/g, '_').replace(/[^\w:._]+/g, '').toLowerCase();
 }
 function fixName(node, d) {
     var tnode = node;
