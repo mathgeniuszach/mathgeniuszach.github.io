@@ -463,9 +463,10 @@ function loadEntries(level, rootElem, data, form, del) {
                 if (itemID.length > 1) {
                     if (data[itemID] === undefined && item.default) data[itemID] = v;
                 } else {
-                    if (typeof(v) == "object") {
+                    if (typeof(v) === "object") {
+                        console.log("here");
                         v = item.default || "";
-                    } /*else { // Why is this code here?
+                    }/* else { // Why is this code here?
                         v = data || item.default || "";
                     }*/
                 }
@@ -615,10 +616,18 @@ function loadEntries(level, rootElem, data, form, del) {
                     if (v) elem.val(v);
                     break;
                 case "ace":
-                    if (data[itemID] === undefined) {
-                        ace.edit(elem.attr("id")).setValue("", -1);
+                    if (itemID === "") {
+                        if (data === undefined) {
+                            ace.edit(elem.attr("id")).setValue("", -1);
+                        } else {
+                            ace.edit(elem.attr("id")).setValue(JSON.stringify(data, null, 4), -1);
+                        }
                     } else {
-                        ace.edit(elem.attr("id")).setValue(JSON.stringify(v, null, 4), -1);
+                        if (data[itemID] === undefined) {
+                            ace.edit(elem.attr("id")).setValue("", -1);
+                        } else {
+                            ace.edit(elem.attr("id")).setValue(JSON.stringify(v, null, 4), -1);
+                        }
                     }
                     break;
                 case "multi":
