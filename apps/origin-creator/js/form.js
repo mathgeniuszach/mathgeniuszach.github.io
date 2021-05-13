@@ -616,6 +616,8 @@ function loadEntries(level, rootElem, data, form, del) {
                     if (v) elem.val(v);
                     break;
                 case "ace":
+                    nodel = true;
+                    console.log({data, itemID, v});
                     // TODO: simplify this
                     if (itemID === "") {
                         if (data === undefined) {
@@ -727,6 +729,7 @@ function loadEntries(level, rootElem, data, form, del) {
 
             // Make sure data is stored in the right format regardless.
             if (["dict", "sub", "list", "nlist", "more", "ace", "multi", "textlist"].indexOf(item.type) == -1) {
+                console.log(item.type);
                 if (item.type != "options" || (v != "???" && v != " ")) {
                     if (data[itemID] !== undefined && data[itemID] !== v) data[itemID] = v;
                 }
