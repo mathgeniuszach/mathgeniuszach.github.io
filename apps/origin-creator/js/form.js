@@ -616,6 +616,7 @@ function loadEntries(level, rootElem, data, form, del) {
                     if (v) elem.val(v);
                     break;
                 case "ace":
+                    // TODO: simplify this
                     if (itemID === "") {
                         if (data === undefined) {
                             ace.edit(elem.attr("id")).setValue("", -1);
