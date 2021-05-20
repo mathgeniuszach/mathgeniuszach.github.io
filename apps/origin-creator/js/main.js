@@ -317,7 +317,7 @@ function grabData() {
 
     var loc = "?";
     if (simplified) loc += "type=simple&";
-    if (saveLoc) loc += "save="+saveLoc+"&";
+    if (saveLoc) loc += "save="+encodeURLComponent(saveLoc)+"&";
     if (extDataLoc) loc += "data="+encodeURIComponent(extDataLoc)+"&";
     
     if (saveLoc || extDataLoc) location.replace(loc);
