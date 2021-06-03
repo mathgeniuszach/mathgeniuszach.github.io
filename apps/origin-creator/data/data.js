@@ -242,7 +242,7 @@ condition_data.__type_options = {
                 "The value to compare the enchantment level to."
             ),
         "origins:entity_group": {
-            "entity_group": {
+            "group": {
                 "name": "Entity Group",
                 "type": "ns",
                 "desc": "Entity group required for the entity to pass the check. In vanilla this is one of 'default', 'undead', 'arthropod', 'illager' or 'aquatic'."
