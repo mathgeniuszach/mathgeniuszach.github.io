@@ -1876,6 +1876,7 @@ var power_data = {
                 "cooldown": cooldown,
                 "hud_render": hud_render
             },
+            "origins:creative_flight": {},
             "origins:damage_over_time": {
                 "interval": {
                     "name": "Interval",
