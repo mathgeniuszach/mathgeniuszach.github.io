@@ -345,8 +345,8 @@ function saveIRaw() {
     try {
         var d = JSON.parse(iRawEditor.getValue());
         activeParent[activeUName] = d;
-         // Not really hacky here tbh
         window.localStorage.setItem("origin-creator-data"+saveLoc, JSON.stringify(data));
+        reloadScreen(); // Not really hacky here tbh
         $("#i-raw-err").text("Data loaded successfully.");
     } catch (err) {
         $("#i-raw-err").text("Error loading data: " + err);
