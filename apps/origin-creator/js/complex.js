@@ -450,7 +450,7 @@ function removeListItem_(pnl, named, loading) {
     // Remove item from data array
     if (!loading) {
         var d = locateData(getPath(pnl.get(0)));
-        if (named) {
+        if (named || !Array.isArray(d)) {
             delete d[Object.keys(d)[i]];
         } else {
             d.splice(i, 1);
