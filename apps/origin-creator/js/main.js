@@ -40,7 +40,7 @@ var editOptions = {};
 function ns(str) {
     "use strict";
     if (typeof(str) == "string") {
-        return str.replace(/\s+/g, '_').replace(/[^\w:./#_*]+/g, '').toLowerCase();
+        return str.replace(/\s+/g, '_').replace(/[^\w:./#_*\-]+/g, '').toLowerCase();
     } else {
         return "";
     }
@@ -139,8 +139,16 @@ $(document).ready(function() {
             unblock();
         }
     } catch (err) {
-        msgBox("Problem with loading page\n" + String(err), ["Refresh"], (i) => {
-            resetPack();
+        console.error(err);
+        msgBox("Problem with loading page\nReset loaded data and webpage?\n" + String(err), ["Reset", "No"], (i) => {
+            switch (i) {
+                case 0:
+                    resetPack();
+                    break;
+                case 1:
+                    location.reload();
+                    break;
+            }
         });
     }
 });
@@ -347,8 +355,12 @@ function saveIRaw() {
 }
 function resetIRaw() {
     $("#i-raw-err").text("");
-    var v = JSON.stringify(active, null, 4) || "";
-    iRawEditor.setValue(v, -1);
+    var v = JSON.stringify(active);
+    if (active && v) {
+        iRawEditor.setValue(JSON.stringify(transformData(JSON.parse(v)), null, 4), -1);
+    } else {
+        iRawEditor.setValue("", -1);
+    }
 }
 
 function keyDown(e) {

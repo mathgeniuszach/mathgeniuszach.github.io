@@ -1,12 +1,12 @@
 // Datascript specification
 var extfunc;
 var cmdargs;
-$.get('datascript/extfunc.pegjs', function (data) {
-    extfunc = peg.generate(data);
-});
-$.get('datascript/cmdargs.pegjs', function (data) {
-    cmdargs = peg.generate(data);
-})
+// $.get('datascript/extfunc.pegjs', function (data) {
+//     extfunc = peg.generate(data);
+// });
+// $.get('datascript/cmdargs.pegjs', function (data) {
+//     cmdargs = peg.generate(data);
+// })
 
 var context;
 var contextCmds;

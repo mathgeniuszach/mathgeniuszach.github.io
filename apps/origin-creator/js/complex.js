@@ -526,6 +526,7 @@ function listItemRename(input) {
     var pnl = $(input.parentElement);
     var i = parseInt(pnl.attr("name"));
     var d = locateData(getPath(input.parentElement));
+    var ignored = locateForm(getPath(input.parentElement.parentElement)).o__.ignore;
 
     var key = Object.keys(d)[i];
     var temp = d[key];
@@ -533,7 +534,7 @@ function listItemRename(input) {
 
     // Generate unique name for named list item
     var itemID = input.value;
-    while (itemID in d || itemID == "o__") itemID += "_";
+    while (itemID in d || ignored.includes(itemID) || itemID == "o__") itemID += "_";
     input.value = itemID;
 
     // Reinsert data

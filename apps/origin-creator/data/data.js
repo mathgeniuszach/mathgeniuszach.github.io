@@ -1474,6 +1474,14 @@ entity_action_data.__type_options = {
                 "sound", "Sound",
                     "ID of the sound to play. Click for a list of vanilla sound IDs",
                     "https://minecraft.fandom.com/wiki/Sounds.json/Java_Edition_values"
+            ).double(
+                "volume", "Volume",
+                    "The volume of the sound. Optional.",
+                    1.0
+            ).double(
+                "pitch", "Pitch",
+                    "The pitch of the sound. Optional.",
+                    1.0
             ),
         "origins:set_fall_distance": new Group(
             ).double(
@@ -2453,20 +2461,25 @@ var power_data = {
                         "https://origins.readthedocs.io/en/latest/data_types/attribute_modifier/#attribute-modifier",
                         amodifier
                 ).list(
-                "modifiers", "Modifiers",
-                    "If set, these modifiers will apply to the damage dealt.",
-                    "https://origins.readthedocs.io/en/latest/data_types/attribute_modifier/#attribute-modifier",
-                    amodifier
+                    "modifiers", "Modifiers",
+                        "If set, these modifiers will apply to the damage dealt.",
+                        "https://origins.readthedocs.io/en/latest/data_types/attribute_modifier/#attribute-modifier",
+                        amodifier
                 ).sub(
-                "self_action", "Self Action",
-                    "If set, this action will be executed on the player whenever this power applies a modification.",
-                    "https://origins.readthedocs.io/en/latest/entity_actions/",
-                    entity_action_data
+                    "target_condition", "Target Condition",
+                        "If set, the action will only be triggered when a target matching this condition is hit.",
+                        "https://origins.readthedocs.io/en/latest/entity_conditions/",
+                        condition_data
                 ).sub(
-                "target_action", "Target Action",
-                    "If set, this action will be executed on the target whenever this power applies a modification.",
-                    "https://origins.readthedocs.io/en/latest/entity_actions/",
-                    entity_action_data
+                    "self_action", "Self Action",
+                        "If set, this action will be executed on the player whenever this power applies a modification.",
+                        "https://origins.readthedocs.io/en/latest/entity_actions/",
+                        entity_action_data
+                ).sub(
+                    "target_action", "Target Action",
+                        "If set, this action will be executed on the target whenever this power applies a modification.",
+                        "https://origins.readthedocs.io/en/latest/entity_actions/",
+                        entity_action_data
                 ),
             "origins:modify_damage_taken": new Group(
                 ).rawdata("damage_condition", damage_condition
@@ -2476,20 +2489,20 @@ var power_data = {
                         "https://origins.readthedocs.io/en/latest/data_types/attribute_modifier/#attribute-modifier",
                         amodifier
                 ).list(
-                "modifiers", "Modifiers",
-                    "If set, these modifiers will apply to the damage taken.",
-                    "https://origins.readthedocs.io/en/latest/data_types/attribute_modifier/#attribute-modifier",
-                    amodifier
+                    "modifiers", "Modifiers",
+                        "If set, these modifiers will apply to the damage taken.",
+                        "https://origins.readthedocs.io/en/latest/data_types/attribute_modifier/#attribute-modifier",
+                        amodifier
                 ).sub(
-                "self_action", "Self Action",
-                    "If set, this action will be executed on the player whenever this power applies a modification.",
-                    "https://origins.readthedocs.io/en/latest/entity_actions/",
-                    entity_action_data
+                    "self_action", "Self Action",
+                        "If set, this action will be executed on the player whenever this power applies a modification.",
+                        "https://origins.readthedocs.io/en/latest/entity_actions/",
+                        entity_action_data
                 ).sub(
-                "target_action", "Target Action",
-                    "If set, this action will be executed on the target whenever this power applies a modification.",
-                    "https://origins.readthedocs.io/en/latest/entity_actions/",
-                    entity_action_data
+                    "attacker_action", "Attacker Action",
+                        "If set, this action will be executed on the attacker whenever this power applies a modification.",
+                        "https://origins.readthedocs.io/en/latest/entity_actions/",
+                        entity_action_data
                 ),
             "origins:modify_exhaustion": {
                 "modifier": {
