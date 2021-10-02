@@ -1,0 +1,1 @@
+const $=document.querySelector.bind(document);function toggleAside(){const t=$("aside");t.toggleAttribute("shown"),$("#toggle-aside").textContent=t.hasAttribute("shown")?"-":"+"}window.addEventListener("DOMContentLoaded",(()=>{const t=$("aside");t&&!t.hasAttribute("nomobile")&&t.insertAdjacentHTML("beforebegin",'<button id="toggle-aside" onclick="toggleAside()">+</button>')}));
