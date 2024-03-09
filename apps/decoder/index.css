@@ -1,0 +1,1 @@
+textarea{resize:none}#converter{grid-template-columns:1fr 100px 1fr;gap:10px;height:50%;display:grid}#buttons{flex-direction:column;justify-content:center;gap:10px;display:flex}.panel{margin-bottom:10px}span{text-align:center}span,label,input{vertical-align:middle}label{font-size:15px}
