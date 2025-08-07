@@ -1,0 +1,6 @@
+https://cdn.jsdelivr.net/npm/bootstrap-icons@latest/font/bootstrap-icons.css
+https://cdn.jsdelivr.net/npm/bootstrap-icons@latest/font/fonts/bootstrap-icons.woff2
+https://img.youtube.com/vi/MfuA41QXuWs/hqdefault.jpg
+https://img.youtube.com/vi/TqPqEaJjl_k/hqdefault.jpg
+https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css
+https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js

@@ -1,0 +1,36 @@
+<footer>
+    Created by Zach K &nbsp; Theme:&nbsp;
+    <select id="themer" onchange="changeTheme(this.value)">
+        <option value="system">system</option>
+        <option value="light">light</option>
+        <option value="dark">dark</option>
+    </select>
+    <script>
+        (()=>{
+            const themer = document.getElementById("themer");
+
+            window.changeTheme = (theme) => {
+                themer.value = theme;
+                localStorage.setItem("theme", theme);
+
+                root = document.querySelector("html");
+                if (theme == "light") {
+                    root.setAttribute("theme", "light");
+                } else if (theme == "dark") {
+                    root.setAttribute("theme", "dark");
+                } else {
+                    root.removeAttribute("theme")
+                }
+
+                if (window.onthemechange) window.onthemechange();
+            }
+
+            changeTheme(localStorage.getItem("theme") ?? "system");
+
+            window.matchMedia('(prefers-color-scheme: dark)')
+                .addEventListener('change', event => {
+                    if (window.onthemechange) window.onthemechange();
+                });
+        })();
+    </script>
+</footer>

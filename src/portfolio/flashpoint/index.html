@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <include src="s/meta.html">{
+            "title": "Zach's Site - Flashpoint Work",
+            "author": "Zach K",
+            "desc": "Webgame preservation and scraping I've done related to the Flashpoint Archive project."
+        }</include>
+        <link rel="stylesheet" href="/portfolio.sass">
+    </head>
+    <body>
+        <include src="s/header.html"></include>
+        <aside>
+            <h6>Nav</h6>
+            <a href="#tldr">TLDR</a>
+            <a href="#introduction">Introduction</a>
+            <a href="#flashpoint">Flashpoint</a>
+            <a href="#my-contributions">My Contributions</a>
+        </aside>
+        <main id="navskip"></main>
+        <section md>
+            # Flashpoint Work
+
+            ## TLDR
+
+            - [Flashpoint](//flashpointarchive.org) is the ultimate web-app archival project, not created by me.
+            - I've preserved over 300 Flash and HTML5 games/apps.
+            - I used data engineering concepts to preserve content and write a tool to do it automatically.
+            - I also reverse engineered and hacked various flash games to make them work in Flashpoint.
+
+            ![Flashpoint Launcher](//flashpointarchive.org/images/launcher.png)
+
+            ## Introduction
+
+            To make it clear, I haven't created this project. I've only helped with some parts of it later on in it's lifespan, which I talk about in the [My Contributions](#my-contributions) section.
+
+            [Flashpoint](//flashpointarchive.org) is THE web-game/app preservation project, born out of the death of many web technologies like Adobe Flash Player or Java Applets. Web technologies like this were already security nightmares, but when they became end-of-life and were at risk of becoming even worse, most web browsers dropped support for them entirely; [Adobe even put a kill-switch into some of the latest versions of Flash Player](https://web.archive.org/web/20210731235556/https://www.adobe.com/products/flashplayer/end-of-life.html) to prevent it from working past January 12th, 2021.
+
+            ![Adobe Flash Player killswitch note](/i/flash-killswitch.png)
+
+            Since these technologies were a massive part of internet history and were used to build many of people's childhood games (including mine), many groups emerged to keep Flash content alive in one way or another. The [Ruffle](https://ruffle.rs/) project, for example, built a properly secure Flash-emulator with Rust so modern browsers could continue to view web content as it was hosted online. As many websites started to take down older, unsupported Flash content and replace it, however, the need to preserve the content as is for offline use became apparent. Flashpoint is this preservation project; regular people (known as "Curators") scrape websites for content and metadata and then upload a "curation" for each app to Flashpoint's servers so they can be preserved indefinitely.
+
+            I initially came into contact with Flashpoint when I wanted to play various old [Lego](https://www.lego.com/) branded web-games I played during my childhood. Flashpoint had every game I wanted to play, and more I haven't played.
+
+            ## Flashpoint
+
+            As of the time writing this, Flashpoint contains over 120k Flash games/apps and supports over 70 different web technologies like Flash, Shockwave, Java, Unity, and a plethora of others. People are working constantly out of their own time and goodwill to add new technologies and preserve content for ages to come. Due to the shear amount of content preserved, two versions of the launcher are available, "Infinity", which downloads content from Flashpoint's servers when you want to run an app, and "Ultimate", which is a 1.4TB package containing all the apps for offline use. The picture below shows the Infinity launcher.
+
+            ![Flashpoint Launcher](//flashpointarchive.org/images/launcher.png)
+
+            A little bit of a warning, while I don't support the movement, some Flashpoint curators have decided to also preserve more extreme content, which while it is not visible in the launcher by default, can be enabled via a toggle in the settings. There is fortunately a way to disable the setting being visible through the preferences file that comes with the launcher, but I think that this content does not need to be preserved.
+
+            ## My Contributions
+
+            Initially, I helped out with this project by preserving any Flash games from Coolmath Games that were not preserved yet, as well as a few other games I found here and there on the internet. All in all I've preserved over 300 titles, and it took me about a year to do. I also submitted various metadata fixes for games where the metadata was incorrect. To help me with this endeavor, I organized a spreadsheet categorizing dozens of websites and how much content was preserved in each (which has since been built upon significantly). Here's part of the index for the spreadsheet:
+
+            ![Google spreadsheet of preserved content from Coolmath Games](/i/sitemap-index.png)
+
+            Initially I did most content preservation by hand by visiting a site and copying the title, description, other metadata, and game files to Flashpoint; however, as I noticed this process getting highly cyclical and repetitive, I decided to use some data engineering and python-programming to automatically scrape/collect and save data from websites using [BeautifulSoup](//www.crummy.com/software/BeautifulSoup/bs4/doc/) instead.
+
+            I generalized my work into a tool called [fpcurator](//github.com/FlashpointProject/fpcurator), which has a few built-in tools to help curators with their work. One of these built-in tools is the Auto Curator, which takes a list of urls to various known webpages (like Newgrounds, AddictingGames, Itch.IO), and spits out a bunch of "curations" (folders with metadata and content in them) that can be tested and uploaded to Flashpoint's servers much faster than if the process had been done by hand. Other people have since added their own tweaks and supported websites to the project. Here's a picture of fpcurator:
+
+            ![fpcurator Auto Curator](/i/fpcurator.png)
+
+            I also modded/hacked quite a few games to get them working in Flashpoint or to re-add missing functionality. This typically involves opening up the Flash game in a decompiler like [JPEXS Free Flash Decompiler](//github.com/jindrapetrik/jpexs-decompiler), navigating around the decompiled code for more than 5 hours at a time to figure out any relevant code needing changes, and then finally making said changes and testing them in Flashpoint. Most of the work comes from trying to locate and reverse engineer the game, rather than making the final change to fix it. JPEXS text search functionality wasn't the greatest, but it was the best we had for this purpose. Here's a picture of JPEXS:
+
+            ![JPEXS Free Flash Decompiler](/i/ffdec.webp)
+
+            In addition to helping curate games for preservation, I also made a generic color-based theme for the launcher that could be used recolor the launcher with any color anyone could ever want. Fitting with the Flashpoint feel, I submitted two themes called "Red Velvet" and "Blue Steel", and had an expansion pack with even more colors so someone could decide to recolor their launcher however they liked. All these themes used the same base theme I called "Colorized". It was a sophisticated task that I found very easy to complete with various css-styling marks.
+
+            ![Red Velvet launcher theme](/i/flashpoint-red-velvet.png)
+        </section>
+        <include src="s/footer.html"></include>
+    </body>
+</html>

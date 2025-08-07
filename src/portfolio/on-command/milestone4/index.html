@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <include src="s/meta.html">{
+            "title": "Zach's Site - Milestone 3",
+            "author": "Zach K",
+            "desc": "A dedicated portfolio page covering the third milestone of my senior-project."
+        }</include>
+        <link rel="stylesheet" href="/portfolio.sass">
+    </head>
+    <body>
+        <include src="s/header.html"></include>
+        <aside>
+            <h6>Nav</h6>
+            <a href="/portfolio/on-command/">Introduction</a>
+            <a href="/portfolio/on-command/milestone1">First Milestone</a>
+            <a href="/portfolio/on-command/milestone2">Second Milestone</a>
+            <a href="/portfolio/on-command/milestone3">Third Milestone</a>
+            <a href="#fourth-milestone">Fourth Milestone</a>
+            <a href="/portfolio/on-command/polish">Polish</a>
+        </aside>
+        <main id="navskip"></main>
+        <section>
+            <div md>
+                # On Command
+
+                ## TLDR
+
+                - Created a beta by adding another layer of polish to everything.
+                - I completed this milestone on schedule.
+                - Fixed bugs and tweaked gameplay.
+                - Outsourced Music and FX to my brother and his friend.
+                - Adaptive music using three tracks, an intensity value, and frame-independent lerp.
+                - Official browser support right here on this website!
+
+                ## Fourth Milestone
+
+                ### [You can play the game in fullscreen here.](/bin/on-command/index.html)
+
+                Like with previous milestones, builds for Windows, Linux, and Android can all be downloaded and the game can also be played from [the itch.io page](https://mathgeniuszach.itch.io/on-command).
+
+                My goal by the fourth milestone of my senior project was to give the game some final polish. This did not mean the game would be in a finalized state, however, the game should be able to sufficiently stand on it's own. I wanted to focus on squashing existing bugs and cleaning up any textures and interfaces that can be cleaned. The menus and game should look and feel good to play. This is in contrast to the previous milestones which were focused on functionality over visuals.
+
+                ### I managed to complete this milestone on time, mostly focusing on audio and game tweaks.
+
+                While I fixed numerous bugs and made many minor changes to the few systems in the code, the majority of this milestone was spent working on implementing audio (Music and FX). Outside of that, by popular request, I added a button to quickly go to the next level when the current level is completed successfully.
+
+                The audio for the game was put together by my brother Renga, who outsourced the music composition to his friend waferboi. Renga mastered the music and sound effects while I just put them into the game. This made development significantly simpler as I could focus on what I wanted to do with my game, which was programming, while they worked on music and fx. It was also really useful to have Renga record and master the button "click" noise.
+
+                The audio is built using three intensity "tracks" that fade in and out (using frame-independent lerp) depending on the intensity level from 0-1; this creates interactive and adaptive music which builds on itself as you navigate through the menus or gain/lose strikes.
+
+                ### I managed to implement the game directly into my website!
+
+                Despite challenges in doing so, I successfully implemented the game into my website directly, so it is no longer necessary to go to the Itch.io page to play my game. My hope is that this makes my game more accessible to people coming into contact with my game for the first time online.
+
+                Because of Godot 4's newfound unnecessary dependence on a web feature called "SharedArrayBuffer", it is no longer possible to simply upload games exported via Godot to itch.io or my website and host them online in a simple static environment. Instead, I needed to ensure that godot was loaded under cross-origin isolation (COOP and COEP) for anyone to be able to play the game. I accomplished this through the [coi-serviceworker script provided by this repository.](https://github.com/gzuidhof/coi-serviceworker)
+
+                Additionally, because of another web technology called the "AudioContext" (which will not play audio unless the user has clicked on the website at least once), I had to add an image to the game on my website that the user must click before the game starts. This ensures that audio plays correctly, instead of initially being silent.
+
+                ### This milestone required a presentation at my school in front of a large audience.
+
+                In comparison to the previous milestones which me and my classmates only presented to each other, this milestone required a presentation that was public for anyone in the school to attend. Everyone from the class was there, in addition to other students on campus who came mostly just to obtain extra credit.
+
+                While the presentation as a whole went well, I did stumble a little bit through the presentation with audio balance. It was the perfect setup to my game's audio sliders that I missed as well! Given that my game was the only game presented with audio, I suppose it was only natural... I was given good feedback by my peers that I spent just the right amount of time discussing about myself and my website, as well as the details of my game, without going too in-depth about every system currently in-place.
+            </div>
+        </section>
+        <include src="s/footer.html"></include>
+    </body>
+</html>

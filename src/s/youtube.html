@@ -1,0 +1,7 @@
+<a class="yt-embed" id="yt-{{link}}" style="
+    width: {{width}}; height: {{height}};
+    background-image: url(https://img.youtube.com/vi/{{link}}/hqdefault.jpg);
+" href="https://youtu.be/{{link}}"><img src="/i/play.svg" width="150"><script>
+    document.currentScript.parentElement.href = "javascript:embedVideo('{{link}}', {{width}}, {{height}});";
+    document.currentScript.remove();
+</script></a>

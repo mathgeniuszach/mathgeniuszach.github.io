@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <include src="s/meta.html">{
+            "title": "Origins - Attributes",
+            "author": "Zach K",
+            "desc": "To modify an attribute in origins like a player's maximum health, speed, or attack damage, use the \"origins:attribute\" or \"origins:conditioned_attribute\" power type."
+        }</include>
+    </head>
+    <body>
+        <include src="s/header.html"></include>
+        <aside><h6>More</h6><include src="s/responses.html"></include></aside>
+        <main id="navskip"></main>
+        <section md>
+            # Origins - Attributes
+
+            The origins mod supports power types which modify minecraft [attributes](https://minecraft.fandom.com/wiki/Attribute). These are [origins:attribute](https://origins.readthedocs.io/en/1.4.1/types/power_types/attribute/) and [origins:conditioned_attribute](https://origins.readthedocs.io/en/1.4.1/types/power_types/conditioned_attribute/).
+
+            Using attributes, you can modify a player's maximum health, knockback resistance, movement speed, attack damage, and a few other things. For example, the attribute "generic.max_health" for example will increase your maximum health. Just put the attribute id (like "generic.max_health") you want into the "attribute" field, choose an "operation", and then provide a value to apply the operation on. Test out different values and operations (or check the wiki) to see what they do in-game.
+
+            Note that by default the origins:attribute power type does not support a condition. If you use one, it will be ignored. Use origins:conditioned_attribute instead if that's what you want.
+
+            Also consider using [Pehkui](/response/oc-pehkui) if you want to modify something that isn't a default attribute modifier.
+        </section>
+        <include src="s/footer.html"></include>
+    </body>
+</html>

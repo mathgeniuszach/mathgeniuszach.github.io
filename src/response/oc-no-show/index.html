@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <include src="s/meta.html">{
+            "title": "Origins - Won't Show Up",
+            "author": "Zach K",
+            "desc": "If something won't show up, make sure there's no origins errors in your game log! If an origin won't show up in game, you didn't add it to the default origin layer properly. If a power won't show up in an origin, you didn't add it to the origin properly."
+        }</include>
+    </head>
+    <body>
+        <include src="s/header.html"></include>
+        <aside><h6>More</h6><include src="s/responses.html"></include></aside>
+        <main id="navskip"></main>
+        <section md>
+            # Origins - Won't Show Up
+
+            Before checking anything, make sure there's no errors from origins in your Minecraft log. It's very possible that whatever you're dealing with isn't showing up because you made a typo or broke something somewhere. If there are no errors from origins in your log, then you can continue reading.
+
+            ## Origin Won't Show Up
+
+            If you find that an origin isn't showing up in the list of selectable origins, it's likely you didn't add it to the default origin layer properly. You'll have to check if you added the right namespaced id of your origin to the "origins" field in the "origins:origin" origin layer.
+
+            If you're using the Origin creator, the default layer should already be present in the "origin_layers" folder, and the box you need to put it in is present next to the label "Origins:"
+
+            ## Power Won't Show Up
+
+            If you find that a power isn't showing up in the list of powers for a given origin, make sure you gave it a proper name and description, and that you linked the power to the right origin file correctly. 
+        </section>
+        <include src="s/footer.html"></include>
+    </body>
+</html>

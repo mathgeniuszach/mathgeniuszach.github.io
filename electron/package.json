@@ -1,0 +1,73 @@
+{
+    "name": "the-origin-creator",
+    "version": "1.0.0",
+    "description": "A tool for creating custom datapacks for Minecraft and Origins.",
+    "main": "index.js",
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "module",
+    "dependencies": {
+        "electron-context-menu": "4.0.1",
+        "electron-store": "8.2.0"
+    },
+    "devDependencies": {
+        "electron": "^31.1.0",
+        "electron-builder": "^24.13.3"
+    },
+    "build": {
+        "files": [
+            "app/**/*",
+            "live/**/*",
+            "flyout.html",
+            "index.js",
+            "preload.js"
+        ],
+        "asar": true,
+        "asarUnpack": "**\\*.{node,dll}",
+        "mac": {
+            "target": {
+                "target": "default",
+                "arch": [
+                    "arm64",
+                    "x64"
+                ]
+            },
+            "type": "distribution",
+            "hardenedRuntime": true,
+            "entitlements": "assets/entitlements.mac.plist",
+            "entitlementsInherit": "assets/entitlements.mac.plist",
+            "gatekeeperAssess": false
+        },
+        "dmg": {
+            "contents": [
+                {
+                    "x": 130,
+                    "y": 220
+                },
+                {
+                    "x": 410,
+                    "y": 220,
+                    "type": "link",
+                    "path": "/Applications"
+                }
+            ]
+        },
+        "win": {
+            "target": [
+                "portable"
+            ]
+        },
+        "linux": {
+            "target": [
+                "AppImage"
+            ],
+            "category": "Utility"
+        }
+    },
+    "scripts": {
+        "start": "electron .",
+        "build": "electron-builder",
+        "build-all": "electron-builder --win portable -l"
+    }
+}

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <include src="s/meta.html">{
+            "title": "The Origin Creator",
+            "author": "Zach K",
+            "desc": "An extensible Minecraft datapack creator tool."
+        }</include>
+
+        <link rel="stylesheet" href="index.sass">
+        <script type="module" src="index.tsx"></script>
+    </head>
+    <body ondrop="event.preventDefault();" ondragover="event.preventDefault();" >
+        <include src="s/header.html"></include>
+        <div id="backdrop"></div>
+
+        <div nomobile class="floater"><a href="./help" target="_blank">Need Help?<br>Click Here!</a></div>
+
+        <aside fill nomobile></aside>
+
+        <section id="projects" hidden></section>
+        <form spellcheck="false" onsubmit="return false">
+            <section id="workspace" hidden>
+                <h2>undefined</h2>
+                <div>
+                    <div id="raw-btns" hidden></div>
+                    <div id="raw" hidden></div>
+                    <div id="other" hidden></div>
+                    <div id="image" hidden><img class="pubimg"></div>
+                </div>
+            </section>
+        </form>
+        <section id="help">
+            <span class="panel" mobile><b>Warning!</b>&nbsp;The Origin Creator does not support mobile devices or small screens.</span>
+            <span class="panel" id="no-javascript"><b>Warning!</b>&nbsp;The Origin Creator uses JavaScript to function. You must enable JavaScript to use the tool.</span>
+            <script>document.getElementById("no-javascript").style.display = "none";</script>
+            <h1>The Origin Creator</h1>
+            <div md>
+                Use the **? Help** button to get to this page at any time. Also available is flow-help in the top right.
+
+                ### THREE CRITICAL THINGS! PLEASE, READ AT LEAST THESE!
+
+                1. [**ALL CYAN BLUE TEXT CAN BE CLICKED!!!!**](/response/oc-cyan-text)
+                2. **READ THE "IMPORTANT INFO" DROPDOWN BELOW! IT EXPLAINS SUPER COMMON QUESTIONS AND MISTAKES! THERE'S ALSO VIDEO TUTORIALS BELOW!**
+                3. **DISCLAIMER: THIS TOOL IS NOT A REPLACEMENT FOR [THE OFFICIAL WIKI](https://origins.readthedocs.io/en/latest/). IF YOU'RE MAKING AN ORIGIN AT ALL, READ UP ON THE [WIKI](https://origins.readthedocs.io/en/latest/) BEFORE ASKING YOUR QUESTIONS ON DISCORD. FLOW HELP IS ALSO AVAILABLE IN THE TOP RIGHT. THERE ARE MORE LINKS DOWN BELOW THE VIDEO AND THROUGHOUT THE TOOL.**
+
+                This is a tool for creating custom [datapacks](https://minecraft.gamepedia.com/Data_Pack) for Minecraft in a more visual manner. It also mainly supports the [Origins](https://www.curseforge.com/minecraft/mc-mods/origins) mod.
+
+                I'd like to give special thanks to Nobody#0836 as they helped a lot with the file editors. If you'd like to help with the Origin Creator file editors, you can do so [through this github repo](https://github.com/mathgeniuszach/origin-creator-schemas).
+            </div>
+            <div class="expand">
+                <input type="checkbox" id="exp-social">
+                <label for="exp-social" tabindex="0"><h2>Social</h2></label>
+                <div>
+                    <p>
+                        If you want to report a bug or can't figure out this tool, hop into my Discord:<br>
+                        <include src="s/discord.html">{
+                            "link": "pBFqEcXvW5",
+                            "title": "Cyanstone",
+                            "icon": "/i/cyanstone-server-icon.webp"
+                        }</include>
+                    </p>
+                    <p>
+                        You can also ask your non-Origin-Creator-related questions in the official Origins Discord:<br>
+                        <include src="s/discord.html">{
+                            "link": "ADEjRWbGp4",
+                            "title": "Origins",
+                            "icon": "/i/origins-server-icon.png"
+                        }</include>
+                    </p>
+                </div>
+            </div>
+            <div class="expand">
+                <input type="checkbox" id="exp-important-info">
+                <label for="exp-important-info" tabindex="0"><h2>Important Info</h2></label>
+                <div md>
+                    The Origin Creator autosaves whenever you make a change. For text boxes, they save when you click off them. Data is stored in your browser's cache (not your browsing history), so note that clearing it may delete all your projects. You can (and should) export your work as JsonOC Files (more reliable but don't work in Minecraft) or Datapacks (less reliable but do work in Minecraft) so you can reimport them later.
+
+                    Hover over fields and labels to view a short description of what each thing does. [Blue text is clickable.](/response/oc-cyan-text)
+
+                    Make sure, that in your meta file, "Pack Format" is set to the number applicable to your version of Minecraft. The Origin Creator will not let you use newer features than the version selected.
+
+                    Items in the left sidebar can optionally specify a namespace and/or an extension in the format `namespace:filename.ext`. If the namespace is not specified (`filename.ext` or `filename`), it will default to the **Id** set in the `meta` file. If the extension is not provided, it will default to either `.json` or `.mcfunction`. If you're unsure of a file's namespaced id, just click on it at look at the top!
+
+                    Additionally, when editing files, if you do not specify a namespace for a specific field, it will either default to "minecraft" (for vanilla things like items, blocks, entities, recipes, advancements, etc), or "0" (which means your own pack's ID). You can always use 0 as the namespace to refer to your own pack's ID.
+
+                    Here's a picture of a given folder structure, and the output namespaces of each file:
+
+                    ![namespace tree](i/oc-namespaces.png)
+                </div>
+            </div>
+            <div class="expand">
+                <input type="checkbox" id="exp-vid-tutorial">
+                <label for="exp-vid-tutorial" tabindex="0"><h2>Video Tutorials</h2></label>
+                <div class="videos">
+                    <div>
+                        <h3>Making an Origin with the Origin Creator (by me)</h3>
+                        <include src="s/youtube.html">{
+                            "link": "MfuA41QXuWs",
+                            "width": "560",
+                            "height": "315"
+                        }</include>
+                    </div>
+                    <div>
+                        <h3>Origins Creator - Setup and First Powers (by Wilder)</h3>
+                        <include src="s/youtube.html">{
+                            "link": "TqPqEaJjl_k",
+                            "width": "560",
+                            "height": "315"
+                        }</include>
+                    </div>
+                </div>
+            </div>
+            <div class="expand">
+                <input type="checkbox" id="exp-sidebar">
+                <label for="exp-sidebar" tabindex="0"><h2>Sidebar</h2></label>
+                <div md>
+                    The sidebar on the left displays the name of the current project you're working on, provides access to change/add/remove project files, and gives you access to quite a few buttons:
+
+                    - &#xf3d7; **Projects**
+                        *Use this button to switch save slots or view the way the datapack is stored internally.*
+                    - &#xf2ec; **Project Data**
+                        *Use this button to swap back to whatever file you were working on before clicking one of the other two buttons. You can also just click a file in the left file tree to work on it.*
+                    - &nbsp;? **Help**
+                        *This is the screen you are currently on. It provides many useful tidbits of information on how to use the tool.*
+                    - &#xf3d3; **Add Type**
+                        *This adds a root folder to your project. You can use it to re-add folders that were deleted (for example, if you delete the recipes folder). Known types will gain an icon.*
+                    - &#xf37d; **Import**
+                        *Press this button and select a file to upload to be included in your datapack. If the file itself is a datapack, it will be merged with your current pack.*
+                    - &#xf30a; **Export**
+                        *Use this button to download the entire datapack. You may optionally choose to export as a mod instead of a zip file and specify a mod loader.*
+                    - &#xf117; **Reset**
+                        *This button will open up a menu which you can use to reset the pack or initialize it for the first time.*
+                </div>
+            </div>
+            <div class="expand">
+                <input type="checkbox" id="exp-basic-usage">
+                <label for="exp-basic-usage" tabindex="0"><h2>Basic Usage</h2></label>
+                <div md>
+                    To initalize your first project, click the &#xf117; **Reset** button, choose whether you are working on a vanilla datapack or an origins datapack, and put in a name and version number for the project. After clicking apply, the project tree will immediately be populated with folders you'll use for the datapack.
+
+                    If you have a project you want to import and edit instead of working from scratch, you can press the &#xf37d; **Import** button and select that datapack instead. You could also drag the datapack file on to the webpage directly.
+
+                    Now, click the "meta" file on the left, and MAKE SURE the "Pack Format" number matches your version of Minecraft. Click or hover over the blue label to see possible values.
+
+                    From this point, you can right click any folder (The items with icons are folders) in the file tree on the left and click **New File** or **New Folder** to add that respective item.
+
+                    After adding anything, click on it to open up an editor for that item; you can switch between editors of different items by clicking them in the left pane. Right clicking any item in the left pane provides you the option to delete, cut, copy, and paste it anywhere. You can also pick up any added items and drag them around in the left pane to move them.
+
+                    Note that when editing files, if you do not specify a namespace for a specific field, it will either default to "minecraft" (for vanilla things like items, blocks, entities, recipes, advancements, etc), or "0" (which means your own pack's ID). You can always use 0 as the namespace to refer to your own pack's ID.
+
+                    When you are finished editing, you can press the &#xf30a; **Export** button to export your work to a datapack or to a mod. Note that empty folders will not be exported. If you're having issues exporting to a mod, remember that mods are just thin layers around datapacks. Every .jar file is really a .zip file, and you can [change it's extension via renaming](https://www.mathgeniuszach.com/apps/origin-creator/help/#file-extensions) and open it up to see what's inside! You can include both assets and datapack files in a mod created this way.
+                </div>
+            </div>
+            <div class="expand">
+                <input type="checkbox" id="exp-folder-types">
+                <label for="exp-folder-types" tabindex="0"><h2>Folder Types</h2></label>
+                <div md>
+                    For more information, here's what each of the different default folders in the left are for (you can click on their names to view the wiki):
+
+                    - [Origin Layers](https://origins.readthedocs.io/en/latest/json/origin_layer/) - (alts: [1.19.1-3](https://origins.readthedocs.io/en/1.7.1/json/origin_layer/), [1.18](https://origins.readthedocs.io/en/1.4.1/json/origin_layer/), [1.17](https://origins.readthedocs.io/en/1.0.3/layer_json/), [1.16](https://origins.readthedocs.io/en/0.7.3/layer_json/))
+                        *For the Origins mod. Layers are groups of origins. Usually you will only need to use the origins:origin layer to enable people to select your origin when they first join a world. You can also make your own layers if you want to do additional things like [conditional origins](https://origins.readthedocs.io/en/latest/guides/data/origin_conditions_in_layers/).*
+                    - [Origins](https://origins.readthedocs.io/en/latest/json/origin/) - (alts: [1.19.1-3](https://origins.readthedocs.io/en/1.7.1/json/origin/), [1.18](https://origins.readthedocs.io/en/1.4.1/json/origin/), [1.17](https://origins.readthedocs.io/en/1.0.3/origin_json/), [1.16](https://origins.readthedocs.io/en/0.7.3/origin_json/))
+                        *For the Origins mod. Groups of powers that people can have and/or choose from, like the Blazeborn or the Enderian on the [Origins homepage](https://www.curseforge.com/minecraft/mc-mods/origins).*
+                    - [Powers](https://origins.readthedocs.io/en/latest/json/power/) - (alts: [1.19.1-3](https://origins.readthedocs.io/en/1.7.1/json/power/), [1.18](https://origins.readthedocs.io/en/1.4.1/json/power/), [1.17](https://origins.readthedocs.io/en/1.0.3/power_json/), [1.16](https://origins.readthedocs.io/en/0.7.3/power_json/))
+                        *For the Origins mod. Abilities and Disabilities that origins can have. They are very versitile.*
+                    - [Tags](https://minecraft.gamepedia.com/Tag)
+                        *Lists of things. Note that any tag you create must be located in one of the predefined folders so minecraft knows the type of tag it is.*
+                    - [Functions](https://minecraft.gamepedia.com/Function_%28Java_Edition%29)
+                        *Files containing a sequence of minecraft commands to run in order. The web tool has custom syntax highlighting but not checking. There is no special script handling.*
+                    - [Predicates](https://minecraft.gamepedia.com/Predicate)
+                        *Data-driven conditions that the `/execute if` command can check for.*
+                    - [Recipes](https://minecraft.gamepedia.com/Recipe)
+                        *Custom or default crafting recipes. Because the format for this is complex, the editor isn't as visual. Check out [this tool](https://crafting.thedestruc7i0n.ca/) to create recipes in a more visual way. You can load individual recipes simply by pressing the &#xf2c6; **Toggle Raw** button at the top of an already created recipe, pasting the json code in there, and pressing &#xf13a; **Save Raw**.*
+                    - [Item Modifiers](https://minecraft.fandom.com/wiki/Item_modifier)
+                        *A data-driven format specifying modifiers that can be applied on items through commands or loot tables to change them in specific ways.*
+                    - [Loot Tables](https://minecraft.gamepedia.com/Loot_table)
+                        *Data structures storing how everything from how dungeon chests are generated to how mobs drop loot.*
+                    - [Advancements](https://minecraft.gamepedia.com/Advancement/JSON_format)
+                        *Goals the player can attempt to reach. Since most of the format is a bit complex, this editor isn't as visual. Check out [this tool](https://advancements.thedestruc7i0n.ca/) to create a bunch of advancements in a more visual way. You can import any exported datapack to include them in your pack.*
+                </div>
+            </div>
+            <div class="expand">
+                <input type="checkbox" id="exp-tips">
+                <label for="exp-tips" tabindex="0"><h2>Other Useful Info</h2></label>
+                <div md>
+                    Most options and details are self explanitory, though there are a few details about the tool you might not know about:
+
+                    - You can select any panel and use the Ctrl+X, Ctrl+C, Ctrl+V shortcuts to cut, copy, and paste the data in that panel and move it around.
+                    - Pressing the "+" button in any subpanel will add content to that panel and change the button to a "-" button. Pressing this new button will remove any content (and data stored) in that panel.
+                    - Check out the [official Origins wiki](https://origins.readthedocs.io/en/latest/) for more information on what each thing in the Origins mod does.
+                    - Test things out! If you aren't sure something will work, test it out in Minecraft! Failure is an important step in creativity.
+                    - Here are some good design principles to make origins/powers interesting:
+                        - **Simple**
+                            *A good origin is easy to understand and doesn't have too many powers. Staying under six is a good idea and helps you make the most of each power. You can get around this by grouping powers together (e.g., if you can't touch water, this includes both water and rain).*
+                        - **Unique**
+                            *An origin should provide a gameplay experience and look and feel unique to itself. Copying a different origin in a slightly different way can get dull and old. This doesn't mean you can't take inspiration from places like mobs or other people's origins, it just means that people should be able to get a special experience using your origin.*
+                        - **Inspiring**
+                            *A good origin enables you to be creative with how you play the game, even if it's in a small way. Take for example the Merling; you must play underwater for most of the game, which requires the player to concoct new and interesting ways of doing things that would've been simple without the origin (e.g., how do you survive in the Nether?). You don't have to have a high-impact origin to do this (consider the Avian).*
+                        - **Balanced**
+                            *A good origin provides a good balance of power and disabilities. Making something too difficult (like having only half a heart) is only fun for a very small amount of people, and giving an origin too much power can take away the challenge that people also enjoy.*
+                        - **Fun**
+                            *A good origin provides a fun/challenging experience to a large subset of players. The definition of "Fun" depends on the person, but normally you can use common sense to infer what people find fun or not.*
+                </div>
+            </div>
+            <div class="expand">
+                <input type="checkbox" id="exp-jsapi">
+                <label for="exp-jsapi" tabindex="0"><h2>JavaScript API</h2></label>
+                <div md>
+                    The Origin Creator exposes several functions into the browser console (accessible through F12, Ctrl+Shift+I or similar), or through the global "Autorun" (more info can be found in the next accordion section) editor you can find in the projects tab. The API can be accessed through the global variable `oc`. As a reminder, NEVER copy code into the browser from someone you don't trust!
+
+                    Functions and fields here reference files with their "path" in the tree, as opposed to their id and type. You can locate the path of a file with it's id with the `locatePath(type, id)` function. To do the opposite and get the type and id of a path, use the `getTypedId(path)` function.
+
+                    Additionally, folders always have a "/" at the end of their path, while files always do not.
+
+                    Here's some common functions provided that you may find useful:
+
+                    - `oc.id: string`
+                        *The current pack's id. Can be set.*
+                    - `oc.active: string | null`
+                        *The path of the currently selected file, or "null" if nothing is selected. Can be set to select a different file automatically.*
+                    - `oc.print(message: string, severity: string = "info")`
+                        *Shows a small dialog message to user. severity can be "info", "warning", or "error"*
+                    - `oc.locatePath(type: string, id: string): string`
+                        *Attempts to find the path of a file referred to by the type and id provided. If none is found, a path to a new location will be returned instead that is referred by the type and id.*
+                    - `oc.getTypedID(path: string, universal: boolean = false): [string, string]`
+                        *Returns the type and id of the file at the given path. If universal is true, "0:" will be turned into the pack id.*
+                    - `oc.exists(path: string): boolean`
+                        *Checks if a file or folder exists at the given location.*
+                    - `oc.read(path: string): any`
+                        *Reads the file and returns either JSON data or a string of the file's contents. Returns undefined for non-existant folders/files and null for existing folders.*
+                    - `oc.write(path: string, data: any = null)`
+                        *Creates a file or folder at the given path, and optionally writes data to it. If a file already exists at the path, it will be overwritten. Folders cannot have data written to them.*
+                    - `oc.delete(path: string): boolean`
+                        *Deletes a file or folder at the given path. Returns true on success and false on failure.*
+                    - `oc.list(path: string, recursive: boolean = false, filter: (string) => boolean = null): string[]`
+                        *Lists all the files and folders inside the folder at the given path. Returns an empty list if the folder doesn't exist.*
+                    - `oc.listFiles(path: string): string[]`
+                        *Lists all decendent files inside the folder at the given path; shorthand for `oc.list(path, true, oc.isFile)`*
+
+                    More functions can be found in the next accordion section.
+                </div>
+            </div>
+            <div class="expand">
+                <input type="checkbox" id="exp-jsapi2">
+                <label for="exp-jsapi2" tabindex="0"><h2>JavaScript API (Continued)</h2></label>
+                <div md>
+                    The Origin Creator will automatically run any javascript found in the global "Autorun" panel in the projects panel of the tool, provided the "Enable" box is checked. You can use this to register macros or do other useful things in code that you don't want to copy into your browser every time the Origin Creator starts. This is a friendly reminder to NEVER PUT CODE YOU DON'T TRUST INTO THIS!
+
+                    Here's more functions present in the Javascript API.
+                    - `oc.listAndRead(path: string, recursive: boolean = false, filter: (string, any) => boolean = null): [string,string][]`
+                        *Lists and reads all the files inside the folder at the given path. Returns an empty list if the folder doesn't exist.*
+                    - `oc.macro(key: string, f: () => void = null)`
+                        *Registers a simple macro which runs when Ctrl+`key` is pressed. If `key` is capitalized, the macro will run when Ctrl+Shift+`key` is pressed. Attempting to overwrite an existing macro will throw an error. To unwrite a macro, use null for `f`.*
+                    - `oc.isFile(path: string): boolean`
+                        *Checks if the path refers to a file (true if the path does not end in a slash)*
+                    - `oc.isFolder(path: string): boolean`
+                        *Checks if the path refers to a folder (true if the path ends in a slash)*
+                    - `oc.getFormat(path: string): OCFileType`
+                        *Returns the type of the item at the given path; either "none" for non-existant items, "folder" for folders, "binary" for images and non-text, "text" for text, and "json" for json-data.*
+                    - `oc.snakeCase(text: string): string`
+                        *Converts a string into snake case, i.e., `this_is_snake_case`. From lodash.*
+                    - `oc.startCase(text: string): string`
+                        *Converts a string into start case, i.e., `This Is Start Case`. From lodash.*
+                </div>
+            </div>
+        </section>
+
+        <include src="s/footer.html"></include>
+    </body>
+</html>

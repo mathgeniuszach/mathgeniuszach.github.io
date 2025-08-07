@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <include src="s/meta.html">{
+            "title": "Origins - Using Pehkui",
+            "author": "Zach K",
+            "desc": "Modifying the size of your player or using pehkui in an origin is a more complex feat. It requires you to at least install pehkui, and optionally the extra origins mod if you want to use the extraorigins:modify_size power."
+        }</include>
+    </head>
+    <body>
+        <include src="s/header.html"></include>
+        <aside><h6>More</h6><include src="s/responses.html"></include></aside>
+        <main id="navskip"></main>
+        <section md>
+            # Origins - Using Pehkui
+
+            If you've never made an origin or a power before, do NOT make a power using pehkui your first. You are going to confuse yourself and your brain will explode. Try something simpler first. If you're more comfortable with making origins, then you can continue on this page.
+
+            Modifying your player size is one of the most common things that requires that you install [Pehkui](https://www.curseforge.com/minecraft/mc-mods/pehkui) mod in addition to the origins mod, but pehkui can be used to modify your mining speed, block reach, and other things with the player as well.
+
+            If you just want to modify player size, the simplest way is probably just to install the [Extra Origins](https://www.curseforge.com/minecraft/mc-mods/extra-origins) mod and use the custom "extraorigins:modify_size" power type it provides. [Here's](https://github.com/MoriyaShiine/extra-origins/blob/master/src/main/resources/data/extraorigins/powers/bite_sized.json#L4) one example of that power type in use. If you're using the Origin Creator, you can use the "custom" option in any drop down where it normally says "single" or "multiple" and type in "extraorigins:modify_size" yourself.
+
+            If you don't want to just modify player size or want more control over pehkui attributes, you'll have to use an "action" power type and run the /pehkui command through entity actions. Most likely, you'll want to use the [origins:action_on_callback](https://origins.readthedocs.io/en/latest/types/power_types/action_on_callback/) power type in combination with the [origins:execute_command](https://origins.readthedocs.io/en/latest/types/entity_action_types/execute_command/#execute_command) entity action. You'll want to test how the command works in-game and also test the variety of entity actions that exist already. This is all the help that most people can provide you.
+        </section>
+        <include src="s/footer.html"></include>
+    </body>
+</html>

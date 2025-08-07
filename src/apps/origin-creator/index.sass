@@ -1,0 +1,286 @@
+@import ./jstree-themes/default/style.css
+@import ./jstree-themes/proton/style.css
+
+h3
+    margin: 5px 0px
+aside
+    resize: horizontal
+
+#filetree
+    text-align: left
+    line-height: 1
+    font-size: smaller
+#raw
+    display: inline-block
+    margin-bottom: 20px
+#psel
+    display: inline-block
+    padding-bottom: 2px
+
+section
+    font-size: 1rem
+
+    code
+        font-size: 0.85rem
+
+.pubimg
+    border: solid 2px gray
+    // padding: 15px
+    // background-image: linear-gradient(45deg, #808080 25%, transparent 25%), linear-gradient(-45deg, #808080 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #808080 75%), linear-gradient(-45deg, transparent 75%, #808080 75%)
+    // background-size: 20px 20px
+    // background-position: 0 0, 0 10px, 10px -10px, -10px 0px
+    // box-sizing: content-box
+
+#help > .panel
+    margin-bottom: 10px
+    margin-right: 110px
+
+.rstcustom__expandButton, .rstcustom__collapseButton
+    transform: translate3d(-55%, -50%, 0) scale(0.7)
+.rstcustom__lineBlock
+    width: 15px !important
+
+.ace_editor
+    resize: both
+    border: 2px solid var(--border-color)
+    margin-top: 5px
+
+    .ace_gutter, .ace_scroller
+        transform: translateX(-1px)
+    *
+        font-family: monospace !important
+
+.vakata-context
+    z-index: 1001
+
+    ul
+        transform: translate(7px, 15px) !important
+    a
+        line-height: 25px !important
+        padding: 0px 10px 0px 5px !important
+        height: 25px !important
+        width: 105px !important
+.vakata-contextmenu-sep
+    display: none !important
+
+.vakata-contextmenu li>a>i,
+.vakata-context-separator > a
+    margin: 0px !important
+
+.jstree
+    user-select: none
+
+.jstree-anchor
+    box-sizing: content-box !important
+    border: 2px solid #0000 !important
+    border-radius: 3px
+    translate: -2px -2px
+
+    &:focus
+        border-color: var(--anti-color) !important
+
+.jstree-rename-input
+    height: 22px !important
+    translate: 0px -2px
+
+    outline: none
+    border: 1px solid var(--anti-color) !important
+    background-color: var(--main-color) !important
+
+.MuiAlertTitle-root
+    font-weight: 600 !important
+    line-height: 1 !important
+    em
+        font-weight: 400 !important
+        font-size: 0.875rem
+.MuiBackdrop-root
+    z-index: 750 !important
+.MuiDialog-root, .MuiDialog-container, .MuiDialog-paper
+    z-index: 1000 !important
+    .MuiBackdrop-root
+        z-index: -1 !important
+.MuiSnackbar-root
+    margin-top: 60px !important
+.MuiRadio-root, .MuiCheckbox-root
+    margin-left: 5px !important
+    padding: 5px !important
+.MuiDialogContent-root
+    display: flex !important
+    flex-direction: row !important
+.MuiTextField-root *
+    box-sizing: content-box !important
+.MuiBox-root
+    display: flex !important
+    flex-direction: column !important
+    margin-right: 20px
+.MuiInput-root
+    margin-bottom: 10px !important
+.MuiAlert-message p
+    margin-bottom: 0px
+
+#workspace
+    button:not(.normal)
+        width: 25px
+        height: 25px
+
+        >.bi
+            transform: translate(-3.5px, -3.5px)
+
+    hr
+        z-index: 2
+        height: 1px
+        min-height: 1px
+        margin: 10px 0px
+
+    > div
+        margin-top: 10px
+
+button.normal
+    margin-right: 5px
+    >.bi
+        transform: translate(0.1px, 0.1px)
+
+// .panel:not([mobile]), .panel-dark:not([mobile])
+//     display: inline-block
+
+.field
+    display: flex
+    margin-bottom: 2px
+    padding: 0px
+
+    >*
+        margin: 0px
+        display: inline-block
+    >*:not(div,textarea)
+        min-height: 20px
+    >*:not(div,select,span)
+        width: 164px
+    >textarea
+        width: 250px
+    >span
+        display: flex
+        align-items: flex-end
+        justify-content: end
+
+        margin-right: 5px
+        // min-width: 110px
+
+        >span,>a
+            white-space: nowrap
+            text-align: right
+    >span:not(:first-child)
+        justify-content: start
+
+.field-large > span
+    align-items: flex-start
+
+.field:not(.field-large)
+    height: 22px
+
+
+
+input
+    width: 164px
+    height: 20px
+textarea
+    margin: 0px
+    width: 164px
+    height: 100px
+    vertical-align: top
+input[type=checkbox]
+    margin: 0px
+    width: 16px
+    height: 16px
+input[type=file]::file-selector-button
+    height: 22px
+
+[large]
+    width: 200px
+    height: 300px
+
+[jtype=list] > div
+    > *:not(:last-child),
+    > [jtype] > div:first-child
+        margin-bottom: 5px
+
+button + input
+    margin-left: 6px
+    margin-right: 1px
+
+[jtype=image] > div
+    // img
+    //     image-rendering: pixelated
+    div
+        display: flex
+        flex-direction: row
+        button
+            padding: 0px !important
+            width: 50px !important
+            height: 22px !important
+        input
+            width: auto !important
+            height: 25px !important
+
+[jtype=or]
+    > div > div > .panel, > .panel
+        display: inline-block !important
+
+.tlist
+    font-family: monospace
+.nlist
+    display: inline-block
+    margin-top: 5px
+
+    > div[named]
+        > div:first-child > input
+            margin-right: 5px
+            font-weight: bold
+        > div:not(:first-child)
+            margin-left: 10px
+
+    >*:not(:last-child)
+        margin-bottom: 5px
+        > :first-child
+            margin-bottom: 3px
+            padding: 0px
+            >*
+                vertical-align: middle
+                display: inline-block
+
+.flex
+    display: flex
+
+    &:not(:last-child)
+        margin-bottom: 5px
+    p
+        margin: 0px
+
+@mixin dark-mode
+    .MuiPaper-root
+        background-color: var(--alt-fill-color) !important
+        color: var(--anti-color) !important
+    .MuiInput-root
+        color: var(--anti-color) !important
+    .MuiAlert-standardWarning
+        background-color: var(--fill-color) !important
+    .MuiFormLabel-root, .MuiSvgIcon-root
+        color: #bbb !important
+    .MuiButton-label, .MuiButtonBase-root
+        color: var(--hover-link-color)
+        background-color: #0000
+        border: none
+    .MuiInputBase-input
+        background-color: #0000
+        border: none
+
+
+@media (prefers-color-scheme: dark)
+    html:not([theme=light])
+        @include dark-mode
+
+html[theme=dark]
+    @include dark-mode
+
+@media (max-width: 750px)
+    #help > .panel
+        margin-right: 0px

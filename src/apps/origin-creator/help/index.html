@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <include src="s/meta.html">{
+            "title": "Origins Flow Help",
+            "author": "Zach K",
+            "desc": "Flow chart like help for working with origins in general."
+        }</include>
+
+        <link rel="stylesheet" href="index.sass">
+
+        <script type="module" src="index.tsx"></script>
+    </head>
+    <body>
+        <include src="s/header.html"></include>
+
+        <aside>
+            <h6>Links</h6>
+            <a target="_blank" href="https://github.com/mathgeniuszach/origins-flow-help">Github</a><span hidden="hidden"> - </span>
+            <a target="_blank" href="https://origins.readthedocs.io/en/latest/">Origins Wiki</a><span hidden="hidden"> - </span>
+            <a target="_blank" href="https://minecraft.fandom.com/wiki/Minecraft_Wiki">Minecraft Wiki</a>
+            <div class="hr"></div>
+            <a target="_blank" href="https://discord.gg/ADEjRWbGp4">Origins Discord</a><span hidden="hidden"> - </span>
+            <a target="_blank" href="https://discord.gg/pBFqEcXvW5">Origin Creator Discord</a>
+            <div class="hr"></div>
+            <!-- <h6>More</h6> -->
+            <include src="s/responses.html"></include>
+        </aside>
+        <main id="navskip"></main>
+
+        <section>
+            <h1>Origins Flow Help</h1>
+            <div id="map"><a id="map-index" class="navskip" href="javascript:openPage('index')">Home</a></div>
+            <div id="nojs">
+                <p>This is an interactive help repository for all things related to the Minecraft Origins mod.</p>
+
+                <p>This guide uses JavaScript to render itself. If you have JavaScript disabled, you must enable it to view this guide.</p>
+
+                <p>Alternatively, you can browse this guide on <a target="_blank" href="https://discord.gg/pBFqEcXvW5">my Discord</a> with the <code>/flowhelp</code> command, or you can view the yaml files used to generate it <a href="https://github.com/mathgeniuszach/origins-flow-help">on this github repo.</a></p>
+            </div>
+            <div id="content" hidden>
+                <p id="load">Loading...</p>
+
+                <p>If you for some reason can't access this page on your computer, you can browse this guide on <a target="_blank" href="https://discord.gg/pBFqEcXvW5">my Discord</a> with the <code>/flowhelp</code> command, or you can view the yaml files used to generate it <a href="https://github.com/mathgeniuszach/origins-flow-help">on this github repo.</a></p>
+
+                <p>If you experience any prolonged down-time or loading times on this page, you can report them on <a target="_blank" href="https://discord.gg/pBFqEcXvW5">my Discord</a>.</p>
+
+                <include src="s/discord.html">{
+                    "link": "pBFqEcXvW5",
+                    "title": "Cyanstone",
+                    "icon": "/i/cyanstone-server-icon.webp"
+                }</include>
+            </div>
+            <script>
+                document.getElementById("nojs").toggleAttribute("hidden");
+                document.getElementById("content").toggleAttribute("hidden");
+            </script>
+        </section>
+
+        <include src="s/footer.html"></include>
+    </body>
+</html>

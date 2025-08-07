@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <include src="s/meta.html">{
+            "title": "Zach's Site - Python Work",
+            "author": "Zach K",
+            "desc": "Projects I've made using Python that do not fit into another category."
+        }</include>
+        <link rel="stylesheet" href="/portfolio.sass">
+    </head>
+    <body>
+        <include src="s/header.html"></include>
+        <aside>
+            <h6>Nav</h6>
+            <a href="#tldr">TLDR</a>
+            <a href="#introduction">Introduction</a>
+            <a href="#libraries">Libraries</a>
+            <a href="#the-asset-builder">The Asset Builder</a>
+        </aside>
+        <main id="navskip"></main>
+        <section>
+            <div md>
+                # Python Work
+
+                ## TLDR
+
+                - [Python](https://www.python.org/) is a very popular general-purpose programming language.
+                - I use python for personal scripts, libraries, and tools. One notable thing is the automatic scraping tool I made for [Flashpoint](/portfolio/flashpoint).
+                - I wrote a python file operation library called [qfile](https://github.com/mathgeniuszach/qfile) for making operations easier.
+                - I wrote a portable cross-platform python library for native dialog boxes (those little popups that show up on error messages, to ask if you want to continue, and for opening/saving files) called [xdialog](https://github.com/mathgeniuszach/xdialog).
+                - I built a python-sprite builder I called the [Asset Builder](https://github.com/mathgeniuszach/asset-builder), which you can see a video for below.
+            </div>
+            <video src="/i/asset-builder.mp4" controls></video>
+            <div md>
+                ## Introduction
+
+                [Python](https://www.python.org/) is a very popular programming language used for everything from data science and engineering to simple little automation scripts. I use it all the time for so many different things, and I've published a few of them online.
+
+                One notable thing I've publicly used Python for is to automate scraping web game content and metadata to preserve them as part of the larger [Flashpoint Archive](/portfolio/flashpoint). Click to see the work I've done for that project.
+
+                ## Libraries
+
+                File operations in Python are a mess, scattered through multiple libraries like os, pathlib, and shutil. Python doesn't even provide a simple function to merge two folders together. Initially I wrote some helper functions into my Flashpoint library [fpclib](https://github.com/FlashpointProject/fpclib) to help with common frustrations, but eventually I wanted to separate this out into it's own library, which I did in [qfile](https://github.com/mathgeniuszach/qfile). While I would like to eventually remake the library into something a bit cleaner and even simpler, I am relatively happy with how it turned out. I use qfile fairly regularly in personal utility scripts or the interactive shell for testing, but I don't often use it publicly.
+
+                More recently I put together [xdialog](https://github.com/mathgeniuszach/xdialog), a portable cross-platform python library for native dialog boxes (those little popups that show up on error messages, to ask if you want to continue, and for opening/saving files). Python normally only has the ability to display unnatural looking dialogs through a library called tkinter, and it's spotty if that's even available; some environments, like the Blender, don't provide access to it, making dialogs near impossible to show. To solve these problems, I created this neat little library. By interfacing with Windows' C-APIs directly, Linux's zenity command, and MacOS' AppleScript, a single call to xdialog can appear as a native dialog on all three operating systems. Windows was the most difficult of all three of these operating systems as it required basically using ctypes (a way of writing C code with Python) to re-write C++ classes.
+
+                ## The Asset Builder
+
+                I was browsing for some free game assets when one day I found [this repository](https://github.com/AscensionGameDev/Intersect-Assets/tree/main_full/), which in addition to hundreds of free assets, also included a tool for building character sprites from different t-shirts, hats, boots, gloves, body-types, etc. I used the tool for a while, but I wasn't content with the limited color choices available, so I decided to make my own tool to do the process instead.
+
+                I decided, after much research, that for the interface I would use [DearPyGui](https://github.com/hoffstadt/DearPyGui). After breaking up and gray-scaling all of the assets provided by the official tool and organizing them into a pack, I created the [Asset Builder](https://github.com/mathgeniuszach/asset-builder) to provide an easy way to recolor and stack these images on top of each other.
+
+                I made the Asset Builder to be much more capable and flexible at building images so long as additional asset packs were provided. Unfortunately the tool never really caught on anywhere, so only one asset pack, the original that I created, exists. It be interesting to see it find more use in other communities but I suppose it was too niche to find a larger use-case.
+
+                Here's some images of the tool:
+
+                ![Multi-colored alien person](/i/asset-builder-color.png)
+            </div>
+        </section>
+        <include src="s/footer.html"></include>
+    </body>
+</html>

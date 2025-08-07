@@ -1,0 +1,14 @@
+{
+    "plugins": {
+        "posthtml-md": {
+            "root": "./src"
+        },
+        "posthtml-include": {
+            "root": "./src"
+        },
+        "htmlnano": {
+            "removeComments": true,
+            "collapseWhitespace": "aggressive"
+        }
+    }
+}

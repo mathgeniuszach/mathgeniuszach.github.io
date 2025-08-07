@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <include src="s/meta.html">{
+            "title": "What is Regex?",
+            "author": "Zach K",
+            "desc": "Regex is a special format for characters used for searching for, matching, and perhaps replacing, text. This is a guide covering some of the basics of the format."
+        }</include>
+    </head>
+    <body>
+        <include src="s/header.html"></include>
+        <aside><h6>More</h6><include src="s/responses.html"></include></aside>
+        <main id="navskip"></main>
+        <section md>
+            # What is Regex?
+
+            Regex is a special format for characters used for searching for, matching, and perhaps replacing, text.
+            
+            Regex is often used in places where the text you want to find/match doesn't always contain the same characters, but follows some kind of pattern. For example, if you want to search for/match emails or phone numbers; no email or phone number is the same, but they all follow the same pattern. In fact, a sequence of regex characters is known as a "pattern", probably for that very reason.
+
+            For writing and testing regular expressions, I recommend using [regex101.com](https://regex101.com/), but here's a few examples (clicking on any regex will send you to a specific regex101 test page) for you to learn from. 
+
+            There are many more features of regex that aren't listed here, and some languages do not even support some of the more extensive features or regex. To learn more about the features at your disposal, look at the items in the "Quick Reference" panel in the bottom right of [regex101.com](https://regex101.com/). You can click on any of the items to view a short example of it working.
+
+            <table>
+                <tr><th><span>Pattern</span></th><th><span>Description</span></th></tr>
+                <tr>
+                    <td><a href="https://regex101.com/r/vRhTVX/1"><code class="noborder">text</code></a></td>
+                    <td>Matches the literal text "text".</td>
+                </tr>
+                <tr>
+                    <td><a href="https://regex101.com/r/jWqnGF/1"><code class="noborder">ba+</code></a></td>
+                    <td>Matches any sequence of a "b" followed by 1 or more "a"s.</td>
+                </tr>
+                <tr>
+                    <td><a href="https://regex101.com/r/O9qo4h/1"><code class="noborder">lo*</code></a></td>
+                    <td>Matches any sequence of a "l" with 0 or more "o"s.</td>
+                </tr>
+                <tr>
+                    <td><a href="https://regex101.com/r/3BX34V/1"><code class="noborder">\d+</code></a></td>
+                    <td>Matches any sequence of one or more numbers.</td>
+                </tr>
+                <tr>
+                    <td><a href="https://regex101.com/r/NYKRzw/1"><code class="noborder">[abc]+</code></a></td>
+                    <td>Matches any sequence of the letters "a", "b", and "c".</td>
+                </tr>
+                <tr>
+                    <td><a href="https://regex101.com/r/2jynaj/1"><code class="noborder">[a-z]+</code></a></td>
+                    <td>Matches any sequence of lowercase letters.</td>
+                </tr>
+                <tr>
+                    <td><a href="https://regex101.com/r/DNMPqS/1"><code class="noborder">[a-z]+\d+</code></a></td>
+                    <td>Matches any sequence of lowercase letters followed by numbers.</td>
+                </tr>
+                <tr>
+                    <td><a href="https://regex101.com/r/Ou0xo2/1"><code class="noborder">(bob)+</code></a></td>
+                    <td>Matches any sequence of the word bob individually or repeated.</td>
+                </tr>
+            </table>
+        </section>
+        <include src="s/footer.html"></include>
+    </body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <include src="s/meta.html">{
+            "title": "Zach's Site - Milestone 1",
+            "author": "Zach K",
+            "desc": "A dedicated portfolio page covering the first milestone of my senior-project."
+        }</include>
+        <link rel="stylesheet" href="/portfolio.sass">
+    </head>
+    <body>
+        <include src="s/header.html"></include>
+        <aside>
+            <h6>Nav</h6>
+            <a href="/portfolio/on-command/">Introduction</a>
+            <a href="#first-milestone">First Milestone</a>
+            <a href="/portfolio/on-command/milestone2">Second Milestone</a>
+            <a href="/portfolio/on-command/milestone3">Third Milestone</a>
+            <a href="/portfolio/on-command/milestone4">Fourth Milestone</a>
+            <a href="/portfolio/on-command/polish">Polish</a>
+        </aside>
+        <main id="navskip"></main>
+        <section md>
+            # On Command
+
+            ## TLDR
+
+            - Created a prototype of game showing gameplay in level and endless mode.
+            - Despite hiccups in development, I landed ahead of schedule.
+            - Created a Windows, Linux, and Android build.
+            - Fully functioning dpi-awareness.
+            - Complete gameplay assets.
+
+            ## First Milestone
+
+            ![Showcase First Milestone](/i/on-command-1.gif)
+
+            My goal by the first milestone of my senior project was to have the main portion of the game itself playable, while the interface, graphics, and overall look and feel may not be entirely complete. I also wanted it to be possible to pass in arbitrary attributes into the game to change possible rules and their effects, as well as the number of rounds - infinite for sandbox - that need to be completed in order to "win" a level. The goal was to make a "prototype" to show what it would be like to play a level fully or in endless mode.
+
+            ### Despite hiccups during the first week or two of development, I still ended up ahead of schedule.
+
+            During the first two weeks of development, I developed a very painful ear infection that prevented me from being able to work on the game as much as I had desired. Nevertheless, I had planned for extraneous circumstances like this. I had designed this game idea to be flexible and expansive so I could add as much or as little content as I wanted, and gave myself both realistic deadlines and plenty of development time.
+
+            On top of all of that, I managed to find the time to implement many more visual features than I initially had planned. Buttons have rounded corners and shadows instead of being placeholder assets, rules are shown in differing colors, dozens of colors and symbols are supported, the board can be any size from 2x2 to 10x10, a "Find Any" starting screen was implemented to determine when the player is ready to begin, correct answers now flash for a brief amount of time after pressing a button or running out of time, and the game is dpi-aware. I initially planned on just being able to implement a simple interface, but the assets are not just placeholder assets anymore - while they still can be replaced, they're also suitable to the art style and welcome to stay until the game is complete.
+
+            Additionally, while I was only planning on creating a Windows and Linux build initially, I succeeded in creating both an Android and web build as well. These can all be downloaded and played from [the itch.io page](https://mathgeniuszach.itch.io/on-command).
+
+            ### Ultimately, I'm happy with how the game turned out so far.
+
+            The only goal I haven't been able to fully meet during this milestone was working with my siblings on this game. I sent them some messages introducing them to the project, but haven't provided any direction as of yet. I was only able to complete my goal of discussing technical writing through this portfolio content at the very start of the second milestone, when I started writing this portfolio page.
+
+            Ultimately, the game content speaks for itself; the loop is quite addictive and enjoyable. I particularly like the transitional phases between rounds that reveal correct answers. More discussion with my siblings is necessary for the upcoming milestones.
+        </section>
+        <include src="s/footer.html"></include>
+    </body>
+</html>

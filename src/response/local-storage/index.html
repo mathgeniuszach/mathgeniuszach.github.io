@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <include src="s/meta.html">{
+            "title": "Local Storage",
+            "author": "Zach K",
+            "desc": "Websites (like the Origin Creator) sometimes store more permanent data (data persists between browser sessions) in a place called localStorage. This is a per-browser, per-website, stored-on-your-computer storage location limited to 5MB. This limit can be increased on Firefox, but not Chrome."
+        }</include>
+    </head>
+    <body>
+        <include src="s/header.html"></include>
+        <aside><h6>More</h6><include src="s/responses.html"></include></aside>
+        <main id="navskip"></main>
+        <section md>
+            # Local Storage
+
+            Websites - including the Origin Creator - sometimes store more permanent data in a place called localStorage.
+
+            localStorage is a database on your own computer, managed by your browser, that stores up to 5MB of data per website you visit.
+
+            For server-side applications, data is usually stored on a server somewhere; however, for static sites without a specific server (like this one), permanent data can only be stored locally, and this is done in localStorage. These sites are usually pretty small, since they are limited to 5MB each.
+
+            ## Increasing Local Storage
+
+            Unfortunately, Google Chrome, and most Chrome based browsers, are hardcoded to the 5MB limit.
+
+            Firefox, and some other browsers, let you reconfigure it to be larger or smaller. Go to [about:config](about:config) and search for the `dom.storage.default_quota` option. It's value is in kilobytes.
+        </section>
+        <include src="s/footer.html"></include>
+    </body>
+</html>

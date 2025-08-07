@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <include src="s/meta.html">{
+            "title": "Zach's Site - Milestone 3",
+            "author": "Zach K",
+            "desc": "A dedicated portfolio page covering the third milestone of my senior-project."
+        }</include>
+        <link rel="stylesheet" href="/portfolio.sass">
+    </head>
+    <body>
+        <include src="s/header.html"></include>
+        <aside>
+            <h6>Nav</h6>
+            <a href="/portfolio/on-command/">Introduction</a>
+            <a href="/portfolio/on-command/milestone1">First Milestone</a>
+            <a href="/portfolio/on-command/milestone2">Second Milestone</a>
+            <a href="#third-milestone">Third Milestone</a>
+            <a href="/portfolio/on-command/milestone4">Fourth Milestone</a>
+            <a href="/portfolio/on-command/polish">Polish</a>
+        </aside>
+        <main id="navskip"></main>
+        <section>
+            <div md>
+                # On Command
+
+                ## TLDR
+
+                - Created an alpha by fleshing out levels.
+                - I completed this milestone ahead of schedule.
+                - Fully functioning level select with 16 total levels of increasing difficulty.
+                - Improved Sandbox functionality, including difficulty and mode selection.
+                - Star/highscore display based upon strike count.
+                - Custom level support through JSON files (internally using YAML to generate JSON).
+                - Wii remote interface for my school's game conference.
+
+                ## Third Milestone
+            </div>
+            <video src="/i/on-command-milestone-3.mp4" controls></video>
+            <div md>
+                Like with previous milestones, builds for Windows, Linux, and Android can all be downloaded and the game can be played from [the itch.io page](https://mathgeniuszach.itch.io/on-command). I will not be covering how to play with a wii remote here.
+
+                My goal by the third milestone of my senior project was to have a complete game loop with at least a few levels implemented. I wanted to focus on designing levels to provide a sense of progression and discovery of the rules. I wanted at least three unique rules created (which in this case are "Press", "Avoid", and "Move"). I also wanted to display highscores in the sandbox and strike-counts for completed levels. The goal was to produce an "alpha" build with most features I wanted in the final game to be implemented.
+
+                ### I managed to complete this milestone ahead of schedule, and had a lot of fun doing so.
+
+                My focus this milestone was on producing good levels and displaying both highscores and strike-counts. As my initial plan went, I only needed to complete three levels. However, because I had the time to do so, I put together a grand total of 16 levels in addition to a Bonus level only available in the sandbox.
+
+                I also decided that, instead of displaying the number of strikes obtained when completing a level, I would use a star-based system. If a level is completed with no strikes, a gold star is awarded. With one strike, a silver star is awarded. With two strikes, a bronze star is awarded. With three or more strikes (only possible in custom levels), a green star is awarded.
+
+                The sandbox also displays all the highscores and stars obtained from various difficulties in all levels (base game and custom). It also now has the ability to select between both the difficulty ("Practice", "Easy", "Medium", "Hard") and the game mode ("Challenge", "Endless").
+
+                In addition to all of that, I added a basic help menu and options menu with volume sliders (that currently don't do anything) and buttons for colorblindness and resetting progress.
+
+                ### Custom levels are fully supported.
+
+                Having extra time, I decided to parse custom levels from the "user://levels/" directory (`~/.local/share/on-command/levels` on Linux, `%AppData%/on-command/levels` on Windows). Custom levels appear in different drop-down groups (specified in the custom level file) in the sandbox. Main levels appear in the "main" group, in addition to the "Bonus" level which exists as an example to showcase how custom levels are made. Both custom levels and regular levels have highscore/star displays.
+
+                One of the frustrations with my current level format is that I internally use the YAML text format to build levels, but since Godot only supports loading JSON-format files, I use a script to convert between YAML and JSON. To help people building custom levels themselves, I include both a yaml file and json file for the Bonus level, and specify an online tool in the file people can use to convert between YAML and JSON. In the future, it may be useful to update a plugin in Godot to load YAML directly instead.
+
+                ### I decided to setup a wii-remote interface.
+
+                Recently, I've been playing Wii Sports Resort as a means of getting good exercise, and it made me wonder if I could use the wii remote to control my mouse pointer. This would make it a lot easier to showcase my game to people with just a big tv screen. When I found a [Linux wii-pointer cursor-theme](https://store.kde.org/p/999959) (note that on Linux the `index.theme` file needs to be fixed to be used; [Windows version here](http://allewun.deviantart.com/art/Wii-Cursors-49355744)), I knew had to try. After AI-upscaling the main pointers to be more visible at a distance, I utilized an old project called [cwiid](https://github.com/abstrakraft/cwiid) (specifically their wminput program) and managed to get it working.
+
+                In case it's useful to anyone, this was my wminput config file:
+            </div>
+            <pre><code>Plugin.ir_ptr.X = ABS_X
+Plugin.ir_ptr.Y = ABS_Y
+
+Wiimote.A = BTN_LEFT
+Wiimote.B = BTN_RIGHT
+Wiimote.Up = KEY_UP
+Wiimote.Down = KEY_DOWN
+Wiimote.Right = KEY_RIGHT
+Wiimote.Left = KEY_LEFT</code></pre>
+            <div md>
+                ### This milestone required a presentation at my school's game conference.
+
+                My school runs a game conference every year with all the senior students exhibiting their work. Industry professionals, independent developers, and school alumni often showcase their work at the conference as well. I was required to present the game there and overall I think it went decently. While the event was terribly organized - there was very little communication about the process, and I was not able to network with other exhibitors very often. I also had prepared a rolling slideshow that wasn't able to get much eye traffic due to my booth's position. I was also trying to showcase more than just my game and my whole portfolio, but the school reductively advertized me as just my game.
+
+                Still, my own content spoke for itself, and everyone that had visited my booth either was instantly hooked by my game, or (rarely) said it was not their kind of game. The wii-remote interaction initially confused people into thinking my game was made on the Wii, but that was easy to clarify.
+
+                Overall, it was very nice to see people find my game so enjoyable.
+            </div>
+        </section>
+        <include src="s/footer.html"></include>
+    </body>
+</html>

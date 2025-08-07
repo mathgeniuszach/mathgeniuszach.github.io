@@ -1,0 +1,8 @@
+{
+    "extends": "@parcel/config-default",
+    "namers": ["parcel-namer-clean"],
+    "resolvers": ["parcel-resolver-clean", "@parcel/resolver-default"],
+    "optimizers": {
+        "*.js": ["@parcel/optimizer-terser"]
+    }
+}

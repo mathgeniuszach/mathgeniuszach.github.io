@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <include src="s/meta.html">{
+            "title": "Zach's Site - Madad Maps",
+            "author": "Zach K",
+            "desc": "A live hospital bed mapping project I worked on as humanitarian work during the pandemic."
+        }</include>
+        <link rel="stylesheet" href="/portfolio.sass">
+    </head>
+    <body>
+        <include src="s/header.html"></include>
+        <aside>
+            <h6>Nav</h6>
+            <a href="#tldr">TLDR</a>
+            <a href="#introduction">Introduction</a>
+            <a href="#scraping-and-inconsistencies">Scraping and Inconsistencies</a>
+            <a href="#workflow">Workflow</a>
+            <a href="#where-s-the-project-now-">Where's the Project Now?</a>
+        </aside>
+        <main id="navskip"></main>
+        <section md>
+            # Madad Maps
+
+            ## TLDR
+
+            - [Madad Maps](https://madadmaps.com/) was a live hospital mapping project built during the pandemic to provide humanitarian relief.
+            - The project was part of a larger group, Project Madad, an international effort of 27 medical doctors, civil servants, and other industry professionals based out of the United States and India.
+            - My role in the project was as a data engineer, and I built various scrapers to automatically parse over 40 different sites of vastly different formats (webpages, pdfs, spreadsheets, etc.).
+            - I often needed to geocode data (using Google APIs) as it was rarely provided by sources.
+            - My final work on the project was switching the project's tech-stack to potentially ease adoption by the public sector.
+            - After pandemic restrictions were lifted, most sources unfortunately shut down; the site remains a demonstration for future implementations.
+            - The mapping project is exploring potential integrations with provider/hospital networks and state-level implementations.
+            - Below is a picture of the map during development (including some markers that were later filtered out):
+
+            ![Madad Maps page](/i/madadmaps.png)
+
+            ## Introduction
+
+            [Madad Maps](https://madadmaps.com/) was a live hospital mapping project that I worked on in a personal capacity with Dr. Rajesh Anumolu and Aaron DeLory to provide humanitarian relief. The platform's purpose was to serve as an assistive tracker for the availability of hospital beds (regular, ICU/HDU) and oxygen/ventilator supplies in COVID-19-designated hospitals all over India. This was part of the larger group, [Project Madad](https://projectmadad.com/), an international effort consisting of 27 medical doctors, international civil servants, and other industry professionals based out of the United States and India. Without any marketing, the project hit 300,000 users on the first week.
+
+            My role in the project was as a data engineer, utilizing JavaScript-based firebase functions to collate results from over 40 different sites of vastly different formats (html, pdf, xlsx, etc.). JavaScript libraries [axios](https://www.npmjs.com/package/axios) (HTTP client), [cheerio](https://www.npmjs.com/package/cheerio) (HTML parser), [pdf2json](https://www.npmjs.com/package/pdf2json) (pdf reader), and [xlsx](https://www.npmjs.com/package/xlsx) (Excel sheet reader) were very helpful in completing this task. My previous experience with collecting, parsing, and collating online content for a separate online content and history preservation project [known as Flashpoint](/portfolio/flashpoint) provided me with the qualifications and ability I needed to complete this task skillfully.
+
+            Here's a picture of Madad Maps during development (including some stray markers which were later filtered out):
+
+            ![Madad Maps page](/i/madadmaps.png)
+
+            ## Scraping and Inconsistencies
+
+            Finding sources for every region of India was a logistical feat. In large urban settings, this information was readily accessible through publicized websites, but for many districts, it required a manual search through every district page to ascertain the sources. Compounding this challenge was the inconsistent formatting amongst the different sources - and sometimes even within the same source.  Data was often ill-formatted, contained entry errors that needed sorting, and frequently omitted specific geolocation data. Ultimately, we compiled a spreadsheet outlining which states and districts had data and which did not. By the end of this assessment, we realized that we could cover most of the country.
+
+            Looking back on my time during this project, I feel like I grew significantly after overcoming the various challenges presented. Much of the workflow was very cyclical, consisting of first parsing some data, then learning of some disruptive entries which needed further processing, and then further improving sanitation and validation. One challenge that comes to mind is the collection of hospital contact information; often, sources would provide phone numbers that were irregularly formatted with dashes, commas, spaces, parentheses, new lines, and sometimes even two different numbers written together as one.
+
+            Given the variable nature of the provided data, care had to be taken to ensure minimal sanitation errors, and a disclaimer was placed for patients to call any hospital to confirm any availabilities before placing an appointment. As is always the case with data engineering, sometimes finding a reliable data source is the most challenging part of the process.
+
+            After sanitizing data to the best of my ability, hospital names were sent to Google's Geolocation API, and the results were cached in a Firebase database to save on API calls. Initially, we utilized Google's Places API to determine an institution's location, but given the project's budget constraints, we switched to the Geolocation API. In some circumstances, when searching for hospital locations, Google could not resolve the location with only the institution's name and state. In these cases, the invalid data would be placed on the "magical" NULL island, where markers would be hidden indefinitely. We would also frequently clear out the Geolocation API cache to ensure data was up-to-date and accurate.
+
+            Due to the need of up-to-date hospital availabilities, frequent web requests to the sources were a necessity. However, to not overload our data sources, these requests were reduced by only querying one or two of the 40 sources every five minutes. This process was on a round-robin cycle and worked very well until, inevitably, some sites would either change their format (requiring updates), or in some unfortunate cases, go down entirely.
+
+            ## Workflow
+
+            The mapping project consisted of three major roles with some overlap. I worked mainly as a back-end developer for this project, Aaron (our Lead Developer) worked on the front-end application using Flutter, and Rajesh, as the team lead, handled identifying sources, public relations, and funding for the API and hosting services. Our workflow was distinct and individualized except for with the database, which required consistent, effective communication to ensure that Aaron and I were on the same page.
+
+            Given the pressing needs of people searching for access to medical care during the pandemic and the inconsistent uptime of the sources, my work schedule was unpredictable but time-sensitive. Since the project primarily operated based on India's time zone - and to ensure that I was available as much as possible - I would complete my college assignments during the day (often in the classes themselves), and be available in the evening.
+
+            ## Where's the Project Now?
+
+            As the platform matured, the project's members agreed that given the crisis at hand, there was a moral and ethical responsibility to provide the project to the public sector for adoption and implementation with consistent and reliable sources. My final work on the project, despite the challenges in doing so, was replacing Firebase in our tech stack with MongoDB to make the platform vendor-neutral and potentially more accessible.
+
+            It has been about a year and a half since I last worked on this project, and unfortunately, as with many things in data engineering, sources often don't last forever. Even though the utility of this information goes beyond the crisis of the COVID-19 pandemic, nearly all authorities shut down their sites once pandemic restrictions were lifted. Madad Maps is no longer updated and remains a demonstration for future implementations. As of 2023, the mapping project is exploring potential integrations with provider/hospital networks and state-level implementations.
+
+            Regardless of the project's prospects, I'm happy that I could assist with data collection and organization to help so many people in need with this project.
+        </section>
+        <include src="s/footer.html"></include>
+    </body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <include src="s/meta.html">{
+            "title": "Zach's Site - On Command",
+            "author": "Zach K",
+            "desc": "A dedicated portfolio page covering my senior-project and some other related content."
+        }</include>
+        <link rel="stylesheet" href="/portfolio.sass">
+        <link rel="stylesheet" href="index.sass">
+    </head>
+    <body>
+        <include src="s/header.html"></include>
+        <aside>
+            <h6>Nav</h6>
+            <a href="#introduction">Introduction</a>
+            <a href="/portfolio/on-command/milestone1">First Milestone</a>
+            <a href="/portfolio/on-command/milestone2">Second Milestone</a>
+            <a href="/portfolio/on-command/milestone3">Third Milestone</a>
+            <a href="/portfolio/on-command/milestone4">Fourth Milestone</a>
+            <a href="/portfolio/on-command/polish">Polish</a>
+        </aside>
+        <main id="navskip"></main>
+        <section>
+            <div>
+                <h1 class="center">On Command</h1>
+                <p class="center">Time-attack arcade game based on quickly finding the right button.</p>
+                <div class="options">
+                    <a href="/bin/on-command/index.html">
+                        <img src="/i/play.svg" alt="Play">
+                        <h5>Play in fullscreen!</h5>
+                    </a>
+                    <a href="https://github.com/mathgeniuszach/website-bin/releases/download/polish/On.Command.apk">
+                        <img src="/i/android.svg" alt="Android">
+                        <h5>Download the app!</h5>
+                    </a>
+                    <a href="https://mathgeniuszach.itch.io/on-command">
+                        <img src="/i/itchio.svg" alt="Itch.io">
+                        <h5>View the Itch.io page!</h5>
+                    </a>
+                </div>
+                <div md>
+                    Credits:
+                    - Design: mathgeniuszach
+                    - Audio: waferboi & Renga
+                    - Logo: Jaycoztrin
+
+                    ## Introduction
+
+                    Hi, my name is mathgeniuszach, and this is my senior-project.
+
+                    On Command is a time attack arcade game based around the concept of following a list of seemingly simple rules such as "Press Red" or "Avoid Near Red" to determine which button on screen to tap or click. More and more rules will appear at once, making things more and more complicated and confusing as the game progresses.
+
+                    Note that you only need to press one button to progress. If a series of commands is shown, follow them in order and then press a button that matches the commands given. Correct answers will flash after a button is pressed or you run out of time.
+
+                    Colorblindness accessibility is available in the options menu - there you can configure the four basic colors the game uses to be easier to see.
+
+                    This game was built using Godot 4, and web exports in Godot 4 are quite unstable. If your browser can't run the web build, you can download one of the executables instead on the [Itch.io page](https://mathgeniuszach.itch.io/on-command).
+
+                    You can read about the development process below.
+
+                    ## Custom Levels
+
+                    Custom levels (in [JSON format](/apps/origin-creator/help/#json-format)) can be added to the [`user://levels`](https://docs.godotengine.org/en/stable/tutorials/io/data_paths.html#accessing-persistent-user-data-user) directory on Desktop and `/Android/media/com.mathgeniuszach.oncommand/levels` on Android. You can find an example level placed there by default.
+
+                    ## Remarks
+
+                    I had three goals for this project. First, this project was to act as a milestone marker in my academic career and ability. Second, I wanted to discuss some of the frustrations and benefits of technical writing. Thirdly, I wanted to work on a project with my siblings before I moved out after college graduation.
+
+                    ### The idea and initial planning for this project was done in two days.
+
+                    Due to an unfortunate lack of communication between me and my professors, I initially didn't plan out my senior project during the summer like many other people did; instead, I was working on my other projects and also relaxing before my senior year hit me like a ton of bricks, which it did.
+
+                    This is my senior project. It's supposed to be the end-all-be-all of my academic career, yet I felt totally unprepared... except I definitely wasn't. All of my past experience working with previous projects and the Godot game engine, as well as the knowledge I gained from school projects invigorated me to be able to come up with an incredibly flexible yet addictive game idea at breakneck speed. The only difficulty was with the technical writing process, which while it was ultimately useful, did give me plenty of anxiety over potential requirements. Our professor was very hands-off, but after discussing requirements further and further the process eventually made more sense to me overall.
+
+                    ### I have a mixed relationship with writing.
+
+                    While I would consider myself a good writer, unless I'm particularly passionate about the thing I'm writing (and even then), writing is a drag. I don't like doing it, and if the writing is particularly intense I will mentally shut down. It's nearly happened to me a few times during this project, but I'm much more able to handle the anxiety now than I was a few years ago.
+
+                    As a result, technical writing to me is a mixed bag. There's a lot of value in organizing your thoughts in written content, as well as communicating what you make and the feelings behind that development to other people. On the other hand, though, technical writing for me takes up a lot of extra time and energy - beyond what's necessary to complete it in the first place - that takes away from the time I could be developing the actual projects themselves.
+
+                    At the end of the day, I just want to make cool stuff and learn new things, not get caught in paperwork that drains the life out of me.
+
+                    ### I wanted to build a reaction game with a series of confusing commands the player has to interpret.
+
+                    I should also clarify that the initial idea for this project actually wasn't created in 2 days, only fleshed out in that time; I carry around with me quite a few random game ideas for potential implementation in the future, and this was one of those ideas. I only had a basic concept, but through the first two days of my class I fully fleshed it out; I wanted it to be a mobile-like game with a simple set of rules, a grid of buttons, and distinct levels of progressing difficulty throughout.
+
+                    As for the creative design of the game, it should be of a semi-dark color scheme with a slightly brighter glow and contrast on buttons. Each screen has a single background color that fades into other colors when switching screens. Buttons and options are fairly large and iconic, and interfaces are as free from as much visual clutter as possible.
+
+                    As for the technical design of the game, it should be split into a few menu scenes and the playable game scene. The menus will persist of a main menu, sandbox configuration menu, and level select. The game scene has a number of "rounds" that require pressing one correct button to progress through - the correct button can be consistently determined using the rules specified. After completing a certain number of rounds (in a level), or gaining three strikes (in a level and endless mode), the game will end, either displaying a "You Win" or a "Game Over" message, as well as providing a means of going back to the main menu.
+
+                    The target audience is the general public with access to the internet with a logical pointer (that of a touchscreen device or computer mouse), specifically those who can interact with visual cues and follow logical rules fairly quickly.
+
+                    ### This game is built in Godot 4.1.
+
+                    I've been a fan of the [Godot game engine project](https://godotengine.org/) for a few years now for it's open source nature and lack of convoluted functionality. The whole launcher is a single executable less than a gigabyte in size. It's perfect for Indie to AA development and has all the features I need when I want to make a game. I've utilized Unity, Unreal, GameMaker, and a few other random engines for making games, but Godot is where I'm the most comfortable.
+
+                    In the middle of the first milestone, Unity announced [their infamous runtime fee](https://web.archive.org/web/20230918025819/https://unity.com/pricing-updates). Some of my classmates, using Unity instead of another engine, were frazzled as to whether or not they should port their senior project to another engine. To be honest, it didn't really come as a big surprise to me that Unity did this, and it wouldn't be a surprise to me if Unreal Engine did it either. The world is undeveloping more and more into a techno-feudalistic society where large companies are more interested in being feudal lords of platforms and games, charging taxes via playtime and in-app purchases, instead of creating a solid and enjoyable experience for their userbase.
+
+                    The beauty of an open source game engine is that no one has the right to tax the content that you made just because it uses that project. If someone ever tries, someone will fork the project and we'll have a new Godot engine instead.
+
+                    One thing I am not a fan of was how Godot 4 HTML5 exports require the use of the web technology "SharedArrayBuffer", which makes web builds much less compatible in browsers in comparison with Godot 3. For my project, that means less people are able to play it in the browser.
+
+                    ### Project development was split into four distinct milestones spanning about a month each.
+
+                    For this project there were four main milestones in which development occurs in a sprint-like fashion. My goal was to have the main portion of the game scene itself complete by the first milestone (creating a prototype), the menus complete by the second milestone (creating a vertical slice), fleshing out dozens of levels by the third milestone (creating a alpha), and fleshing out any bugs and adding polish in the fourth milestone (creating at least a beta). After the third milestone, the project would be presented at my school's game conference. The four milestones totaled to one whole semester.
+
+                    I also had an additional semester to work on this project that I used to improve upon this portfolio and add additional polish to the game.
+
+                    To read about each of the four milestones (and the polish), click on the links below.
+
+                    - [First Milestone](/portfolio/on-command/milestone1)
+                        *Making a prototype of game showing gameplay in level and endless mode.*
+                    - [Second Milestone](/portfolio/on-command/milestone2)
+                        *Making a vertical slice of the game through implementing menus.*
+                    - [Third Milestone](/portfolio/on-command/milestone3)
+                        *Making an alpha by fleshing out levels.*
+                    - [Fourth Milestone](/portfolio/on-command/milestone4)
+                        *Making a beta by adding another layer of polish to everything.*
+                    - [Polish](/portfolio/on-command/polish)
+                        *Making a full release by adding one final layer of polish.*
+                </div>
+            </div>
+            <div id="game" onclick="activate()">
+                <iframe onload="this.contentWindow.document.body.style.overflow = 'hidden';"></iframe>
+            </div>
+            <script>(()=>{
+                const game = $("iframe");
+
+                $$("code").forEach(f => {
+                    f.innerHTML = f.innerHTML.replace(/(?<=[^\/])\//g, "\/&#x200B;");
+                })
+
+                let activated = false;
+
+                function deactivate() {
+                    if (!activated) return;
+                    activated = false;
+
+                    game.style.display = "none"
+                    game.removeAttribute("src");
+                }
+                function activate() {
+                    if (activated) return;
+                    activated = true;
+
+                    game.style.display = "block";
+                    game.src = "/bin/on-command/index.html";
+                }
+                window.activate = activate;
+
+                function checkGameActivation() {
+                    if (activated) {
+                        if (window.innerWidth <= 1100) {
+                            deactivate();
+                        }
+                    }
+                }
+
+                window.onresize = checkGameActivation;
+                // if (window.innerWidth > 1100 && new AudioContext().state == "running") {
+                //     activate();
+                // }
+            })();</script>
+        </section>
+        <include src="s/footer.html"></include>
+    </body>
+</html>

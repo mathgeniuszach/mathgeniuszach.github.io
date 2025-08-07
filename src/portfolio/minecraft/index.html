@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <include src="s/meta.html">{
+            "title": "Zach's Site - Minecraft Work",
+            "author": "Zach K",
+            "desc": "Content, mods, and datapacks I created for Minecraft."
+        }</include>
+        <link rel="stylesheet" href="/portfolio.sass">
+    </head>
+    <body>
+        <include src="s/header.html"></include>
+        <aside>
+            <h6>Nav</h6>
+            <a href="#tldr">TLDR</a>
+            <a href="#introduction">Introduction</a>
+            <a href="#learning-to-program">Learning to Program</a>
+            <a href="#random-projects">Random Projects</a>
+            <a href="#creeper-attack">Creeper Attack</a>
+            <a href="#now">Now</a>
+        </aside>
+        <main id="navskip"></main>
+        <section>
+            <div md>
+                # Minecraft Work
+
+                ## TLDR
+
+                - Minecraft has been a childhood-favorite game of mine, until a lot of Mojang's recent changes.
+                - I've learned how to program first in Minecraft, which is a lot more esoteric than coding in conventional programming languages.
+                - This helped to establish the patience necessary to effectively research and program.
+                - I've built many datapacks and tools for Minecraft, some of which can [be found below](#random-projects).
+                - Also note I have [another portfolio page for the Origins mod](/portfolio/origins), a popular mod I've made other tools for.
+                - I've also done a bit for the [Creeper Attack](#creeper-attack) community in Minecraft.
+
+                ![Gif of bow charging with ModernInfo](https://github.com/mathgeniuszach/ModernInfo/blob/main/screenshots/Bow.gif?raw=true)
+                ![Gif of hit marker with ModernInfo](https://github.com/mathgeniuszach/ModernInfo/blob/main/screenshots/Melee.gif?raw=true)
+
+                ## Introduction
+
+                [Minecraft](https://minecraft.net/) has been my childhood-favorite game (up until recently when Microsoft+Mojang has been ruining it with their corporate shenanigans), and it's where I first learned, through a LOT OF PATIENCE, how to program. For those that don't know, Minecraft is a voxel-based sandbox game that took the world by storm.
+                
+                Due to it's flexibility and open-world sandbox nature, so many niche communities have spawned to build massive structures, perform intense manhunts, play survival minecraft with each other in SMPs (Survival Multi-Player), create minigames, and even mod the game. One such community is the [Origins mod](https://legacy.curseforge.com/minecraft/mc-mods/origins) community, a community based around a superpower mod. You can find all the [work I've done for that community on this page](/portfolio/origins).
+
+                ## Learning to Program
+
+                Even though it was not the first experience I had with computer work (I partitioned my family computer's hard drive when I was 9ish, and got in quite a bit of trouble for it), Minecraft was the place I developed the patience so critical to learning and programming. I remember when I first got into the game I would play the demo and not know I could even split stacks of items with right click, leading to me painstakingly and very carefully making sure all the items I had were crafted in just the right way as to not allow them to combine in my inventory. From punching 8 logs to make one chest (which revolutionized the process) to mining one piece of stone at a time and putting them in the chest to make a furnace.
+
+                Eventually I did learn how to right click after my grandma bought me Minecraft, and I would play the game when my friend came over in a special world we called "The Hub". We didn't have the most creative taste in building design, and as the 10 year olds we were we built "The Hub" as a rectangular prism of valuable materials like Gold and Diamond blocks. The hub was meant to be the creme de la crop of creative worlds, filled with all the powerful items our hearts could ever desire. My introduction to programming came in creating command blocks that would generate these super-powered items with the most archaic one-line syntax ever:
+            </div>
+            <pre><code class="language-mcfunction">/give mathgeniuszach minecraft:diamond_sword 1 0 {Unbreakable:1,display:{Name:"The Ultimate Weapon"},ench:[{id:16,lvl:32767}]}</code></pre>
+            <div md>
+                This would give me an unbreakable diamond sword named "The Ultimate Weapon" that dealt an insane amount of damage (with the sharpness enchantment). This was also back around Minecraft 1.7 so there wasn't even syntax highlighting and you kinda just kinda had to follow the wiki and hope you entered in all the brackets and braces properly. I didn't have [mcstacker](https://mcstacker.net/) back then either, so learning how to do what I wanted required a lot of reading, experimenting, learning, and trial-and-error. The results were always satisfying, though.
+    
+                Later on I got more into Minecraft's commands (a programming language now called "mcfunction") and made some datapacks. Sure, mcfunction is turing complete, but just to multiply two numbers together you gotta write some archaic stuff, for example:
+    
+                Here's some Python code:
+            </div>
+            <pre><code class="language-python">x = 5
+y = 9
+print(x * y)</code></pre>
+            <div md>
+                And here's the basically equivalent mcfunction code:
+            </div>
+            <pre><code class="language-mcfunction">scoreboard objectives add x dummy
+scoreboard objectives add y dummy
+
+scoreboard players set @s x 5
+scoreboard players set @s y 9
+scoreboard players operation @s x *= @s y
+tellraw @a {"score":{"name":"@s","objective":"x"}}</code></pre>
+            <div md>
+                C++ ain't got nothing on mcfunction. Anyway, programming is always like this, makes you want to rip your hair out after being unable to solve a problem for days on end. It's all about having the patience to maintain your sanity or at least continue to be able to act normal even if your sanity is long gone. More seriously, it's about being able to keep yourself composed and to keep at researching, scouring through documentation, and problem solving until you find the solution for your problem, no matter how long it takes.
+
+                ## Random Projects
+
+                The oldest published Minecraft project I've made - and that I can remember making - is [Trigger the Music](https://legacy.curseforge.com/minecraft/customization/trigger-the-music), a datapack + resourcepack which replaces the boring default Minecraft music with situational music which is dependent on the biome, time, location, and whether or not the user is in combat. The music pack used in this project is a slightly modified variant of [this music pack](https://www.curseforge.com/minecraft/customization/adventure-redefined-music-pack). Minecraft doesn't provide an easy way to detect when music is complete or to slowly transition between songs, so I had to edit all the songs so they were roughly the same length. I used it for a bit in some of my later survival worlds, but I definitely wanted a mod that could provide the ability to transition between tracks instead of having to do it in vanilla.
+
+                The next oldest published project of mine (after putting together [a random 1.14.4 modpack](https://legacy.curseforge.com/minecraft/modpacks/the-latest-craze)) is [UnifyTags](https://legacy.curseforge.com/minecraft/customization/unifytags), a script which automatically unifies common items (and crafting recipes) created by multiple mods under the same name (e.g., two tech mods could have two separate tin ingots and blocks). Like Trigger the Music, I created it to act as a more permanent solution after mods which previously did this task like [InstantUnify](https://www.curseforge.com/minecraft/mc-mods/instantunify) and [UniDict](https://www.curseforge.com/minecraft/mc-mods/unidict) were discontinued. The script uses a mod known as [KubeJS](https://www.curseforge.com/minecraft/mc-mods/kubejs) and is effectively version-independent. I say that, but the KubeJS team like to make constant breaking changes to their underlying codebase that make it really hard to stay up-to-date and version-independent. Nowadays there's [Almost Unified](https://modrinth.com/mod/almost-unified) which took up the mantle for newer versions of Minecraft.
+
+                There's also two discontinued tools I made called [mdprpc](https://www.youtube.com/watch?v=oWWGLlsFHE0) and the newer [zdpack](https://www.youtube.com/watch?v=aJVh7EWiWgI) for merging resource packs and datapacks together, as well as converting them to mods (Minecraft mods can be just thin shells around a merged resourcepack and datapack and not change any code). Mods can be loaded in all worlds (unlike datapacks or resource packs), so this was very useful for modpack creators. However, due to constant anti-virus false positives as well as not liking the electron-based gui system I decided to discontinue this. Modpack creators can now use a global datapack loader mod like [Global Packs](https://legacy.curseforge.com/minecraft/mc-mods/drp-global-datapack) or [Paxi](https://legacy.curseforge.com/minecraft/mc-mods/paxi) to load data and resource packs in all worlds. Nevertheless, I still provide some basic functionality for data pack authors to export their work to mods using The Origin Creator, [which you can read about here as well as my other Origins mod work](https://www.mathgeniuszach.com/portfolio/origins/).
+
+                Another random project of mine is [MinecraftWords](https://github.com/mathgeniuszach/MinecraftWords), which is a list of common Minecraft words in txt file form. I generated this pretty quickly for some chat reactions and stuff.
+
+                ## Creeper Attack
+
+                After a bit more time I got a bit more into a Minecraft server called Hypixel and started playing some of their arcade games, namely Zombies (a Minecraft-clone of COD Zombies) and Creeper Attack (A wave-based arena gamemode where you kill creepers before they get to a villager and explode). I got more and more drawn into Creeper Attack, and one day I noticed that creepers and other monsters became significantly easier to kill. I hopped onto the official Creeper Attack discord to report my findings:
+
+                ![Screenshot of Discord messages](/i/blursed-creeper-attack.png)
+
+                (Here's the video link: https://www.youtube.com/watch?v=9Zak9EawX8Q)
+
+                Hypixel just... silently updated and made Creeper Attack much easier, which did boost player counts significantly, but also made it possible for new Creeper Attack world records to be set. Previously, the world record of waves survived was 224 and that was reached through blood, sweat, and tears. After discussing what to do, the Discord decided to settle for getting a 250 world record so it could still be beaten if the change was reversed. I was invited to this party, but had a lot of connection issues so I decided to step out because I didn't want to ruin it for anyone.
+                
+                I stuck around watching the whole world record from multiple streams, but it was basically so easy that people were going afk, taking bathroom breaks, and one person was even playing Bloons Tower Defense. One guy was even had kill-aura and was kicked midgame by Over (the host). I had another chance at 250 later on with some people who weren't able to participate in the world record, but that lobby crashed in the middle of the attempt for some unknown reason which made me very sad. [Here's the original 250 world record post on Hypixel forums](https://hypixel.net/threads/creeper-attack-wr-wave-250.5230095/).
+
+                However, I was still present in the initial attempt in spirit in more ways than one. Up until the world record attempt I had been doing research and collecting data via replays on how and when monsters spawned to build the ultimate Creeper Attack mod. After colliating my results into [this spreadsheet](https://docs.google.com/spreadsheets/d/17L7gQwOkbasK2Wdjztc_jVCxePJITR-pZWvX_62PzIY/edit?usp=sharing), I created [CreeperAttackHUD](https://github.com/mathgeniuszach/CreeperAttackHUD) aka _CAHUD_ (coughing very weirdly). This mod lists when monsters will spawn as well as how many are going to spawn each round. This mod was used by quite a few people during all subsequent world record runs. I also created [ModernInfo](https://github.com/mathgeniuszach/moderninfo) for showing information available in versions of minecraft beyond 1.8.9, such as bow charge rate, hit markers, and custom name displays.
+
+                Here's some screenshots of CreeperAttackHUD:
+
+                ![Screenshot of CAHUD during wave](https://github.com/mathgeniuszach/CreeperAttackHUD/blob/main/screenshots/wave.png?raw=true)
+                ![Screenshot of CAHUD during intermission](https://github.com/mathgeniuszach/CreeperAttackHUD/blob/main/screenshots/intermission.png?raw=true)
+
+                And Modern Info:
+
+                ![Gif of bow charging with ModernInfo](https://github.com/mathgeniuszach/ModernInfo/blob/main/screenshots/Bow.gif?raw=true)
+                ![Gif of hit marker with ModernInfo](https://github.com/mathgeniuszach/ModernInfo/blob/main/screenshots/Melee.gif?raw=true)
+
+                ## Now
+
+                Nowadays I've moved more away from Minecraft after they started to make even more terrible corporate decisions that were anti-community in nearly every way. 1.9 was a massive community split, then Bedrock's marketplace came along, then Minecon was replaced with the horrid Minecraft Live and mob votes, then the migration to Microsoft accounts happened, then the "Java Edition" subtitle was added to the original version of Minecraft while Bedrock had the "Bedrock Edition" subtitle removed, then chat reporting was introduced, now the EULA was replaced with an overreaching EULA which isn't written in well-worded legal manner. Honestly, Microsoft is milking everything out of the game they possibly can with exploitative practices, NDAs, and other garbo that just drives me insane.
+
+                [Check out TheMisterEpic's video](https://www.youtube.com/watch?v=2M94nrANJmQ) on the scummy things that Microsoft does with the Bedrock marketplace just to give you a clue about why I don't like the direction Minecraft is going.
+            </div>
+        </section>
+        <include src="s/footer.html"></include>
+    </body>
+</html>

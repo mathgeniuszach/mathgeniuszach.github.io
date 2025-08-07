@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <include src="s/meta.html">{
+            "title": "Zach's Site - Linux Stuff",
+            "author": "Zach K",
+            "desc": "Things about my experience using linux, particularly EndeavourOS."
+        }</include>
+        <link rel="stylesheet" href="/portfolio.sass">
+    </head>
+    <body>
+        <include src="s/header.html"></include>
+        <aside>
+            <h6>Nav</h6>
+            <a href="#tldr">TLDR</a>
+            <a href="#introduction">Introduction</a>
+            <a href="#why-i-use-linux">Why I Use Linux</a>
+            <a href="#i-can-exit-vim">I Can Exit Vim</a>
+            <a href="#gaming-on-linux">Gaming on Linux</a>
+            <a href="#i-m-a-sysadmin">I'm a Sysadmin</a>
+            <a href="#unreal-engine">Unreal Engine</a>
+        </aside>
+        <main id="navskip"></main>
+        <section md>
+            # Linux Stuff
+
+            ## TLDR
+
+            - I run [NixOS](//nixos.org/) instead of Windows on my laptop.
+            - I previously used [EndeavourOS Linux](//endeavouros.com/), and Windows before that.
+            - Linux isn't just a terminal-based OS. It can browse the web, complete work, play games, edit images, and much more.
+            - I play games exclusively on Linux, thanks to Valve's proton service. Games that don't work on Linux are rare or AAA.
+            - I run my own Linux server for discord bots and online file backups.
+            - I dislike Unreal Engine for it's lack of open nature, especially on Linux.
+
+            ![output of fastfetch on my system](/i/fastfetch.png)
+
+            ## Introduction
+
+            I daily drive [NixOS Linux](//nixos.org/). In simpler terms, that means I use a Linux-based operating system on my main computer instead of Windows. I also run my own server on Akamai/linode for online backups and hosting discord bots.
+
+            Contrary to popular belief, Linux is not an operating system primarily centered around entering random commands into a terminal to get anything done; it is also a great choice to edit documents, browse the web, complete work, edit images or video, play video games, work with code, and develop games. It's also highly suitable for enterprise use (though enterprise Linux usually is primarily centered around terminals to save resources), with how small and flexible it really is.
+
+            Just to be clear, when I refer to "Linux" as an operating system, I'm talking about a much broader field of operating systems in a similar - but not quite equivalent - way to how "Windows" can refer to "Windows XP", "Windows 7", "Windows 10", or "Windows 11".
+
+            Unlike Windows, "Linux" (also known as GNU/Linux) is just a kernel, a small piece of an entire operating system. Hundreds of operating systems (often called "distributions" or "distros" of Linux) utilize Linux (or another distribution of Linux) as a foundation on which they build themselves. Different distributions of Linux are created for different purposes (some for enterprise solutions, some for general use, and others for more niche use cases). When I say "Linux", I usually mean the collective of all of these distributions together.
+
+            ## Why I Use Linux
+
+            Initially, I switched from Windows to Linux not because it was more private or secure, but because I heard it was faster, more configurable, and less memory-hungry than Windows. This is normally true of most distributions, even some of the more memory-intensive ones. On Windows I'd average 6/8GB on idle of memory usage, now on Linux I average 1/8GB on idle. I don't need to use virtual memory (a part of your hard drive used as fake memory) anymore like I had to on Windows.
+
+            Nowadays, I use Linux because I find it very configurable, efficient, and useful for my workflow. As I learned more about how Windows has baked-in spyware, I've appreciated the privacy and security elements of Linux more and more, but it's not the main reason I use it. Programs typically run faster on my machine and are significantly easier to install thanks to the package manager (an official program that installs stuff automatically), updates occur when I explicitly update instead of when Windows decides, and the taskbar, Desktop, and overall settings are much more configurable and let me add extra functionality as I desire. Every program I've ever needed has been available on Linux, and with all the extra functionality I've been able to drastically improve my workflow efficiency.
+
+            ![output of fastfetch on my system](/i/fastfetch.png)
+
+            ## Gaming on Linux
+
+            A lot of people would laugh if you told them you could play video games on Linux in the same way you could on Windows. After all, most game launchers don't run natively on Linux, and some games like [Destiny will ban you if you attempt to use Linux](//help.bungie.net/hc/en-us/articles/360049024592-Destiny-2-Steam-Guide) (see the "Steam Deck" and Destiny 2 section).
+
+            A few years ago, I might've laughed too; however, with the massive amounts of support Valve has put into their Steam Deck (a Linux-based handheld pc for gaming), gaming on Linux is as prevalent as ever. Thanks to a compatibility-layer program called [wine](//www.winehq.org/) (which Valve has tweaked themselves to make [Proton](//github.com/ValveSoftware/Proton)), many Windows applications can run almost natively on Linux with very little tweaking. The only programs that don't typically work are usually heavy AAA games, games that I don't like to play anyway. A game not being supported on Linux natively or through Proton usually is an indicator to me that the game probably has some sketchy components I don't want running on my computer to begin with.
+
+            After turning on compatibility mode and installing the latest version of Proton, I can usually just install and run any Steam game without any troubles. Some games do require an older version of Proton, but it's very rare, and usually I can use the [ProtonDB](//www.protondb.com/) to check if a game is well supported or not.
+
+            Linus Torvalds (the creator of the Linux kernel) has [famously said](//www.youtube.com/watch?v=iYWzMvlj2RQ) that Nvidia was one of the worst companies he's ever worked with. Linux being community run, however, means it has some pretty great workarounds. Since I have a laptop with a dual GPU - one being Intel, the other being Nvidia - I have some special programs that let me use both my GPUs effectively, notably optimus-manager and a special command I made for myself called "prime-run". I like to make most of my programs run on my Intel GPU, but if I need an extra boost in speed I'll switch them to my Nvidia GPU by running them in a terminal using "prime-run" (in Steam I can just configure the launch arguments to be `prime-run %command%`). This has been super useful in allowing me to get the most out of my GPUs.
+
+            ## Terminal Fluency
+
+            Only the mystical oracles know how to exit the intangible text-editor vim the correct way! Make way! Come seek enlightenment... When in the program, simply press Escape to leave insert mode if you're in it, then type ":q!" and press Enter...
+
+            This is a joke, though there is some unfortunate truth to it. "vim" is a terminal-based text editor oriented around heavy keyboard use, and it has a very unique control scheme that's difficult for beginners to learn. Personally, I prefer to use `micro` over `vim` if I'm working in a terminal-only environment; the shortcuts are much more sensible.
+
+            I know my way around bash and fish very well, and frequent the terminal whenever I find it convenient or necessary to do so. Most of the time I just prefer a graphical interface to perform various tasks, but if it's faster, I accomplish what I need to with just a terminal. To that end, I have quite a few aliases for different tasks like using libqalc (a terminal-calculator) and running nix commands to make the process faster.
+
+            I also have a proper compose key setup for typing special characters, and a macro program for recording common keystrokes.
+
+            ![Some terminal commands](/i/terminal.png)
+
+            ## System Administration
+
+            I run my own server using [Akamai/linode cloud hosting](https://www.linode.com/) for about 5$ a month. While I don't use it to host my website (I use [Github Pages](https://pages.github.com/) for that, which is free and allows for unlimited bandwidth), I do use my server for backups as well as to run some personal discord bots and other scripts.
+
+            I own a domain I purchased through [Cloudflare](https://www.cloudflare.com/) and I have my server configured to only allow inbound connections on three http related ports via a secure cloudflare proxy (Cloudflare kindly provides [IP ranges here](https://www.cloudflare.com/ips/)). For convenience I also whitelist certain IPs temporarily so I can SSH into my server via a modern terminal.
+
+            Initially I had to learn the hard way that linode and the server do not have any firewalls set up by default. One day, when performing a routine checkup on my server, I noticed via netstat a foreign IP had established an SSH connection and was spamming password attempts. I promptly setup the firewall and noted to explicitly check for one whenever setting up any server in the future.
+
+            ## Unreal Engine
+
+            During one of my college courses I was introduced to Unreal Engine and [wrote a paper](//docs.google.com/document/d/1dztwME8ofESqArH_HebQ8xzweIjB0jELgpNS_mjUstE/edit?usp=sharing) for that class detailing my frustrations with trying to get it to run on my Linux laptop.
+
+            In this class we were also introduced to [Unity](//unity.com/) and [Godot](//godotengine.org/), and needless to say I've stuck with Godot ever since, as the native tooling it provides is much nicer.
+        </section>
+        <include src="s/footer.html"></include>
+    </body>
+</html>

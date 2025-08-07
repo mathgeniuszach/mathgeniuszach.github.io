@@ -1,0 +1,176 @@
+<rtdf>
+    <div class=" floating container bottom-right ">
+        <header>
+            <img class="logo" alt="Read the Docs" src="/en/read-the-docs.svg">
+            <span>
+                <img class="svg svg-inline--fa fa-code-branch icon" src="/en/branch.svg">
+                {current}
+            </span>
+        </header>
+        <main class="closed">
+            <dl class="versions"><dt>Versions</dt>{versions}</dl>
+            <hr>
+            <small><span>Offline Mode</span></small>
+        </main>
+    </div>
+</rtdf>
+<script>
+    document.querySelector("rtdf header").addEventListener("click", () => {
+        document.querySelector("rtdf main").classList.toggle("closed")
+    })
+</script>
+<style>
+    rtdf .container {
+        position: fixed;
+        max-width: 300px;
+        width: auto;
+        height: auto;
+        max-height: calc(100% - 100px);
+        overflow-y: auto;
+    }
+
+    rtdf .container.bottom-right {
+        right: 20px;
+        bottom: 50px;
+    }
+
+    rtdf .container.bottom-left {
+        left: 20px;
+        bottom: 50px;
+    }
+
+    rtdf .container.top-left {
+        left: 20px;
+        top: 50px;
+    }
+
+    rtdf .container.top-right {
+        right: 20px;
+        top: 50px;
+    }
+
+    rtdf {
+        --addons-flyout-font-size: var(
+            --readthedocs-flyout-font-size,
+            var(--readthedocs-font-size, 0.8rem)
+        );
+    }
+
+    rtdf > div {
+        font-family: var(
+            --readthedocs-flyout-font-family,
+            "Lato",
+            "proxima-nova",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+        );
+        font-size: var(--addons-flyout-font-size);
+        color: var(--readthedocs-flyout-color, rgb(128, 128, 128));
+        background-color: var(--readthedocs-flyout-background-color, rgb(39, 39, 37));
+        z-index: 3000;
+        padding: 0 10px;
+        overflow-y: auto;
+    }
+
+    rtdf header {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        background-color: var(--readthedocs-flyout-background-color, rgb(39, 39, 37));
+        position: sticky;
+        top: 0;
+        padding: 10px 0;
+    }
+
+    rtdf header > span {
+        color: var(--readthedocs-flyout-current-version-color, #27ae60);
+        font-size: var(
+            --readthedocs-flyout-header-font-size,
+            calc(var(--addons-flyout-font-size) * 1.125)
+        );
+    }
+
+    rtdf header > span .svg.icon {
+        color: rgb(128, 128, 128);
+        height: var(
+            --readthedocs-flyout-header-font-size,
+            calc(var(--addons-flyout-font-size) * 1.125)
+        );
+        padding-right: 5px;
+        vertical-align: middle;
+    }
+
+    rtdf header > img.logo {
+        text-align: center;
+        width: 106px;
+        margin-right: 20px;
+    }
+
+    rtdf main {
+        padding: 5px;
+        padding-bottom: 15px;
+        margin-top: 5px;
+    }
+
+    rtdf main.closed {
+        display: none;
+    }
+
+    rtdf dl {
+        margin: 0;
+        padding: 0;
+    }
+
+    rtdf dl > dt {
+        font-size: var(
+            --readthedocs-flyout-dt-font-size,
+            calc(var(--addons-flyout-font-size) * 1.125)
+        );
+        color: var(--readthedocs-flyout-section-heading-color, rgb(128, 128, 128));
+    }
+
+    rtdf dl > dd {
+        display: inline-block;
+        margin: 0;
+        font-size: var(
+            --readthedocs-flyout-dd-font-size,
+            calc(var(--addons-flyout-font-size) * 1.125)
+        );
+    }
+
+    rtdf dd a {
+        text-decoration: none;
+        color: var(--readthedocs-flyout-item-link-color, rgb(252, 252, 252));
+        padding: 6px;
+        display: inline-block;
+    }
+
+    rtdf dd form {
+        padding: 6px;
+        margin: 0;
+    }
+
+    rtdf dd input {
+        padding: 6px;
+        font-size: 80%;
+    }
+
+    rtdf hr {
+        display: block;
+        height: 1px;
+        border: 0;
+        margin: 20px 0;
+        padding: 0;
+        border-top-width: 1px;
+        border-top-style: solid;
+        border-top-color: var(--readthedocs-flyout-divider-color, #413d3d);
+    }
+
+    rtdf small a {
+        text-decoration: none;
+        color: var(--readthedocs-flyout-link-color, rgb(42, 128, 185));
+    }
+</style>

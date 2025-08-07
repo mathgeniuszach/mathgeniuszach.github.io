@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <include src="s/meta.html">{
+            "title": "Zach's Site - Milestone 2",
+            "author": "Zach K",
+            "desc": "A dedicated portfolio page covering the second milestone of my senior-project."
+        }</include>
+        <link rel="stylesheet" href="/portfolio.sass">
+    </head>
+    <body>
+        <include src="s/header.html"></include>
+        <aside>
+            <h6>Nav</h6>
+            <a href="/portfolio/on-command/">Introduction</a>
+            <a href="/portfolio/on-command/milestone1">First Milestone</a>
+            <a href="#second-milestone">Second Milestone</a>
+            <a href="/portfolio/on-command/milestone3">Third Milestone</a>
+            <a href="/portfolio/on-command/milestone4">Fourth Milestone</a>
+            <a href="/portfolio/on-command/polish">Polish</a>
+        </aside>
+        <main id="navskip"></main>
+        <section>
+            <div md>
+                # On Command
+
+                ## TLDR
+
+                - Created a vertical slice of the game through implementing menus.
+                - I completed this milestone on schedule.
+                - Functioning title screen, sandbox options, and level select.
+                - Portfolio page creation and development.
+                - Logo design courtesy of my sister spelling "ON CMND".
+                - Windows, Linux, and Android build available.
+
+                ## Second Milestone
+            </div>
+            <video src="/i/on-command-milestone-2.mp4" controls></video>
+            <div md>
+                My goal by the second milestone of my senior project was to have mostly functional menus that could navigate between a level of the game and an endless level for the game. I wanted three screens to be present; the title screen, sandbox options, and the level select screen. The title screen should be able to navigate to the other two properly, and the sandbox and level select screen should be functional at starting a game. I also wanted to have volume settings for all screens available in the top right corner. The goal was to make a "vertical slice" to show what it's like to navigate in and out of a level.
+
+                ### I used a portion of development time this milestone to create these portfolio pages.
+
+                For about the first two weeks of the second milestone, I was working on making these portfolio pages. This took away a lot of time from development of On Command, but I'm proud of how they all turned out.
+
+                I created a total of eight portfolio pages for various projects of my own, not including the pages related to On Command. Some of the more notable projects I've helped with include [MadadMaps](/portfolio/madadmaps) (A live hospital mapping project providing humanitarian relief during the pandemic) and the [Flashpoint Archive](/portfolio/flashpoint) (A community effort to preserve games and animations from the web, particularly Flash). Check them out through the links provided!
+
+                ### I managed to complete this milestone on schedule.
+
+                Due to incresing difficulty with school tasks, homework, and external project maintenence, I wasn't able to complete as much as I would have liked this milestone. My classmates faced similar issues, but less with the maintenence of external projects and more with the due dates of homework. However, the open-ended nature of this project allowed me to dial back some of my ideas to work on just what I could. For example, I decided not to add volume settings as they would have added too much visual clutter to the top right of the screen and were not necessary as the game currently has no sound.
+
+                While my brother wasn't able to provide sound for this milestone, my sister was able to help me out with the logo for the game. The logo turned out to be a mosaic of the 3x3 grid you find in most levels, spelling out "ON CMND" - a shortened version of "On Command". It was necessary to shorten the logo so it would look big enough compared to other UI elements. For the game's icon, the mosaic was shortened to just be the letter "C".
+
+                ![Full logo for On Command, spelling "ON CMND"](/i/on-command-logo.png)
+                ![Single logo for On Command, containing only a "C"](/i/on-command-icon-2.png)
+
+                ### I'm happy with the appearance and functionality of the menus.
+
+                All three menus can properly navigate between each other as tested on various game builds, and both the level select and sandbox screens can start their respective games (non-looping and looping). The custom difficulty selector I made works nicely on all systems. Save game data has issues persisting in-browser on itch.io specifically, but works elsewhere. Unfortunately, there's nothing that can really be done about that (saving to the "user://" directory is the standard way of saving data in Godot, which does not work in the web build on itch.io).
+
+                The main difficulty this milestone, like the first milestone, was creating an interface that looked reasonable on many resolutions. It was made easier by the initial work done in the first milestone, but orienting and positioning menu elements on the screen in an eye-pleasing way was still quite challenging. The vignette and color transitions were very simple compared to the UI design. However, I think I did an overall exceptional job.
+
+                Like with Milestone 1, builds for Windows, Linux, and Android can all be downloaded and the game can be played from [the itch.io page](https://mathgeniuszach.itch.io/on-command).
+            </div>
+        </section>
+        <include src="s/footer.html"></include>
+    </body>
+</html>
