@@ -3,13 +3,15 @@ const path = require("path");
 const child_process = require("child_process");
 const { exit } = require("process");
 
+const DIST = "docs";
+
 // Determine mode, production or development
 const MODE = process.argv.length > 2 ? process.argv[2].toLowerCase() : null;
 
 // Remove non-git items in dist
-for (const f of fs.readdirSync("dist")) {
+for (const f of fs.readdirSync(DIST)) {
     if (f[0] != "." && f != "CNAME" && f != "README.md" && f != "bin") {
-        fs.rmSync(path.join("dist", f), {recursive: true, force: true});
+        fs.rmSync(path.join(DIST, f), {recursive: true, force: true});
     }
 }
 
@@ -30,7 +32,7 @@ findEntries("src", args);
 console.log(`${args.length} entry pages found`);
 
 // Push on some extra arguments
-args.push("--dist-dir", "./dist", "--no-cache");
+args.push("--dist-dir", "./"+DIST, "--no-cache");
 
 if (MODE) {
     // Always insert mode into arguments if provided
@@ -72,7 +74,7 @@ function clone(src, dst) {
         }
     }
 }
-clone("incl", "dist");
+clone("incl", DIST);
 
 // Run parcel command
 child_process.spawn("parcel", args, {
