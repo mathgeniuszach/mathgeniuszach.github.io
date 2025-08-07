@@ -489,7 +489,7 @@ export function build(s: ISchema, id: string, show?: boolean, nopanel?: boolean)
                     vals: tvs,
                 };
 
-                const ehtml = buildList((s as any).temp, id, true, s.extra.allow ?? true, s?.props && [...s.ikeys]);
+                const ehtml = buildList((s as any).temp, id, true, s.extra.allowkey ?? true, s?.props && [...s.ikeys]);
 
                 if (tvs.title || s.props) {
                     let {title, desc, href} = tvs;
