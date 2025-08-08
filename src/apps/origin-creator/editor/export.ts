@@ -7,84 +7,43 @@ import { KNOWN_FILES } from "..";
 import { popSave } from "./editor";
 
 function resourcePackFormat(pack_format: number): number {
-    switch (pack_format) {
-        case 4: return 4;
-        case 5: return 5;
-        case 6: return 6;
-        case 7: return 7;
-        case 8: case 9: return 8;
-        case 10: case 11: return 9; // 12 for 1.19.3
-        case 12: return 13;
-        case 13: case 14: case 15: return 15;
-        case 16: case 17: case 18: return 18;
-        case 19: case 20: case 21: case 22:
-        case 23: case 24: case 25: case 26: default: return 22; // Mojang is weird. I'm not going to bother encoding all of these.
-    }
+    if (pack_format <= 8) return pack_format;
+    if (pack_format <= 9) return 8; // 1.18.2
+    if (pack_format <= 11) return 9; // 1.19 - 1.19.3
+    if (pack_format <= 12) return 13; // 1.19.4
+    if (pack_format <= 15) return 15; // 1.20 - 1.20.1
+    if (pack_format <= 18) return 18; // 1.20.2
+    if (pack_format <= 26) return 22; // 1.20.3 - 1.20.4
+    if (pack_format <= 41) return 32; // 1.20.5 - 1.20.6
+    if (pack_format <= 48) return 34; // 1.21 - 1.21.1
+    if (pack_format <= 57) return 42; // 1.21.2 - 1.21.3
+    if (pack_format <= 61) return 46; // 1.21.4
+    if (pack_format <= 71) return 55; // 1.21.5
+    if (pack_format <= 80) return 63; // 1.21.6
+    if (pack_format <= 81) return 64; // 1.21.7 - 1.21.8
+    return 4;
 }
 
-function forgeVer(pack_format: number): string {
-    switch (pack_format) {
-        case 4: return "[1.13.0,1.14.4]";
-        case 5: return "[1.15,1.16.1]";
-        case 6: return "[1.16.2,1.16.5]";
-        case 7: return "[1.17,1.17.1]";
-        case 8: return "[1.18.0,1.18.1]";
-        case 9: return "[1.18.2]";
-        case 10: case 11: return "[1.19.0,1.19.3]";
-        case 12: return "[1.19.4]";
-        case 13: case 14: case 15: return "[1.20.0,1.20.1]";
-        case 16: case 17: case 18: return "[1.20.2]";
-        case 19: case 20: case 21: case 22:
-        case 23: case 24: case 25: case 26: default: return "[1.20.3,)";
-    }
-}
-
-function fabricDepends(pack_format: number, out: any, origined: boolean) {
-    switch (pack_format) {
-        case 4:
-            out.depends.minecraft = ">=1.13.x <=1.14.x";
-            break;
-        case 5:
-            out.depends.minecraft = ">=1.15.x <=1.16.1";
-            break;
-        case 6:
-            out.depends.minecraft = "~1.16.2";
-            if (origined) out.depends.origins = ">=0.7.0";
-            break;
-        case 7:
-            out.depends.minecraft = "1.17.x";
-            if (origined) out.depends.origins = ">=1.1.0";
-            break;
-        case 8:
-            out.depends.minecraft = ">=1.18.0 <=1.18.1";
-            if (origined) out.depends.origins = ">=1.3.0";
-            break;
-        case 9:
-            out.depends.minecraft = "~1.18.2";
-            if (origined) out.depends.origins = ">=1.4.0";
-            break;
-        case 10: case 11:
-            out.depends.minecraft = ">=1.19.0 <=1.19.3";
-            if (origined) out.depends.origins = ">=1.7.0";
-            break;
-        case 12:
-            out.depends.minecraft = "~1.19.4";
-            if (origined) out.depends.origins = ">=1.9.0";
-            break;
-        case 13: case 14: case 15:
-            out.depends.minecraft = ">=1.20.0 <=1.20.1";
-            if (origined) out.depends.origins = ">=1.10.0";
-            break;
-        case 16: case 17: case 18:
-            out.depends.minecraft = "~1.20.2";
-            if (origined) out.depends.origins = ">=1.11.0";
-            break;
-        case 19: case 20: case 21: case 22:
-        case 23: case 24: case 25: case 26: default:
-            out.depends.minecraft = ">=1.20.3";
-            if (origined) out.depends.origins = ">=1.12.0";
-            break;
-    }
+function gameVer(pack_format: number): [string, string | null] | [string] {
+    if (pack_format <= 4) return ["1.13.0","1.14.4"];
+    if (pack_format <= 5) return ["1.15.0","1.16.1"];
+    if (pack_format <= 6) return ["1.16.2","1.16.5"];
+    if (pack_format <= 7) return ["1.17.0","1.17.1"];
+    if (pack_format <= 8) return ["1.18.0","1.18.1"];
+    if (pack_format <= 9) return ["1.18.2"];
+    if (pack_format <= 11) return ["1.19.0","1.19.3"];
+    if (pack_format <= 12) return ["1.19.4"];
+    if (pack_format <= 15) return ["1.20.0","1.20.1"];
+    if (pack_format <= 18) return ["1.20.2"];
+    if (pack_format <= 26) return ["1.20.3","1.20.4"];
+    if (pack_format <= 41) return ["1.20.5","1.20.6"];
+    if (pack_format <= 48) return ["1.21.0","1.21.1"];
+    if (pack_format <= 57) return ["1.21.2","1.21.3"];
+    if (pack_format <= 61) return ["1.21.4"];
+    if (pack_format <= 71) return ["1.21.5"];
+    if (pack_format <= 80) return ["1.21.6"];
+    if (pack_format <= 81) return ["1.21.7","1.21.8"];
+    return ["1.21.9", null];
 }
 
 function pushjvm(output: number[], ...data) {
@@ -146,6 +105,8 @@ export async function archive(type: string) {
 
     zip.file("pack.mcmeta", JSON.stringify(px, null, 4));
 
+    const verRaw = gameVer(pmeta.pack_format);
+
     // Create metadata based on type
     if (type == "fabric" || type == "poly") {
         // Create fabric.mod.json
@@ -165,7 +126,9 @@ export async function archive(type: string) {
 
         // out.pack_format = pmeta.pack_format || 6;
 
-        fabricDepends(pmeta.pack_format, out, origined);
+        if (verRaw.length == 1) out.depends.minecraft = `~${verRaw[0]}`;
+        else if (verRaw[1] == null) out.depends.minecraft = `>=${verRaw[0]}`;
+        else out.depends.minecraft = `>=${verRaw[0]} <=${verRaw[1]}`;
 
         if (pmeta.icon) out.icon = "pack.png";
         if (pmeta.authors) out.authors = pmeta.authors;
@@ -173,7 +136,10 @@ export async function archive(type: string) {
         zip.file("fabric.mod.json", JSON.stringify(out, null, 4));
     }
     if (type == "forge" || type == "poly") {
-        let ver = forgeVer(pmeta.pack_format);
+        let ver: string;
+        if (verRaw.length == 1) ver = `[${verRaw[0]}]`;
+        else if (verRaw[1] == null) ver = `[${verRaw[0]},)`;
+        else ver = `[${verRaw[0]},${verRaw[1]}]`;
         // Get mc version
 
         let fid: string = pmeta.id.replace(/"/g, '\\"') || "my_pack";
@@ -303,7 +269,27 @@ function makeData(izip: JSZip, data: any, path: string = "", ext?: string) {
         if (path == "assets/") continue;
 
         if (k.endsWith("/")) {
-            makeData(izip, v, path + k, ext || (k == "functions/" ? ".mcfunction" : ".json"));
+            // Remove s from folders that don't need it
+            // Because Mojang made this change for some awful reason
+            let nk = k;
+            if (
+                (path == "data/" && k != "tags/" && k.endsWith("s/") &&
+                !(pmeta.pack_format < 43 && k == "decorated_pot_patterns/") &&
+                !(pmeta.pack_format < 45 && [
+                    "structures/", "advancements/", "recipes/", "loot_tables/",
+                    "predicates/", "item_modifiers/", "functions/"
+                ].includes(k))) ||
+
+                (path == "data/tags/" && k.endsWith("s/") &&
+                !(pmeta.pack_format < 45 && k == "functions/") &&
+                !(pmeta.pack_format < 43 && [
+                    "items/", "blocks/", "entity_types/",
+                    "fluids/", "game_events/"
+                ].includes(k)))
+            ) {
+                nk = k.slice(-2)+"/";
+            }
+            makeData(izip, v, path + nk, ext || (k == "functions/" ? ".mcfunction" : ".json"));
         } else {
             if (!ext && path === "") continue; // Root level files do not get extracted in datapacks
 

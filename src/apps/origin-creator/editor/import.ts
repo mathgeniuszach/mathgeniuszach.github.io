@@ -4,8 +4,6 @@ import { block, unblock } from "../component/backdrop";
 import { refresh } from "../component/jstree";
 import { iconed } from "../component/sidebar";
 import { PROJECT, save, updateName } from "../projects";
-import { resolve } from "./build";
-import { JSONED } from "./global";
 import { get, set, has } from "./wrapper";
 
 export async function extract(zip: JSZip, updateMetadata: boolean = true, includeAssets: boolean = true, renameMergeConflicts: boolean = true) {
@@ -114,6 +112,14 @@ export async function extract(zip: JSZip, updateMetadata: boolean = true, includ
 
         // Throw out assets, but only if the user wants to do so
         if (!includeAssets && names[0] == "assets") continue;
+
+        // Add the s to the end of folder names when importing for 1.21+
+        // Mojang made a strange decision to remove it from half the file names,
+        // this corrects that and provides a more sensible experience, especially for porting.
+        if (names[0] == "data" && names.length > 3) {
+            if (names[2].slice(-1) != "s") names[2] += "s";
+            if (names.length > 4 && (names[2] == "tags" || names[2] == "worldgen") && names[3].slice(-1) != "s") names[3] += "s";
+        }
 
         // Get namespaced id of file
         let id = names[names.length-1];
