@@ -1,12 +1,25 @@
 const fs = require("fs");
 const path = require("path");
-const child_process = require("child_process");
-const { exit } = require("process");
 
-const DIST = "docs";
+const { spawn, spawnSync } = require("child_process");
+const { exit } = require("process");
 
 // Determine mode, production or development
 const MODE = process.argv.length > 2 ? process.argv[2].toLowerCase() : null;
+
+const DIST = "dist";
+const PUBLISH = "https://github.com/mathgeniuszach/mathgeniuszach.github.io";
+
+// If dist does not exist, create it
+if (!fs.existsSync(DIST)) {
+    spawnSync("git", [
+        "clone", "--single-branch", "--branch", DIST,
+        "--recursive", PUBLISH, DIST
+    ], {
+        cwd: process.cwd(),
+        stdio: "inherit"
+    });
+}
 
 // Remove non-git items in dist
 for (const f of fs.readdirSync(DIST)) {
@@ -77,7 +90,7 @@ function clone(src, dst) {
 clone("incl", DIST);
 
 // Run parcel command
-child_process.spawn("parcel", args, {
+spawn("parcel", args, {
     cwd: process.cwd(),
     detached: true,
     stdio: "inherit"
