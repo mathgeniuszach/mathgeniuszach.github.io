@@ -82,7 +82,6 @@ type SObject = {
     type: "object"
     props?: {[field: string]: ISchema}
     extra?: SExtra
-    allow?: string
     show?: boolean
     showpanel?: boolean
     ikeys?: Set<string>
@@ -108,8 +107,8 @@ export type ISchema = SGeneral & (
     // | SExtends
 )
 
-export type SExtra = ISchema & {
-    allow?: string
+export type SExtra = ISchema & {    
+    allowkey?: string
 }
 
 export type Schema = ISchema & {
