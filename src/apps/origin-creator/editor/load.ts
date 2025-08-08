@@ -1,13 +1,16 @@
+import { escape } from "lodash";
+
 import { PROJECT } from "../projects";
 import { regescape, resolve } from "./build";
-import { ISchema } from "./editor";
+import { ISchema } from "./schema";
 import { JSONED, traceItem } from "./global";
 import { get, set, OMap, del, keys, has } from "./wrapper";
+import { $$ } from "..";
 
 export function updatePanels() {
     // Darken panels
-    document.querySelectorAll("section .panel").forEach(el => {
-        const close = el.parentElement.closest(".panel, .panel-dark");
+    $$("section .panel").forEach(el => {
+        const close = el?.parentElement?.closest(".panel, .panel-dark");
         if (close && close.classList.contains("panel")) {
             el.classList.remove("panel");
             el.classList.add("panel-dark");
@@ -15,19 +18,19 @@ export function updatePanels() {
     });
 
     const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
+    const context = canvas.getContext("2d") as CanvasRenderingContext2D;
     context.font = '400 16px Arial, Helvetica, sans-serif, bootstrap-icons';
 
     // Update column widths
-    document.querySelectorAll("[jtype=object]").forEach(el => {
+    $$("[jtype=object]").forEach(el => {
         // eslint-disable-next-line no-undef
         const labels = [...el.querySelectorAll(".field > span:first-child")]
-            .filter(label => label.parentElement.parentElement.closest("[jtype=object]") == el) as HTMLElement[];
+            .filter(label => label?.parentElement?.parentElement?.closest("[jtype=object]") == el) as HTMLElement[];
 
         // Calculate minimum size
         let minWidth = 100;
         for (const label of labels) {
-            const width = context.measureText(label.textContent).width + 2;
+            const width = context.measureText(label.textContent || "").width + 2;
             if (width > minWidth) minWidth = width;
         }
 
@@ -42,19 +45,20 @@ export function updatePanels() {
 }
 
 
-export function findSchema(elem: HTMLElement, id: string): ISchema {
-    const path = traceItem(elem, id);
+export function findSchema(elem: HTMLElement, ver: number): ISchema {
+    const path = traceItem(elem, ver);
 
-    let s = JSONED.schemas[id];
+    let s = JSONED.mschemas[ver].links[PROJECT.type];
+    // console.log(s, PROJECT.type);
 
     for (let i = path.length - 1; i > 0; i--) {
-        s = resolve(s, id);
+        s = resolve(s, ver);
 
         const k = path[i-1][1];
         const type = path[i][0];
 
         if (k.includes(" ")) {
-            if (s.type != "object") throw Error("Schema doesn't match html");
+            if (s.type != "object" || !s.props) throw Error("Schema doesn't match html");
             const parts = k.split(" ");
             s = (s.props[parts[0]] as any).more[parts[1]];
             continue;
@@ -76,7 +80,8 @@ export function findSchema(elem: HTMLElement, id: string): ISchema {
             case "object":
                 if (s.type == "object") {
                     if (s.props && s.props[k]) s = s.props[k];
-                    else s = s.extra;
+                    else if (s.extra) s = s.extra;
+                    else throw Error("Schema doesn't match html");
                 } else {
                     throw Error("Schema doesn't match html");
                 }
@@ -87,15 +92,15 @@ export function findSchema(elem: HTMLElement, id: string): ISchema {
         }
     }
 
-    s = resolve(s, id);
+    s = resolve(s, ver);
     return s;
 }
 
-export function isValid(id: string, ssor: ISchema, v: any): boolean {
+export function isValid(ver: number, ssor: ISchema, v: any): boolean {
     // TODO: more extensive evaluation
     const t = typeof v;
 
-    let sor = resolve(ssor, id);
+    let sor = resolve(ssor, ver);
 
     if (sor.type === "const") return v === sor.const;
     if (sor.type === "enum") {
@@ -109,7 +114,7 @@ export function isValid(id: string, ssor: ISchema, v: any): boolean {
     }
     if (sor.type === "or") {
         for (const isor of sor.or) {
-            if (isValid(id, isor, v)) return true;
+            if (isValid(ver, isor, v)) return true;
         }
         return false;
     }
@@ -118,11 +123,11 @@ export function isValid(id: string, ssor: ISchema, v: any): boolean {
         if (Array.isArray(v)) {
             // Lists and tuples are simple enough
             if (sor.type == "list") {
-                for (const val of v) if (!isValid(id, sor.vals, val)) return false;
+                for (const val of v) if (!isValid(ver, sor.vals, val)) return false;
                 return true;
             }
             if (sor.type == "tuple") {
-                for (let i = 0; i < sor.vals.length; i++) if (!isValid(id, sor.vals[i], v[i])) return false;
+                for (let i = 0; i < sor.vals.length; i++) if (!isValid(ver, sor.vals[i], v[i])) return false;
                 return true;
             }
             return false;
@@ -155,9 +160,8 @@ export function isValid(id: string, ssor: ISchema, v: any): boolean {
 
                         // Also set any aliases
                         if (s.talias && tidv in s.talias) {
-                            const entries: [string, string][] = Object.entries(s.talias[tidv]);
-                            for (const [oldk, newk] of entries) {
-                                more[oldk] = more[newk];
+                            for (const [oldk, newk] of Object.entries(s.talias[tidv])) {
+                                more[oldk] = more[newk as any];
                             }
                         }
                     }
@@ -174,11 +178,11 @@ export function isValid(id: string, ssor: ISchema, v: any): boolean {
                 // If none of the conditions are met for the given key, this object is not valid
                 if (!(
                     // If key is in props and it is undefined or has the right type
-                    sor.props && k in sor.props && isValid(id, sor.props[k], nv) ||
+                    sor.props && k in sor.props && isValid(ver, sor.props[k], nv) ||
                     // If key validates with extra
-                    sor.extra && isValid(id, sor.extra, nv) ||
+                    sor.extra && isValid(ver, sor.extra, nv) ||
                     // If key (or alias) is a more field
-                    kk in more && isValid(id, more[k], nv)
+                    kk in more && isValid(ver, more[k], nv)
                 )) {
                     return false;
                 }
@@ -191,25 +195,28 @@ export function isValid(id: string, ssor: ISchema, v: any): boolean {
     return t === sor.type || t == "number" && sor.type == "integer";
 }
 
-export function load(id: string, p: any, k: string | number, elem: HTMLElement, schema?: ISchema, r: boolean = false): any {
+export function load(ver: number, p: any, k: string | number, elem: HTMLElement, schema?: ISchema, r: boolean = false): any {
     if (!elem) {
-        console.log(schema);
-        throw Error(`Attempt to load non-existant element in ${id}, key ${k}`);
+        console.log(ver, p, k, schema);
+        throw Error(`Attempt to load non-existant element.`);
     }
 
     let e = elem;
-    while (!e.hasAttribute("jtype")) e = e.parentElement;
+    while (!e.hasAttribute("jtype")) {
+        if (!e.parentElement) throw Error("jtype element is missing parent");
+        e = e.parentElement;
+    }
 
     // If the item is a named object, just update it's key value
     if (elem.hasAttribute("named")) {
-        (elem.firstElementChild.firstElementChild as HTMLInputElement).value = String(k);
+        (elem?.firstElementChild?.firstElementChild as HTMLInputElement).value = String(k);
         elem.setAttribute("jid", String(k));
     }
 
     // Find this element's schema
-    let s: ISchema = schema;
-    if (schema == undefined) s = findSchema(e, PROJECT.aid);
-    s = resolve(s, id);
+    let s: ISchema = schema as any;
+    if (schema == undefined) s = findSchema(e, ver);
+    s = resolve(s, ver);
 
     // Get the item's current value
     let v = get(p, k);
@@ -220,18 +227,19 @@ export function load(id: string, p: any, k: string | number, elem: HTMLElement, 
         case "const": set(p, k, s.const); break;
 
         case "or": {
-            let chooser: HTMLElement = elem.querySelector(":scope > div > button[key]");
+            let chooser: HTMLElement | null = elem.querySelector(":scope > div > button[key]");
             let unspec = !!chooser;
             if (!chooser) chooser = elem.querySelector("select");
+            if (!chooser) throw Error("or element is missing chooser");
 
             if (v !== undefined) {
                 // If v exists, determine if it's valid according to the schema
                 for (let i = 0; i < s.or.length; i++) {
-                    if (isValid(id, s.or[i], v)) {
+                    if (isValid(ver, s.or[i], v)) {
                         if (unspec) {
-                            JSONED.toggleOr(chooser, id, {defload: String(i), force: false, save: false});
+                            JSONED.toggleOr(chooser, ver, {defload: String(i), force: false, save: false});
                         } else {
-                            JSONED.switchData(chooser, String(i), id, {save: false});
+                            JSONED.switchData(chooser, String(i), ver, {save: false});
                         }
                         return;
                     }
@@ -240,9 +248,9 @@ export function load(id: string, p: any, k: string | number, elem: HTMLElement, 
 
             // Nothing to validate or validation failed, so we default to the unspecified, default, or first option
             if (unspec) {
-                JSONED.toggleOr(chooser, id, {defload: "-1", force: true, save: false});
+                JSONED.toggleOr(chooser, ver, {defload: "-1", force: true, save: false});
             } else {
-                JSONED.switchData(chooser, String(s.default ?? 0), id, {save: false});
+                JSONED.switchData(chooser, String(s.default ?? 0), ver, {save: false});
             }
             break;
         }
@@ -255,8 +263,10 @@ export function load(id: string, p: any, k: string | number, elem: HTMLElement, 
 
             if (typeof v == "object" && !Array.isArray(v)) {
                 // Load the object if it is unloaded
-                if (!s.show && btn && hidden) {
-                    btn.parentElement.innerHTML = JSONED.htmls[btn.getAttribute("key")];
+                if (!s.show && btn && btn.parentElement && hidden) {
+                    const lkey = btn.getAttribute("key");
+                    if (!lkey) throw Error("object button is missing hkey");
+                    btn.parentElement.innerHTML = JSONED.htmls[lkey];
                 }
 
                 let rekey = r;
@@ -286,15 +296,18 @@ export function load(id: string, p: any, k: string | number, elem: HTMLElement, 
 
                     // Then we load starter keys that are available
                     for (const [k, item] of Object.entries(s.props as {[key: string]: ISchema})) {
-                        const ielem: HTMLElement = elem.querySelector(`:scope > div > [jid="${k.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"]`);
-                        const out = load(id, v, k, ielem, item as any);
+                        const jid = k.replace("\\", "\\\\").replace('"', '\\"');
+                        const ielem = elem.querySelector(`:scope > div > [jid="${jid}"]`) as HTMLElement;
+                        if (!ielem) throw Error("object props is missing jid element");
+                        const out = load(ver, v, k, ielem, item as any);
                         nkeys.push(k);
 
                         // Load extra enum fields
                         if (item.type == "enum" && item.more) {
                             // console.log(ielem);
                             let melem = ielem.nextElementSibling;
-                            while (melem.tagName == "HR") melem = melem.nextElementSibling;
+                            while (melem?.tagName == "HR") melem = melem?.nextElementSibling;
+                            if (!melem) throw Error("object props with enum is missing more element");
                             melem.innerHTML = JSONED.htmls[`more-${melem.getAttribute("jmore")}-${out}`];
 
                             const morez = item.more[out];
@@ -313,7 +326,9 @@ export function load(id: string, p: any, k: string | number, elem: HTMLElement, 
                                     ok.add(mk);
                                     nkeys.push(mk);
                                     // console.log(mk, mitem, melem);
-                                    load(id, v, mk, melem.querySelector(`:scope > div > [jid="${escape(mk)}"]`), mitem as any);
+                                    const loadMore = melem.querySelector(`:scope > div > [jid="${escape(mk)}"]`) as HTMLElement;
+                                    if (!loadMore) throw Error("object more is missing jid element");
+                                    load(ver, v, mk, loadMore, mitem as any);
                                 }
                             }
                         }
@@ -331,7 +346,7 @@ export function load(id: string, p: any, k: string | number, elem: HTMLElement, 
 
                 if (s.extra) {
                     // Detect the type and delete all keys if the type of any extra field is wrong
-                    let val = resolve(s.extra, id);
+                    let val = resolve(s.extra, ver);
 
                     if (val.type != "or") {
                         for (const k of leftover) {
@@ -349,7 +364,8 @@ export function load(id: string, p: any, k: string | number, elem: HTMLElement, 
                         }
                     }
                     // Otherwise we can proceed with the load
-                    const nlist = elem.lastElementChild.lastElementChild.lastElementChild;
+                    const nlist = elem.lastElementChild?.lastElementChild?.lastElementChild;
+                    if (!nlist) throw Error("object extra is missing great grandchild nlist element");
 
                     // Count number of items in html and correct that number
                     const items = nlist.children;
@@ -364,8 +380,10 @@ export function load(id: string, p: any, k: string | number, elem: HTMLElement, 
                     } else if (leftover.length > icount) {
                         // Too few items so we need to add some
                         const last = items[icount];
-                        const html = JSONED.htmls[last.getAttribute("key")];
-                        const htmls = [];
+                        const lkey = last.getAttribute("key");
+                        if (!lkey) throw Error("object extra is missing key attribute");
+                        const html = JSONED.htmls[lkey];
+                        const htmls: string[] = [];
                         for (let i = icount; i < leftover.length; i++) {
                             htmls.push(`<div class="panel" named jtype="${escape(val.type)}" jid="${escape(leftover[i])}">${html}</div>`);
                         }
@@ -373,26 +391,29 @@ export function load(id: string, p: any, k: string | number, elem: HTMLElement, 
                     }
 
                     // Then load each field into html
-                    for (let i = 0; i < leftover.length; i++) load(id, v, leftover[i], items[i] as HTMLElement, val);
+                    for (let i = 0; i < leftover.length; i++) load(ver, v, leftover[i], items[i] as HTMLElement, val);
                 } else {
                     for (const k of leftover) del(v, k, true);
                 }
             } else {
                 // Unload the object if it is loaded
                 if (v) del(p, k);
-                if (btn && !hidden) {
-                    btn.parentElement.innerHTML = JSONED.htmls[btn.getAttribute("hkey")];
+                if (btn && btn.parentElement && !hidden) {
+                    const hkey = btn.getAttribute("hkey");
+                    if (!hkey) throw Error("object button is missing hkey");
+                    btn.parentElement.innerHTML = JSONED.htmls[hkey];
                 }
             }
             break;
         }
         case "list": {
             // Resolve links
-            let val: ISchema = resolve(s.vals, id);
+            let val: ISchema = resolve(s.vals, ver);
 
             if (val.type == "string") {
                 // Text lists are a lot easier to load in (we do not resolve links to strings)
                 const tarea = elem.querySelector("textarea");
+                if (!tarea) throw Error("string list is missing textarea");
 
                 if (Array.isArray(v) && v.every((t) => typeof t == "string")) {
                     tarea.value = v.join("\n");
@@ -414,8 +435,10 @@ export function load(id: string, p: any, k: string | number, elem: HTMLElement, 
 
                 if (Array.isArray(v)) {
                     // Load the object if it is unloaded
-                    if (!s.show && btn && hidden) {
-                        btn.parentElement.innerHTML = JSONED.htmls[btn.getAttribute("key")];
+                    if (!s.show && btn && btn.parentElement && hidden) {
+                        const lkey = btn.getAttribute("key");
+                        if (!lkey) throw Error("list button is missing hkey");
+                        btn.parentElement.innerHTML = JSONED.htmls[lkey];
                     }
 
                     // Add or remove items from the list to balance it's size
@@ -427,9 +450,12 @@ export function load(id: string, p: any, k: string | number, elem: HTMLElement, 
                         }
                     } else if (v.length > items.length) {
                         // We need to add some items to match the length
-                        const last = elem.lastElementChild.lastElementChild;
-                        const html = JSONED.htmls[last.getAttribute("key")];
-                        const htmls = [];
+                        const last = elem?.lastElementChild?.lastElementChild;
+                        if (!last) throw Error("list element is missing grandchild");
+                        const lkey = last.getAttribute("key");
+                        if (!lkey) throw Error("list grandchild element is missing key attribute");
+                        const html = JSONED.htmls[lkey];
+                        const htmls: string[] = [];
                         for (let i = items.length; i < v.length; i++) {
                             htmls.push(`<div class="panel" jtype="${escape(val.type)}" jid=${i}>${html}</div>`);
                         }
@@ -438,13 +464,15 @@ export function load(id: string, p: any, k: string | number, elem: HTMLElement, 
 
                     // Now load each list item individually
                     elem.querySelectorAll(":scope > div > [jtype]").forEach((e, i) => {
-                        load(id, v, i, e as HTMLElement, val);
+                        load(ver, v, i, e as HTMLElement, val);
                     });
                 } else {
                     // Unload the object if it is loaded
                     if (v) del(p, k);
-                    if (btn && !hidden) {
-                        btn.parentElement.innerHTML = JSONED.htmls[btn.getAttribute("hkey")];
+                    if (btn && btn.parentElement && !hidden) {
+                        const hkey = btn.getAttribute("hkey");
+                        if (!hkey) throw Error("list button is missing hkey");
+                        btn.parentElement.innerHTML = JSONED.htmls[hkey];
                     }
                 }
             }
@@ -458,7 +486,9 @@ export function load(id: string, p: any, k: string | number, elem: HTMLElement, 
             while (v.length !== s.vals.length) v.push(undefined);
 
             for (let i = 0; i < s.vals.length; i++) {
-                load(id, v, i, elem.querySelector(`:scope > [jid="${i}"]`), s.vals[i]);
+                const jidElem = elem.querySelector(`:scope > [jid="${i}"]`) as HTMLElement;
+                if (!jidElem) throw Error(`cannot load into tuple element ${i}`);
+                load(ver, v, i, jidElem, s.vals[i]);
             }
             break;
         case "enum": {
@@ -485,12 +515,12 @@ export function load(id: string, p: any, k: string | number, elem: HTMLElement, 
             }
 
             const val = `${typeof v}-${v}`;
-            e.querySelector("select").value = val;
+            e.querySelector("select")!.value = val;
             return val;
         }
         case "image":
-            if (v) e.querySelector("img").src = v;
-            else e.querySelector("img").removeAttribute("src");
+            if (v) e.querySelector("img")!.src = v;
+            else e.querySelector("img")!.removeAttribute("src");
             break;
 
         default: {

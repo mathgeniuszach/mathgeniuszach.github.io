@@ -3,8 +3,8 @@ import { saveAs } from "file-saver";
 import { block, unblock } from "../component/backdrop";
 import { PROJECT } from "../projects";
 import { simplify } from "./wrapper";
-import { KNOWN_FILES, popSave } from "..";
-import { oc } from "./api";
+import { KNOWN_FILES } from "..";
+import { popSave } from "./editor";
 
 function resourcePackFormat(pack_format: number): number {
     switch (pack_format) {
@@ -249,11 +249,11 @@ ${origined ?
         // Create manifest for mods
         zip.file("META-INF/MANIFEST.MF", "Manifest-Version: 1.0" /*+ "\nFMLModType: LIBRARY"*/ + "\n\n");
         // Add assets
-        if ("assets/" in PROJECT.data) makeData(zip.folder("assets"), PROJECT.data["assets/"], "", ".json");
+        if ("assets/" in PROJECT.data) makeData(zip.folder("assets")!, PROJECT.data["assets/"], "", ".json");
     }
 
     // Create data
-    makeData(zip.folder("data"), PROJECT.data);
+    makeData(zip.folder("data")!, PROJECT.data);
 
     // Prompt user for save
     const content = await zip.generateAsync({type: "blob"});
@@ -274,7 +274,7 @@ ${origined ?
         if (pmeta.license_text) rzip.file("LICENSE", pmeta.license_text);
 
         // Add assets to resourcepack
-        makeData(rzip.folder("assets"), PROJECT.data["assets/"], "", ".json");
+        makeData(rzip.folder("assets")!, PROJECT.data["assets/"], "", ".json");
 
         const rcontent = await rzip.generateAsync({type: "blob"});
         saveAs(rcontent, pmeta.name + " " + pmeta.version + " (Resources).zip");

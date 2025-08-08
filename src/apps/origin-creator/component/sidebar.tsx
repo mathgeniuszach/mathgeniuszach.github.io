@@ -4,7 +4,7 @@ import React from "react";
 import { Alert, AlertTitle } from "@material-ui/lab";
 import { Dialog, DialogActions, DialogTitle, DialogContent, Button, Radio, RadioGroup, FormControl, FormLabel, FormControlLabel, Box, TextField, Select, InputLabel, MenuItem, Snackbar, Checkbox, FormGroup, Grid } from "@material-ui/core";
 
-import { $, DEFAULT_FORMAT, Icon, viewSection, fixBarry } from "..";
+import { $, DEFAULT_FORMAT, Icon, viewSection } from "..";
 import { PROJECT, save, updateName } from "../projects";
 import { refresh, makeTree, newFolder } from "./jstree";
 import { archive } from "../editor/export";
@@ -14,11 +14,6 @@ import { oc } from "../editor/api";
 function ProjectsButton(props) {
     return <button title="Open the projects panel." onClick={() => viewSection("projects")}>
         <Icon type="folder"/>
-    </button>;
-}
-function WorkspaceButton(props) {
-    return <button title="Open the last worked on file." onClick={() => viewSection("workspace")}>
-        <Icon type="diagram-2"/>
     </button>;
 }
 function HelpButton(props) {
@@ -33,8 +28,8 @@ function AddTypeButton(props) {
     </button>;
 }
 
-let importZip = null;
-let importZipOrigined = null;
+let importZip: JSZip = null as any;
+let importZipOrigined: boolean = false;
 
 function ImportButton(props) {
     const [importOpen, setImportMenuOpen] = React.useState(false);
@@ -86,11 +81,10 @@ function ImportButton(props) {
             console.error(err);
             showSnack("Failed to import file. Ask in the Creator's Discord.", "error");
         }
-        fixBarry();
     }
 
     PROJECT.handleImport = async function(files: FileList) {
-        const limitEnabled = !globalThis.offline && !(document.querySelector('#disable-file-limit') as HTMLInputElement).checked;
+        const limitEnabled = !globalThis.offline && !($('#disable-file-limit') as HTMLInputElement).checked;
 
         if (files.length > 1) {
             for (const file of files) {
@@ -128,7 +122,7 @@ function ImportButton(props) {
 
                     PROJECT.data = JSON.parse(await file.text());
                     save();
-                    location.reload();
+                    location.reload(); // Because I am lazy
 
                     return;
                 }
@@ -139,7 +133,7 @@ function ImportButton(props) {
                     "fabric.mod.json" in zip.files ||
                     Object.keys(zip.files).reverse().some((v) => {
                         const out = v.match(/^\/?([^/]+\/)?pack.mcmeta$/);
-                        if (out) zip = zip.folder(out[1]);
+                        if (out) zip = zip.folder(out[1])!;
                         return !!out;
                     })
                 )) throw Error();
@@ -171,10 +165,10 @@ function ImportButton(props) {
     };
 
     return <>
-        <button title="Import a file or an entire datapack." onClick={() => $("#importer").click()}>
+        <button title="Import a file or an entire datapack." onClick={() => $("#importer")?.click()}>
             <Icon type="file-earmark-plus"/>
         </button>
-        <input id="importer" type="file" style={{display: "none"}} onChange={(e) => PROJECT.handleImport(e.target.files)}/>
+        <input id="importer" type="file" style={{display: "none"}} onChange={(e) => e.target.files ? PROJECT.handleImport(e.target.files) : undefined}/>
 
         <Dialog open={importOpen} onClose={handleImportMenuClose}>
             <DialogTitle>Import Pack</DialogTitle>
@@ -219,7 +213,7 @@ function ImportButton(props) {
 
                     if (mode == "replace") {
                         // Add basic folders if not in minimal mode
-                        for (const k of iconed.slice(importZipOrigined == "vanilla" ? 4 : 1)) PROJECT.data[k+"/"] = {};
+                        for (const k of iconed.slice(importZipOrigined ? 1 : 4)) PROJECT.data[k+"/"] = {};
                         const tags = PROJECT.data["tags/"];
                         for (const tag of ["blocks", "entity_types", "fluids", "functions", "items"]) tags[tag+"/"] = {};
                         if (assetz) {
@@ -263,17 +257,17 @@ function* scan(data: {[k: string]: any}): Iterable<string> {
 
 export function check(): {[key: string]: string[]} {
     const errors = {
-        unknown: [],
-        unusedPowers: [],
-        unlayeredOrigins: [],
-        emptyOrigins: [],
-        nullFiles: []
+        unknown: [] as string[],
+        unusedPowers: [] as string[],
+        unlayeredOrigins: [] as string[],
+        emptyOrigins: [] as string[],
+        nullFiles: [] as string[]
     };
 
     // Collect all ids in the project (including subpowers)
     const ids = new Set();
 
-    for (const f of oc.listAndRead(null, true)) {
+    for (const f of oc.listAndRead(undefined, true)) {
         const [type, id] = oc.getTypedID(f[0], true);
 
         if (type == "power" && f[1]?.type == "origins:multiple") {
@@ -292,7 +286,7 @@ export function check(): {[key: string]: string[]} {
 
     const powers = new Set(oc.listFiles("powers/").map(f => oc.getTypedID(f, true)[1]));
 
-    for (const [f, content] of oc.listAndRead(null, true)) {
+    for (const [f, content] of oc.listAndRead(undefined, true)) {
         if (content == null) {
             errors.nullFiles.push(`File "${f}"`);
             continue;
@@ -356,12 +350,11 @@ export function check(): {[key: string]: string[]} {
 }
 
 function ExportErrors(props) {
-    const alerts = [];
+    const alerts: any[] = [];
     let total = 0;
 
     if (!localStorage.getItem("ocdew")) {
         try {
-            fixBarry();
             const errors = check();
 
             total = 0;
@@ -579,7 +572,6 @@ export class Sidebar extends React.Component {
             <h6>&nbsp;</h6>
             <div>
                 <ProjectsButton/>
-                <WorkspaceButton/>
                 <HelpButton/>
             </div>
             <div className="panel">

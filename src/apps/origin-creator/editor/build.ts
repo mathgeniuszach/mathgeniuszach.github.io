@@ -1,7 +1,7 @@
 import { startCase, escape } from "lodash";
 import { PROJECT } from "../projects";
 
-import { Schema, ISchema, SList, SGeneral } from "./editor";
+import { ISchema, SList, SGeneral } from "./schema";
 import { JSONED } from "./global";
 
 export function regescape(s: string) {
@@ -10,7 +10,7 @@ export function regescape(s: string) {
 
 function t(text: string): string {
     return text
-        .replace(/[\r\n]+/g, "")
+        .replace(/[\r\n]+/g, " ")
         .replace(/\s{2,}/g, " ")
         .replace(/> +/g, ">")
         .trim();
@@ -18,10 +18,11 @@ function t(text: string): string {
 
 let n = 0;
 
+// FIXME: I'm pretty sure that maps don't work like this lol
 const lbuilds = new Map();
-function buildList(s: SList & SGeneral, id: string, show: boolean = false, named: string | boolean = false, illegal?: string[]) {
+function buildList(s: SList & SGeneral, ver: number, show: boolean = false, named: string | boolean = false, illegal?: string[]) {
     // Resolve links and objects so they can default in a list to be shown
-    let val = resolve(s.vals, id);
+    let val = resolve(s.vals, ver);
 
     // Handle recursion
     let nn = n;
@@ -35,179 +36,64 @@ function buildList(s: SList & SGeneral, id: string, show: boolean = false, named
 
         const title = val.title ? `<span>${escape(val.title)}:&nbsp;</span>` : '';
 
-        const ihtml = build(val, id, (val.type === "object" || val.type === "list" || val.type === "or"), true);
+        // Don't build resolved schema! Links are built remotely, only once.
+        const ihtml = build(s.vals, ver, true, false);
         JSONED.htmls[`list-${nn}`] = t(`<div>
-            ${named ? `${title}<input type="text" onchange="JSONED.changeListKey(this.parentElement.parentElement, this.value, '${escape(id)}')"${typeof named == "string" ? ` onkeydown='return /[${escape(regescape(named))}]/.test(event.key)'` : ''}>` : ""}
-            <button onclick="JSONED.delListItem(this.parentElement.parentElement, '${escape(id)}', ${!!named})"><p class="bi bi-dash"></p></button>
-            <button onclick="JSONED.moveListItem(this.parentElement.parentElement, '${escape(id)}', true, ${!!named})"><p class="bi bi-caret-up"></p></button>
-            <button onclick="JSONED.moveListItem(this.parentElement.parentElement, '${escape(id)}', false, ${!!named})"><p class="bi bi-caret-down"></p></button>
-            <button onclick="JSONED.cloneListItem(this.parentElement.parentElement, '${escape(id)}', ${!!named})"><p class="bi bi-chevron-bar-expand"></p></button>
+            ${named ? `${title}<input type="text" onchange="JSONED.changeListKey(this.parentElement.parentElement, this.value)"${typeof named == "string" ? ` onkeydown='return /[${escape(regescape(named))}]/.test(event.key)'` : ''}>` : ""}
+            <button onclick="JSONED.delListItem(this.parentElement.parentElement, ${!!named})"><p class="bi bi-dash"></p></button>
+            <button onclick="JSONED.moveListItem(this.parentElement.parentElement, true, ${!!named})"><p class="bi bi-caret-up"></p></button>
+            <button onclick="JSONED.moveListItem(this.parentElement.parentElement, false, ${!!named})"><p class="bi bi-caret-down"></p></button>
+            <button onclick="JSONED.cloneListItem(this.parentElement.parentElement, ${!!named})"><p class="bi bi-chevron-bar-expand"></p></button>
         </div>`) + ihtml;
     }
 
     const html = t(`<div key="list-${nn}">
-        <button onclick="JSONED.addListItem(this.parentElement, '${escape(val.type)}', '${escape(id)}', ${!!named})"><p class="bi bi-plus"></p></button>
-        <button onclick="JSONED.clearListItems(this.parentElement.parentElement, '${escape(id)}', ${!!named})"><p class="bi bi-x"></p></button>
+        <button onclick="JSONED.addListItem(this.parentElement, '${escape(val.type)}', ${!!named})"><p class="bi bi-plus"></p></button>
+        <button onclick="JSONED.clearListItems(this.parentElement.parentElement, ${!!named})"><p class="bi bi-x"></p></button>
     </div>`);
+    const shown = `<div${named ? ' class="nlist"' : ""}${illegal ? ` i=${escape(JSON.stringify(illegal))}` : ""}>${html}</div>`;
 
     if (s.show ?? show) {
-        return `<div${named ? ' class="nlist"' : ""}${illegal ? ` i=${escape(JSON.stringify(illegal))}` : ""}>${html}</div>`;
+        return shown;
     } else {
-        const hhtml = `<button key="sub-${n}" hkey="h-${n}" type="list" onclick="JSONED.toggleObject(this, '${escape(id)}')"><p class="bi bi-$ICON$"></p></button>`;
+        const hhtml = `<button key="sub-${n}" hkey="h-${n}" type="list" onclick="JSONED.toggleObject(this)"><p class="bi bi-$ICON$"></p></button>`;
         const hiddenHtml = hhtml.replace("$ICON$", "plus");
+        JSONED.htmls[`code-${n}`] = shown;
         JSONED.htmls[`h-${n}`] = hiddenHtml;
         JSONED.htmls[`sub-${n}`] = hhtml.replace("$ICON$", "dash") + "<br>" + html;
-        n++;
 
-        return `<div class="panel">${hiddenHtml}</div>`;
+        return `<div shown="${n++}" class="panel">${hiddenHtml}</div>`;
     }
 }
 
-// These functions are called by editors to expand out extend statements before doing anything else.
-// This streamlines the process of extending things without having to write a whole lot of extra code.
-function _expand(handled: Set<string>, id: string, sx: ISchema) {
-    // Deref links
-    let s = sx;
-    let tid = id;
-    let [file, ver] = tid.split("-");
-    while ("link" in s) {
-        s.type = "link";
-
-        if (s.id) tid = s.id;
-        if (!tid.split("-")[1]) tid += "-"+ver; // If an ID is missing version, add it back
-        s.id = tid; // Give all links IDs so they can easily be recognizable
-
-        const key = tid + "@" + s.link;
-        if (handled.has(key)) return;
-        handled.add(key);
-        s = locateLink(s.link, tid);
-    }
-
-    // Rename int to integer and bool to boolean
-    if (s.type == "int") s.type = "integer";
-    else if (s.type == "bool") s.type = "boolean";
-
-    // Expand out extend statements in this schema.
-    if ("extend" in s) {
-        // Get superschemas
-        const ext: ISchema[] = [];
-
-        function extendy(ts) {
-            let ttid = ts.id || tid;
-            if (!ttid.split("-")[1]) ttid += "-"+ver;
-
-            const bases = Array.isArray(ts.extend) ? ts.extend : [ts.extend];
-            for (const base of bases) {
-                const bs: any = locateLink(base, ttid);
-                if (bs && "extend" in bs) extendy(bs);
-
-                if (ext.includes(bs)) throw Error("A schema cannot extend itself!");
-                if (bs.type == "link") throw Error("Cannot extend a link!");
-                ext.push(JSON.parse(JSON.stringify(bs)));
-            }
-        }
-        extendy(s);
-        ext.push(s);
-
-        // Load superschemas
-        const out: any = {};
-        const props: any = {};
-        for (const e of ext) {
-            if ("props" in e) Object.assign(props, (e as any).props);
-            Object.assign(out, e);
-        }
-        if (Object.keys(props).length > 0) out.props = props;
-        delete out.extend;
-
-        // Update schema in place with new schema (there's not really a better way of doing this)
-        for (const k in s) delete s[k];
-        Object.assign(s, out);
-    }
-
-    // Infer unknown types
-    if (!s.type) {
-        if ("enum" in s) s.type = "enum";
-        else if ("or" in s) s.type = "or";
-        else if ("const" in s) s.type = "const";
-        else {
-            console.error("Untyped schema", s);
-            throw Error("Untyped schema");
-        }
-    }
-    if ("link" in s) {
-        throw Error();
-    }
-
-    // Find further schemas that might need expanding
-    switch (s.type) {
-        case "or":
-            for (const ss of s.or) _expand(handled, tid, ss);
-            if (s.shared) for (const sv of Object.values(s.shared) as any) _expand(handled, tid, sv);
-            break;
-        case "list":
-            _expand(handled, tid, s.vals);
-            break;
-        case "tuple":
-            for (const ss of s.vals) _expand(handled, tid, ss);
-            break;
-        case "object":
-            if (s.props) for (const sv of Object.values(s.props) as any) _expand(handled, tid, sv);
-            if (s.extra) _expand(handled, tid, s.extra);
-            break;
-        case "enum":
-            if (s.more) Object.values(s.more).forEach(e => {
-                Object.values(e).forEach(x => {
-                    _expand(handled, tid, x);
-                });
-            });
-            break;
-    }
-}
-export function expand(id: string, s: Schema): Schema {
-    const handled: Set<string> = new Set();
-    if (s.links) for (const ss of Object.values(s.links)) _expand(handled, id, ss);
-    _expand(handled, id, s);
-    return s;
-}
-
-export function locateLink(link: string, id?: string): ISchema {
-    // Locate the newest link for the current file version:
-    let tid = id || PROJECT.aid;
-    const [file, sver] = tid.split("-");
-    let ver = parseInt(sver) || parseInt(PROJECT.aid.split("-")[1]);
-    do {
-        tid = `${file}-${ver}`;
-    } while (!(link in (JSONED.schemas[tid]?.links || {})) && --ver > 0);
-    
-    // Then move on to the next linked schema.
-    const p = JSONED.schemas[tid];
-    if (!p || !p.links[link]) throw Error(`Unknown link ${tid}@${link}`);
-    return p.links[link];
-}
-
-export function resolve(s: ISchema, id?: string) {
+// Resolves the given schema to a link, overwriting any fields in the link it finds.
+export function resolve(s: ISchema, ver?: number) {
     if (typeof s != "object") throw Error("Cannot resolve non-schema");
     if (!("link" in s)) return s;
 
-    let tid = PROJECT.aid || id;
+    const links = JSONED.mschemas[ver ?? PROJECT.ver].links;
 
-    let out = null;
+    let out: any = null;
 
-    // Recurse through schema links
+    // Recurse through schema links.
     let ts: ISchema = s;
     while ("link" in ts) {
         // ts has "link" field.
-        // If other NEW fields exist, record them.
-        if (out == null) out = {};
-        for (const [k, v] of Object.entries(ts)) {
-            if (k in out || k == "link" || k == "type" && v == "link") continue;
-            out[k] = v;
+        // If other fields exist, record them.
+        if (Object.keys(ts).length > 1) {
+            if (out == null) out = {};
+            for (const [k, v] of Object.entries(ts)) {
+                if (k in out || k == "link" || k == "type" && v == "link") continue;
+                out[k] = v;
+            }
         }
-
         // Then move on to the next linked schema.
-        if (ts.id) tid = ts.id;
-        ts = locateLink(ts.link, tid);
+        if (typeof links[ts.link] != "object") {
+            throw Error(`Unknown link ${ts.link} in version ${ver ?? PROJECT.ver}`);
+        }
+        ts = links[ts.link];
     }
+
     // If no fields were recorded, the linked schema can be returned as is.
     if (out === null) return ts;
 
@@ -220,43 +106,43 @@ export function resolve(s: ISchema, id?: string) {
     return out;
 }
 
-export function build(s: ISchema, id: string, show?: boolean, nopanel?: boolean): string {
+export function build(s: ISchema, ver: number, show?: boolean, panel?: boolean): string {
     // Build different things in different situations
     switch (s.type) {
         case "or": {
             const nn = n++;
             let html: string[] = s.or.map((vs, i) => {
-                let tvs = resolve(vs, id);
-                const title = tvs.title || tvs.type;
+                let tvs = resolve(vs, ver);
+                let title = tvs.title;
+                if (!title) title = tvs.type;
 
-                if (s.shared && tvs.type == "object") tvs.props = Object.assign(Object.assign({}, s.shared), tvs.props ?? {});
-
-                const ihtml = build(vs, id, (tvs.type == "object" || tvs.type == "list"));
+                // Don't build resolved schema! Links are built remotely, only once.
+                const ihtml = build(vs, ver, true, false);
 
                 JSONED.htmls[`or-${nn}-${i}`] = `<div jtype="${escape(tvs.type)}" jid="${i}">${ihtml}</div>`;
                 return `<option type="${escape(tvs.type)}" key="or-${nn}-${i}" value="${i}"${tvs.desc ? ` desc="${escape(tvs.desc)}"` : ""}${tvs.href ? ` href="${escape(tvs.href)}"` : ""}>${escape(title)}</option>`;
             });
-            if (s.shared) delete s.shared;
 
-            const r = resolve(JSONED.schemas[id], id);
-
-            const code = `<div class="flex"><select ${s.hooks?.includes("preserve_single") ? "preserver" : ""} onchange="JSONED.switchData(this, this.value, '${escape(id)}', {})">${html.join("")}</select>&nbsp;</div>`;
+            const code = `<div class="flex"><select ${s.hooks?.includes("preserve_single") ? "preserver" : ""} onchange="JSONED.switchData(this, this.value)">${html.join("")}</select>&nbsp;</div>`;
+            const shown = `<div${(panel ?? s.panel ?? true) ? ' class="panel"' : ''}>${code}</div>`;
 
             if (s.unspec && !show) {
+                // Store raw code so it can be used directly if need be
+                JSONED.htmls[`code-${nn}`] = shown;
+
                 const hiddenHtml = t(`<button key="sub-${nn}" hkey="h-${nn}"
                     onclick="
                         ${s.hooks?.includes("fix_type") ? "const l = this.parentElement?.parentElement?.nextElementSibling?.nextElementSibling?.lastElementChild;" : ""}
-                        JSONED.toggleOr(this, '${escape(id)}', {});
+                        JSONED.toggleOr(this);
                         ${s.hooks?.includes("fix_type") ? "JSONED.fixTypeFromCondition(l, true);" : ""}
                     ">
                 <p class="bi bi-plus"></p></button>`);
                 JSONED.htmls[`h-${nn}`] = hiddenHtml;
                 // NOTE: No XSS here, but it does mess with some potential code
                 JSONED.htmls[`sub-${nn}`] = hiddenHtml.replace('="bi bi-plus">', '="bi bi-dash">').replace(", true);", ", false);") + code;
-                return `<div class="panel">${hiddenHtml}</div>`;
+                return `<div shown="${nn}"${(panel ?? s.panel ?? true) ? ' class="panel"' : ''}>${hiddenHtml}</div>`;
             } else {
-                return `<div ${(s.nopanel ?? nopanel) || r == s ? "" : 'class="panel"'}>${code}</div>`;
-
+                return shown;
             }
         }
         case "string":
@@ -268,7 +154,7 @@ export function build(s: ISchema, id: string, show?: boolean, nopanel?: boolean)
                     ${s.nonempty ? " if (!this.value.trim()) this.value = '" + escape(s.default) + "';" : ""}
                     let v = this.value;
                     ${s.hooks?.includes("ns") ? "if (v && !v.includes(':')) { v = '0:'+v; this.value = v; }" : ""}
-                    JSONED.setData(this, v, '${escape(id)}');
+                    JSONED.setData(this, v);
                     ${s.hooks?.includes("name") ? " JSONED.updateName();" : ""}
                     ${s.hooks?.includes("refresh") ? 'JSONED.refresh();' : ""}
                 "
@@ -285,7 +171,7 @@ export function build(s: ISchema, id: string, show?: boolean, nopanel?: boolean)
                     ${s.max !== undefined ? `v = Math.min(v, ${s.max});` : ""}
                     if (isNaN(v)) {this.value = ''; v = undefined}
                     else this.value = v;
-                    JSONED.setData(this, v, '${escape(id)}');
+                    JSONED.setData(this, v);
                     ${s.hooks?.includes("refresh") ? 'JSONED.refresh();' : ""}
                 "
                 ${s.min !== undefined ? ` min=${escape(String(s.min))}` : ""}
@@ -304,7 +190,7 @@ export function build(s: ISchema, id: string, show?: boolean, nopanel?: boolean)
                     ${s.max !== undefined ? `v = Math.min(v, ${Math.floor(s.max)});` : ""}
                     if (isNaN(v)) {this.value = ''; v = undefined}
                     else this.value = v;
-                    JSONED.setData(this, v, '${escape(id)}');
+                    JSONED.setData(this, v);
                     ${s.hooks?.includes("refresh") ? 'JSONED.refresh();' : ""}
                 "
                 ${s.min !== undefined ? ` min=${escape(String(s.min))}` : ""}
@@ -315,25 +201,37 @@ export function build(s: ISchema, id: string, show?: boolean, nopanel?: boolean)
             return t(`<input
                 type="checkbox"
                 ${s.default ? " checked" : ""}
-                onchange="JSONED.setData(this, this.checked, '${escape(id)}', ${s.default || s.default === false ? true : false})"
+                onchange="JSONED.setData(this, this.checked, ${s.default || s.default === false ? true : false})"
             >`);
-        case "const":
-            return `<span>${escape(String(s.const))}</span>`;
+        case "const": {
+            if (typeof s.const == "string" || typeof s.const == "number") {
+                return `<span>${escape(String(s.const))}</span>`;
+            } else {
+                return `<span><pre><code>${escape(JSON.stringify(s.const, null, 4))}</code></pre></span>`;
+            }
+        }
         case "image":
-            return t(`<div>
+            // This class, "img-edit", is here so divs without panels can be matched easily.
+            return t(`<div class="img-edit">
                 <img style="width:${parseInt(s.width ?? 128 as any) }px;height:${parseInt(s.height ?? 128 as any)}px">
                 <div>
-                    <button onclick="JSONED.clearImage(this.parentElement.parentElement.firstElementChild, this.nextElementSibling, '${id}')">Clear</button>
-                    <input onchange="JSONED.setImage(this.parentElement.parentElement.firstElementChild, this, ${parseInt(s.width ?? 128 as any)}, ${parseInt(s.height ?? 128 as any)}, '${id}')" type="file" accept="image/*">
+                    <button onclick="JSONED.clearImage(this.parentElement.parentElement.firstElementChild, this.nextElementSibling)">Clear</button>
+                    <input onchange="JSONED.setImage(this.parentElement.parentElement.firstElementChild, this, ${parseInt(s.width ?? 128 as any)}, ${parseInt(s.height ?? 128 as any)})" type="file" accept="image/*">
                 </div>
             </div>`);
 
         case "link":
-            return `<@${escape(s.id || id)}@${escape(s.link)}>`;
+            return t(`<oclink
+                ver="${escape(String(ver))}"
+                to="${escape(s.link)}"
+                show="${escape(String(show))}"
+                panel="${escape(String(panel))}"
+            />`);
+
         case "enum": {
             let opt = false;
             let i = 0;
-            const opts = [];
+            const opts: string[] = [];
             for (const e of s.enum) {
                 const uval = String(e);
                 if (uval[0] == '$') {
@@ -360,20 +258,21 @@ export function build(s: ISchema, id: string, show?: boolean, nopanel?: boolean)
             return t(`<select onchange="
                 ${s.hooks?.includes("fix_cond") ? "JSONED.fixConditionFromType(this);" : ""}
                 ${s.hooks?.includes("fix_multiple") ? "if (this.value == 'string-origins:multiple') JSONED.changeToMultiple(this); else" : ""}
-                JSONED.setData(this, this.value, '${escape(id)}'${s.more ? `, ${n}` : ""});
+                JSONED.setData(this, this.value${s.more ? `, ${n}` : ""});
             ">${opts.join("")}</select>`);
         }
 
         case "tuple":
             return `<div class="panel">${s.vals.map((e, i) => {
-                const html = build(e, id);
+                // Don't build resolved schema! Links are built remotely, only once.
+                const html = build(e, ver, true, true);
                 return `<div jtype="${escape(e.type)}" jid="${i}">${html}</div>`;
             }).join("")}</div>`;
 
         // Lists and objects have part of their html generated in a separate location
         case "list": {
             // Resolve links and objects so they can default in a list to be shown
-            let val = resolve(s.vals, id);
+            let val = resolve(s.vals, ver);
 
             if (val.type == "string") {
                 // Lists of strings can be handled with textareas
@@ -385,13 +284,12 @@ export function build(s: ISchema, id: string, show?: boolean, nopanel?: boolean)
                         ${val.hooks?.includes("ns") ? "out = out.map(v => v.includes(':') ? v : '0:'+v); this.value = out.join('\\n');" : ""}
                         JSONED.setData(
                             this,
-                            out.length == 0 ? undefined : out,
-                            '${escape(id)}'
+                            out.length == 0 ? undefined : out
                         )
                     ">
                 </textarea>`);
             } else {
-                return buildList(s as any, id, s.show ?? show);
+                return buildList(s as any, ver, s.show ?? show);
             }
         }
         case "object": {
@@ -401,7 +299,7 @@ export function build(s: ISchema, id: string, show?: boolean, nopanel?: boolean)
             const fix_multiple = s.hooks?.includes("fix_multiple");
 
             // Create shown html
-            const html = [];
+            const html: string[] = [];
             if (s.props) {
                 function getAliases(props: {[key: string]: ISchema}): {[key: string]: string} {
                     const aliases: {[key: string]: string} = {};
@@ -421,11 +319,10 @@ export function build(s: ISchema, id: string, show?: boolean, nopanel?: boolean)
                         if (fix_multiple && k == 'type' && vs.hooks) vs.hooks.push("fix_multiple");
 
                         // Loop over properties and generate html for each
-                        const ihtml = build(vs, id);
-
-                        // Determine the true type of links
-                        const tvs = resolve(vs, id);
-                        let {type, title, desc, href, gap} = tvs;
+                        let tvs = resolve(vs, ver);
+                        // Don't build resolved schema! Links are built remotely, only once.
+                        const ihtml = build(vs, ver);
+                        let { title, type, href, desc, gap } = tvs;
 
                         if (!title) title = startCase(k);
 
@@ -436,8 +333,8 @@ export function build(s: ISchema, id: string, show?: boolean, nopanel?: boolean)
                         html.push(`<div class='field${large_lbl ? " field-large" : ""}' jtype="${escape(type)}" jid="${escape(k)}">`);
 
                         html.push(`<span>`);
-                        if (href) html.push(`<a${desc ? ` title="${escape(desc)}"` : ""} target="_blank" rel="noopener noreferrer" href="${escape(href)}">${escape(title)}:</a>`);
-                        else html.push(`<span${desc ? ` title="${escape(desc)}"` : ""}>${escape(title)}:</span>`);
+                        if (href) html.push(`<a${desc ? ` title="${escape(desc)}"` : ""} target="_blank" rel="noopener noreferrer" href="${escape(href)}">${title}:</a>`);
+                        else html.push(`<span${desc ? ` title="${escape(desc)}"` : ""}>${title}:</span>`);
                         html.push("</span>");
 
                         html.push(ihtml);
@@ -481,7 +378,7 @@ export function build(s: ISchema, id: string, show?: boolean, nopanel?: boolean)
             if (s.extra) {
                 if (s.props) html.push("<hr/>");
 
-                let tvs = resolve(s.extra, id);
+                let tvs = resolve(s.extra, ver);
 
                 // Recursion protection
                 if (!(s as any).temp) (s as any).temp = {
@@ -489,7 +386,7 @@ export function build(s: ISchema, id: string, show?: boolean, nopanel?: boolean)
                     vals: tvs,
                 };
 
-                const ehtml = buildList((s as any).temp, id, true, s.extra.allowkey ?? true, s?.props && [...s.ikeys]);
+                const ehtml = buildList((s as any).temp, ver, true, s.extra.allowkey ?? true, s?.props && [...s.ikeys]);
 
                 if (tvs.title || s.props) {
                     let {title, desc, href} = tvs;
@@ -505,16 +402,20 @@ export function build(s: ISchema, id: string, show?: boolean, nopanel?: boolean)
                     html.push(`<div class='field field-large'>${ehtml}</div>`);
                 }
             }
+            const code = html.join("");
+            const shown = `<div${(panel ?? s.panel ?? true) ? ' class="panel"' : ''}>${code}</div>`;
             if (s.show ?? show) {
-                return `<div ${s.showpanel ? 'class="panel"' : ''}>${html.join("")}</div>`;
+                return shown;
             } else {
-                const hiddenHtml = `<button key="sub-${n}" hkey="h-${n}" onclick="JSONED.toggleObject(this, '${escape(id)}')"><p class="bi bi-plus"></p></button>`;
+                const hiddenHtml = `<button key="sub-${n}" hkey="h-${n}" onclick="JSONED.toggleObject(this)"><p class="bi bi-plus"></p></button>`;
+                JSONED.htmls[`code-${n}`] = shown;
                 JSONED.htmls[`h-${n}`] = hiddenHtml;
-                JSONED.htmls[`sub-${n}`] = hiddenHtml.replace("bi-plus", "bi-dash") + html.join("");
-                n++;
+                JSONED.htmls[`sub-${n}`] = hiddenHtml.replace("bi-plus", "bi-dash") + code;
 
-                return `<div class="panel">${hiddenHtml}</div>`;
+                return `<div shown="${n++}"${(panel ?? s.panel ?? true) ? ' class="panel"' : ''}>${hiddenHtml}</div>`;
             }
         }
+        default:
+            return "";
     }
 }

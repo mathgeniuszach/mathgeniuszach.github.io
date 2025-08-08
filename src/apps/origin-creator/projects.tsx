@@ -1,33 +1,40 @@
 import React from "react";
+import jquery from "jquery"; // Necessary ONLY for jstree
 
 // import { decode } from "messagepack";
 import { Ace } from "./component/ace";
 
 import { genTree, refresh } from "./component/jstree";
-import jquery from "jquery"; // Necessary ONLY for jstree
 import { get, keys, values } from "./editor/wrapper";
 import { savecount } from "./params";
 import { JSONED } from "./editor/global";
-import { UNDO_TREE_LENGTH, autorun, fixBarry, queueSave } from ".";
+
+import { $, UNDO_TREE_LENGTH, autorun } from ".";
+import { queueSave, fixBarry } from "./editor/editor";
 
 const numsaves = globalThis.offline ? 20 : savecount;
 
 export const PROJECT = {
     project: "" as any,
     data: {} as any,
+    path: "",
 
     parent: {} as any,
     active: "",
-    type: "",
 
-    aid: "",
+    type: "",
+    ver: 1,
 
     tree: null as any,
-    handleImport: null as (files: FileList, target?: HTMLInputElement) => void,
-    showSnack: null as (message: string, severity?: string) => void,
+    handleImport: null as any as (files: FileList, target?: HTMLInputElement) => void,
+    showSnack: null as any as (message: string, severity?: string) => void,
+    showSnackAndLog: (message: string, severity: "info" | "warning" | "error" = "info") => {
+        console[severity == "warning" ? "warn" : severity](message);
+        PROJECT.showSnack(message, severity);
+    },
 
-    changeTrees: {} as any,
-    changeTree: null as ChangeTree,
+    changeTrees: {} as {[k: string]: ChangeTree},
+    changeTree: null as (ChangeTree | null),
 };
 globalThis.PROJECT = PROJECT;
 
@@ -97,10 +104,9 @@ export function updatePRaw() {
     }
     const replacer = (_, v) => isEmptyFolder(v) ? undefined : v;
 
+    const hideEmptyFolders = $("#hide-empty-folders") as HTMLInputElement;
     window["ace_praw"]?.setValue(JSON.stringify(
-        PROJECT.data,
-        (document.querySelector("#hide-empty-folders") as HTMLInputElement).checked ? replacer : null,
-        4
+        PROJECT.data, hideEmptyFolders.checked ? replacer : undefined, 4
     ), -1);
 }
 
@@ -119,10 +125,13 @@ export function updateUsedSize() {
     // }
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        size += new Blob([key]).size + new Blob([localStorage.getItem(key)]).size;
+        if (!key) continue;
+        const data = localStorage.getItem(key);
+        if (!data) continue;
+        size += new Blob([key]).size + new Blob([data]).size;
     }
 
-    const spuElem = document.querySelector("#spaceused");
+    const spuElem = $("#spaceused") as HTMLElement;
     const maxSize = globalThis.offline ? 10 : 5; // In MB
     if (size > 102400) {
         // If bigger than 100 KB, display in Megabytes
@@ -130,8 +139,8 @@ export function updateUsedSize() {
         const percent = Math.floor(size / maxSize * 10000) / 100;
         spuElem.textContent = `${size}MB/${maxSize}MB ${percent}%`;
 
-        if (!globalThis.offline && !(document.querySelector('#disable-file-limit') as HTMLInputElement).checked && percent >= 90) {
-            PROJECT.showSnack(`Warning! localStorage is ${percent}% full (${size}MB)! Either free up space or increase localStorage!`, "warning");
+        if (!globalThis.offline && !($('#disable-file-limit') as HTMLInputElement).checked && percent >= 90) {
+            PROJECT.showSnack(`Warning! localStorage is ${percent}% full (${size}MB)!\nEither free up space or increase localStorage!`, "warning");
         }
     } else {
         // Otherwise, display in Kilobytes
@@ -143,14 +152,18 @@ export function updateUsedSize() {
 
 export function updateName() {
     const name = get(PROJECT.data?.meta, "name")?.trim();
-    if (name) document.querySelector("h6").textContent = name;
-    else document.querySelector("h6").innerHTML = "&nbsp;";
+    const h6 = $("h6");
+    if (h6) {
+        if (name) h6.textContent = name;
+        else h6.innerHTML = "&nbsp;";
+    }
 
-    let names = JSON.parse(localStorage.getItem("ocn")) ?? {};
+    const ocn = localStorage.getItem("ocn");
+    const names = ocn ? JSON.parse(ocn) : {};
     names[PROJECT.project] = name;
     localStorage.setItem("ocn", JSON.stringify(names));
 
-    const option = document.querySelector(`#psel option[value="${PROJECT.project}"]`);
+    const option = $(`#psel option[value="${PROJECT.project}"]`);
     if (option) option.textContent = name;
 }
 
@@ -187,7 +200,7 @@ async function loadProject(key: string) {
         // PROJECT.project = key ?? "";
         // save();
         // localStorage.removeItem("oc-" + key);
-        PROJECT.showSnack("Failed to load project data; too old. Ask mathgeniuszach for help in the Discord.");
+        PROJECT.showSnack("Failed to load project data; too old.\nAsk mathgeniuszach for help in the Discord.", "error");
     } else {
         const data = localStorage.getItem("ocsd-" + key);
         if (!data) {
@@ -199,7 +212,7 @@ async function loadProject(key: string) {
                 }
             };
         } else {
-            PROJECT.data = JSON.parse(localStorage.getItem("ocsd-" + key));
+            PROJECT.data = JSON.parse(data);
         }
     }
 
@@ -240,7 +253,7 @@ export function Projects(props) {
     const slot = localStorage.getItem("ocs") ?? "0";
     loadProject(slot);
 
-    const opts = [];
+    const opts: any[] = [];
     for (let i = 0; i < numsaves; i++) {
         opts.push(<option key={i} value={i}>
             {pnames[i] ?? "Pack " + (i+1)}
@@ -274,15 +287,28 @@ export function Projects(props) {
             <label htmlFor="disable-undo-redo">Disable Undo/Redo</label>
         </div>
         {LocalStorageWarning}
-        <h3>Save Slots:</h3>
-        <div id="psel" className="panel">
-            <select size={Math.min(numsaves, 10)} defaultValue={slot} onChange={(e) => {
-                localStorage.setItem("ocs", e.target.value);
-                loadProject(e.target.value);
-            }}>
-                {opts}
-            </select>
+        <div className="btn-group">
+            <div>
+                <h3>Save Slots:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h3>
+                <div id="psel" className="panel">
+                    <select size={Math.min(numsaves, 10)} defaultValue={slot} onChange={(e) => {
+                        localStorage.setItem("ocs", e.target.value);
+                        loadProject(e.target.value);
+                    }}>
+                        {opts}
+                    </select>
+                </div>
+            </div>
+            <div>
+                <h3>Repo Options:</h3>
+                <div className="btn-group">
+                    <textarea id="repo-toggles"></textarea>
+                    <div id="option-toggles"></div>
+                </div>
+                <small>refresh to update - use # for comments</small>
+            </div>
         </div>
+        
         <h3>Slot Raw:</h3>
         <div className="btn-group">
             <input type="checkbox" id="hide-empty-folders" onChange={() => updatePRaw()}/>

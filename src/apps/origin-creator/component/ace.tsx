@@ -11,13 +11,13 @@ import './mode-mcfunction.js';
 
 export class Ace extends React.Component<any> {
     componentDidMount() {
-        // NOTE: refs is necessary here to access the aceEditor itself
+        // FIXME: I have no choice here but to use the refs
         const editor = (this.refs.aceEditor as any).editor;
         window["ace_"+this.props.name] = editor;
         if (this.props.value) editor.setValue(this.props.value, -1);
         if (this.props.readonly) editor.setReadOnly(true);
 
-        const div = document.getElementById(this.props.name);
+        const div = document.getElementById(this.props.name)!;
         div.style.height = this.props.height ?? "500px";
         div.style.width = this.props.width ?? "500px";
 

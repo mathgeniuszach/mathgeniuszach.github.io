@@ -1,9 +1,10 @@
 import { snakeCase, startCase } from "lodash";
-import { IMAGE_FILES, KNOWN_FILES, update } from "..";
+import { IMAGE_FILES } from "..";
 import { getTree, getNode, getNodeParents, isFile, refresh, getNodeFromPath, deleteNode } from "../component/jstree";
-import { PROJECT } from "../projects";
+import { ChangeTree, PROJECT } from "../projects";
 import { JSONED } from "./global";
 import { get, set, simplify } from "./wrapper";
+import { update } from "./editor";
 
 type OCFileType = "folder" | "binary" | "text" | "json" | "none";
 
@@ -22,9 +23,9 @@ function getFileData(path: string): any {
 }
 function setFileData(path: string, data: any = null) {
     let loc = PROJECT.data;
-    let ctree = PROJECT.changeTrees;
+    let ctree: ChangeTree | {[key: string]: ChangeTree} = PROJECT.changeTrees;
     let fs = path.split(/(?<=\/)/g);
-    let key = fs.pop();
+    let key = fs.pop() as string;
 
     if (data && key.endsWith("/")) throw Error(`Cannot write data to folder "${path}"`);
 
@@ -73,8 +74,8 @@ function listPathsRecurse(data: any, path: string, out: string[]) {
     }
 }
 
-function listPaths(data: any, path: string, recursive: boolean = false, filter: (path: string, data?: any) => boolean = null): string[] {
-    const out = [];
+function listPaths(data: any, path: string, recursive: boolean = false, filter?: (path: string, data?: any) => boolean): string[] {
+    const out: string[] = [];
     if (recursive) {
         for (const [k, v] of Object.entries(data)) {
             const p = path + k;
@@ -97,7 +98,7 @@ function listAndReadDataRecurse(data: any, path: string, out: [string, any][]) {
     }
 }
 
-function listAndReadData(data: any, path: string, recursive: boolean = false, filter: (path: string, data?: any) => boolean = null) {
+function listAndReadData(data: any, path: string, recursive: boolean = false, filter?: (path: string, data?: any) => boolean) {
     const out: [string, any][] = [];
     if (recursive) {
         for (const [k, v] of Object.entries(data)) {
@@ -159,7 +160,7 @@ export const oc = {
     print(message: string, severity: string = "info") {
         PROJECT.showSnack(message, severity);
     },
-    macro(key: string, f: () => void = null) {
+    macro(key: string, f?: () => void) {
         if (f) {
             if (key in oc.macros) throw Error(`Macro already assigned to "${key}"`);
             oc.macros[key] = f;
@@ -217,7 +218,7 @@ export const oc = {
 
         // And lower level folders...
         const folders = p.split("/");
-        p = folders.pop();
+        p = folders.pop() as string;
 
         for (const f of folders) {
             if (data) data = data[f+"/"];
@@ -243,7 +244,7 @@ export const oc = {
 
         if (path.endsWith("/")) throw Error(`Cannot get typed ID of folder "${path}"`);
         const ptexts = path.split("/");
-        const item = ptexts.pop();
+        const item = ptexts.pop() as string;
 
         let ftype = ptexts[0];
         if (ftype == "assets") {
@@ -327,7 +328,7 @@ export const oc = {
             return false;
         }
     },
-    list(path?: string, recursive: boolean = false, filter: (path: string) => boolean = null): string[] {
+    list(path?: string, recursive: boolean = false, filter?: (path: string) => boolean): string[] {
         if (path && !path.endsWith("/")) throw Error(`Cannot list over file "${path}"`);
 
         let data = PROJECT.data;
@@ -343,7 +344,7 @@ export const oc = {
     listFiles(path?: string): string[] {
         return oc.list(path, true, oc.isFile);
     },
-    listAndRead(path?: string, recursive: boolean = false, filter: (path: string) => boolean = null): [string, any][] {
+    listAndRead(path?: string, recursive: boolean = false, filter?: (path: string) => boolean): [string, any][] {
         if (path && !path.endsWith("/")) throw Error(`Cannot list over file "${path}"`);
 
         let data = PROJECT.data;

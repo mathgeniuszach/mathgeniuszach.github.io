@@ -1,183 +1,200 @@
-import { build, resolve } from "./build";
+import { viewSection, $, $$ } from "..";
+import { ChangeTree, PROJECT, refreshTree, save } from "../projects";
 import { JSONED } from "./global";
 import { load, updatePanels } from "./load";
-import { $, update } from "..";
-import { PROJECT } from "../projects";
-
-// Primitives
-type SString = {
-    type: "string"
-    default?: string
-    allow?: string
-    name?: boolean // Special attribute that makes this update the name of the slot and header
-    nonempty?: boolean // If this is set and the field becomes empty, sets to default.
-    ext?: boolean // Whether or not this should actually be a textarea instead of an input,
-    large?: boolean // If ext only
-}
-type SNumber = {
-    type: "number" | "float"
-    default?: number
-    min?: number
-    max?: number
-}
-type SInteger = {
-    type: "integer" | "int"
-    default?: number
-    min?: number
-    max?: number
-}
-type SBoolean = {
-    type: "boolean" | "bool"
-    default?: boolean
-}
-type SConst = {
-    type: "const"
-    const: string | number | boolean
-}
-type SImage = {
-    type: "image"
-    width?: number
-    height?: number
-}
-
-// Non-primitives
-type SLink = {
-    type?: "link"
-    link: string
-    id?: string // For linking to an external schema
-}
-export type SEnum = {
-    type?: "enum"
-    enum: (string | number | boolean | null)[]
-    more?: {[key: string]: {[field: string]: ISchema}}
-    ns?: string
-    norepr?: boolean
-    default?: number
-    unspec?: boolean
-    convert?: {[key: string]: string}
-    talias?: {[more: string]: {[field: string]: string}} // Precalculated
-}
-type SOr = {
-    type?: "or"
-    nopanel?: boolean
-    or: ISchema[]
-    shared?: {[key: string]: ISchema} // A list of properties shared by all "object" types in "or". Shared properties come before other properties.
-    default?: number
-    unspec?: boolean | string
-}
-
-// Object based
-export type SList = {
-    type: "list"
-    vals: ISchema
-    show?: boolean
-    large?: boolean // If textlist only
-    // default?: any[]
-}
-type STuple = {
-    type: "tuple"
-    vals: ISchema[]
-}
-type SObject = {
-    type: "object"
-    props?: {[field: string]: ISchema}
-    extra?: SExtra
-    show?: boolean
-    showpanel?: boolean
-    ikeys?: Set<string>
-    more?: Set<string>
-    talias?: {[field: string]: string} // Precalculated
-}
-
-// General
-export type SGeneral = {
-    title?: string
-    desc?: string
-    href?: string
-    gap?: boolean | "before" | "after" | "both"
-    hooks?: string[]
-    aliases?: string[]
-}
-
-// Group them all up
-export type ISchema = SGeneral & (
-    SString | SNumber | SInteger | SBoolean | SConst | SImage |
-    SLink | SEnum | SOr |
-    SList | STuple | SObject
-    // | SExtends
-)
-
-export type SExtra = ISchema & {    
-    allowkey?: string
-}
-
-export type Schema = ISchema & {
-    links?: {[key: string]: ISchema}
-}
-
-export type MSchema = {[key: string]: ISchema}
+import { del, set } from "./wrapper";
 
 export class Editor {
-    id: string
+    regex: RegExp;
+    type: string;
+    link?: string;
+    htmlKey?: string;
 
-    constructor(id: string, schema: Schema) {
-        // See if editor can be created
-        const div = document.getElementById(id);
-        if (div == null) console.error("Editor id is null!", id, schema);
+    constructor(regex?: string, type?: string, link?: string, htmlKey?: string) {
+        this.regex = new RegExp(regex ?? ".*");
+        this.type = type ?? "none";
+        this.link = link;
+        this.htmlKey = htmlKey;
+    }
 
-        if (!div || div.tagName != "DIV") throw Error(`Cannot find a div with the id "${id}"`);
-        if (div.getAttribute("editor")) throw Error(`An editor already exists with the id "${id}"`);
+    match(path: string): boolean {
+        return !!path.match(this.regex);
+    }
 
-        // Build htmls
-        this.id = id;
+    use(path: string) {
+        PROJECT.type = "";
 
-        // Load schema
-        JSONED.schemas[id] = schema;
+        const parent = PROJECT.parent;
+        const key = PROJECT.active;
 
-        // Resolve root object schema, which must have show set to true by default
-        let ischema = resolve(schema, id);
-        if (ischema.type == "object") ischema.show = true;
-        div.setAttribute("jtype", ischema.type);
+        // Hide any open editors
+        $$("#workspace > div > div:not([hidden])").forEach((elem) => {
+            elem.toggleAttribute("hidden");
+        });
+        PROJECT.changeTree = null;
 
-        // Build all htmls so we can use them
-        for (const [link, data] of Object.entries(schema.links ?? {})) {
-            JSONED.htmls[id+"-link-"+link] = build(data, id);
+        // Load specific editor type
+        switch (this.type) {
+            // The none editor shows nothing
+            case "none": break;
+            // Linked editors have built html to use
+            case "link": {
+                if (!this.link) throw Error("No link for link editor!");
+                if (!this.htmlKey) throw Error("No htmlkey for link editor!");
+
+                PROJECT.type = this.link;
+
+                // Ensure proper data type
+                if (typeof parent[key] == "string") {
+                    try {
+                        parent[key] = JSON.parse(parent[key]);
+                    } catch (err) {
+                        parent[key] = {};
+                    }
+                }
+                update(false);
+
+                // Show raw editor
+                $("#raw-btns")?.removeAttribute("hidden");
+                $("#raw")?.removeAttribute("hidden");
+
+                // Switch change tree
+                if (localStorage.getItem("ocdur") == null) {
+                    if (!(path in PROJECT.changeTrees)) {
+                        PROJECT.changeTrees["meta"] = new ChangeTree(parent[key]);
+                    }
+                    PROJECT.changeTree = PROJECT.changeTrees[path];
+                }
+
+                // Show editor
+                const editorElem = $("#editor") as HTMLElement;
+                editorElem.removeAttribute("hidden");
+                editorElem.innerHTML = JSONED.htmls[this.htmlKey];
+
+                // Do the load
+                load(PROJECT.ver, parent, key, editorElem.firstElementChild as HTMLElement);
+                break;
+            }
+            // Images have a special div they are loaded into
+            case "image": {
+                const imgdiv = $("#image") as HTMLElement;
+                const img = imgdiv.firstElementChild as HTMLImageElement;
+                img.removeAttribute("height");
+
+                if (parent[key]) {
+                    img.src = "data:image;base64,"+parent[key].substring(5);
+                    img.removeAttribute("style");
+                    img.onload = () => {
+                        if (img.naturalHeight < 32) {
+                            img.height = img.naturalHeight * 16;
+                            img.style.imageRendering = "pixelated";
+                        } else if (img.naturalHeight < 64) {
+                            img.height = img.naturalHeight * 4;
+                            img.style.imageRendering = "pixelated";
+                        }
+                    };
+                } else {
+                    img.src = "";
+                }
+
+                imgdiv.removeAttribute("hidden");
+                break;
+            }
+            case "audio": {
+                const audiodiv = $("#audio") as HTMLElement;
+                if (parent[key]) {
+                    audiodiv.innerHTML = `<audio controls preload autobuffer src="data:audio;base64,${parent[key].substring(5)}"></audio>`;
+                } else {
+                    audiodiv.innerHTML = "<audio controls></audio>";
+                }
+                audiodiv.removeAttribute("hidden");
+                break;
+            }
+            // Raw text editors use the ACE code editor.
+            case "mcfunction": case "javascript": case "json": case "text": {
+                PROJECT.changeTree = null;
+
+                // Show other editor
+                $("#other")?.removeAttribute("hidden");
+
+                // Ensure proper data type
+                if (this.type == "json") {
+                    if (typeof parent[key] == "string") {
+                        try {
+                            const out = JSON.parse(parent[key]);
+                            if (typeof(out) == "object") parent[key] = out;
+                        } catch (err) {}
+                    }
+                }
+
+                // Give syntax highlighting
+                window["ace_rother"].getSession().setMode(`ace/mode/${this.type}`);
+
+                // Load into other
+                window["ace_rother"].setValue(
+                    typeof parent[key] == "string" ? parent[key] : JSON.stringify(parent[key], null, 4),
+                -1);
+                break;
+            }
         }
-        JSONED.htmls[id + "-root"] = build(schema, id);
 
-        // Remove all links (Actually handled by index.tsx now for external link safety)
-        // function fixLinks(html: string): string {
-        //     const links = new Set();
-        //     let out = html;
-
-        //     while (out.includes("<@")) {
-        //         out = out.replace(/<@(.*?)>/g, (_, link) => {
-        //             if (links.has(link)) throw Error(`infinite illegal recursive loop in link "${unescape(link)}".`);
-        //             links.add(link);
-        //             return JSONED.htmls[id]["link-" + unescape(link)];
-        //         });
-        //     }
-        //     return out;
-        // }
-        // for (const [k, html] of Object.entries(this.htmls)) {
-        //     this.htmls[k] = fixLinks(html);
-        // }
-    }
-
-    reset() {
-        // Begin by replacing all exiting html in the div with the prebuilt one
-
-        const div = document.getElementById(this.id);
-        if (div == null) console.error("Editor id is null!", this.id);
-
-        div.innerHTML = JSONED.htmls[this.id + "-root"];
-
-        // Now reload
-        // this.reload();
-    }
-    reload() {
-        load(this.id, PROJECT.parent, PROJECT.active, $(`#${this.id}[jtype]`), JSONED.schemas[this.id]);
+        // Show loaded stuff
+        viewSection("workspace");
         updatePanels();
-        update(false);
     }
 }
+
+export const DEFAULT_EDITOR = new Editor();
+
+// A gentle nudge to Barry, Beatrice, and Betty
+export function _fixBarry(parent: {[k: string]: any}): boolean {
+    let fixed = false;
+    for (const [k, v] of Object.entries(parent)) {
+        if (k.trim().length == 0) {
+            del(parent, k);
+            set(parent, "f"+String(Math.random()).slice(2, 15), v);
+            fixed = true;
+        } else if (k.trim() == "/") {
+            del(parent, k);
+            if (_fixBarry(v)) fixed = true;
+            set(parent, "f"+String(Math.random()).slice(2, 15)+"/", v);
+        } else if (k[k.length-1] == "/") {
+            if (_fixBarry(v)) fixed = true;
+        }
+    }
+    return fixed;
+}
+export function fixBarry() {
+    if (!_fixBarry(PROJECT.data)) return;
+    refreshTree();
+    queueSave();
+}
+
+// Handle editor updates
+let saveQueued = 0;
+export function update(andsave: boolean = true) {
+    const data = PROJECT.parent[PROJECT.active];
+    if (data !== undefined) {
+        window["ace_rawr"].setValue(JSON.stringify(data, null, 4), -1);
+    }
+    if (andsave) {
+        if (PROJECT.changeTree) PROJECT.changeTree.record();
+        queueSave();
+    }
+}
+export function popSave() {
+    if (saveQueued > 1) {
+        saveQueued = 1;
+        return;
+    } else if (saveQueued > 0) {
+        saveQueued = 0;
+        save();
+    }
+}
+export function queueSave() {
+    saveQueued = 2;
+}
+setInterval(popSave, 3000);
+// Unfocus any element to cause it to save
+window.addEventListener("beforeunload", () => {window.focus(); return false;});
+window.addEventListener("beforeunload", () => {if (saveQueued > 0) {save(); saveQueued = 0;}});

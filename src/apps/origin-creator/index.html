@@ -16,6 +16,7 @@
 
         <div nomobile class="floater"><a href="./help" target="_blank">Need Help?<br>Click Here!</a></div>
 
+        <main id="navskip"></main>
         <aside fill nomobile></aside>
 
         <section id="projects" hidden></section>
@@ -27,6 +28,8 @@
                     <div id="raw" hidden></div>
                     <div id="other" hidden></div>
                     <div id="image" hidden><img class="pubimg"></div>
+                    <div id="audio" hidden></div>
+                    <div id="editor" hidden></div>
                 </div>
             </section>
         </form>
@@ -119,8 +122,6 @@
 
                     - &#xf3d7; **Projects**
                         *Use this button to switch save slots or view the way the datapack is stored internally.*
-                    - &#xf2ec; **Project Data**
-                        *Use this button to swap back to whatever file you were working on before clicking one of the other two buttons. You can also just click a file in the left file tree to work on it.*
                     - &nbsp;? **Help**
                         *This is the screen you are currently on. It provides many useful tidbits of information on how to use the tool.*
                     - &#xf3d3; **Add Type**
@@ -213,6 +214,15 @@
 
                     Additionally, folders always have a "/" at the end of their path, while files always do not.
 
+                    The Origin Creator will automatically run any javascript found in the global "Autorun" panel in the projects panel of the tool, provided the "Enable" box is checked. You can use this to register macros or do other useful things in code that you don't want to copy into your browser every time the Origin Creator starts. This is a friendly reminder to NEVER PUT CODE YOU DON'T TRUST INTO THIS!
+
+                    Below this accordion is a collection of JavaScript API functions.
+                </div>
+            </div>
+            <div class="expand">
+                <input type="checkbox" id="exp-jsapi-basic">
+                <label for="exp-jsapi-basic" tabindex="0"><h2>JavaScript API Basic Ref</h2></label>
+                <div md>
                     Here's some common functions provided that you may find useful:
 
                     - `oc.id: string`
@@ -242,11 +252,9 @@
                 </div>
             </div>
             <div class="expand">
-                <input type="checkbox" id="exp-jsapi2">
-                <label for="exp-jsapi2" tabindex="0"><h2>JavaScript API (Continued)</h2></label>
+                <input type="checkbox" id="exp-jsapi-adv">
+                <label for="exp-jsapi-adv" tabindex="0"><h2>JavaScript API Advanced Ref</h2></label>
                 <div md>
-                    The Origin Creator will automatically run any javascript found in the global "Autorun" panel in the projects panel of the tool, provided the "Enable" box is checked. You can use this to register macros or do other useful things in code that you don't want to copy into your browser every time the Origin Creator starts. This is a friendly reminder to NEVER PUT CODE YOU DON'T TRUST INTO THIS!
-
                     Here's more functions present in the Javascript API.
                     - `oc.listAndRead(path: string, recursive: boolean = false, filter: (string, any) => boolean = null): [string,string][]`
                         *Lists and reads all the files inside the folder at the given path. Returns an empty list if the folder doesn't exist.*

@@ -61,7 +61,7 @@ export class Wrapper<T> {
     set(v: T | undefined) {
         this.v = v;
     }
-    get(): T {
+    get(): T | undefined {
         return this.v;
     }
 }

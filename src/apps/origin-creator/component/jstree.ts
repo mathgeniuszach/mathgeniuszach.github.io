@@ -1,7 +1,7 @@
-import $ from "jquery"; // Necessary ONLY for jstree
+import jquery from "jquery"; // Necessary ONLY for jstree
 import "jstree";
 
-import { IMAGE_FILES, loadEditor, viewSection } from "..";
+import { $, IMAGE_FILES, loadEditor, viewSection } from "..";
 import { ChangeTree, PROJECT, save } from "../projects";
 import { iconed } from "./sidebar";
 import { simplify } from "../editor/wrapper";
@@ -35,12 +35,24 @@ export function getNodeFromPath(path: string): any {
 
     return node;
 }
+export function getNodePath(node): string | null {
+    const parents = getNodeParents(node);
+    if (!parents || parents.length <= 0) return null;
+
+    const path: string[] = [];
+    for (const parent of parents.slice(1)) {
+        path.push(getNode(parent).text);
+    }
+    path.push(getNode(node).text);
+
+    return path.join("/");
+}
 
 export function getNode(node): any {
-    return typeof node == "string" ? $("#filetree").jstree().get_node(node) : node;
+    return typeof node == "string" ? jquery("#filetree").jstree().get_node(node) : node;
 }
 export function getNodeParents(node): any[] {
-    if (!node.parents) return null;
+    if (!node.parents) return [];
 
     const parents = Object.assign([], node.parents);
     if (parents[0] != "#") parents.reverse();
@@ -50,7 +62,7 @@ export function getNodeData(node, parent: boolean = false): any {
     const tnode = getNode(node);
     const parents = getNodeParents(tnode);
 
-    if (!parents) return PROJECT.data;
+    if (!parents || parents.length <= 0) return PROJECT.data;
 
     let loc = PROJECT.data;
     for (const parent of parents.slice(1)) {
@@ -69,9 +81,9 @@ export function getNodeChangeTree(node, parent: boolean = false, make: boolean =
     const tnode = getNode(node);
     const parents = getNodeParents(tnode);
 
-    if (!parents) PROJECT.changeTrees;
+    if (!parents || parents.length <= 0) return PROJECT.changeTrees;
 
-    let loc = PROJECT.changeTrees;
+    let loc: {[k: string]: ChangeTree} | ChangeTree = PROJECT.changeTrees;
     for (const parent of parents.slice(1)) {
         const key = tree.get_node(parent).text+"/";
         if (!(key in loc)) {
@@ -100,7 +112,7 @@ export function fixName(node, pdata, rname?: string): string {
     // Do first cleaning of name
     let name = (rname ?? tnode.text).toLowerCase().trim().replace(/\s+/g, "_").replace(/[^a-z0-9:._-]+/g, "");
 
-    if (!name.trim()) name = "_";
+    if (!name) name = "_";
 
     // Ensure that name is unique
     if (isFile(node)) {
@@ -122,9 +134,6 @@ export function fixName(node, pdata, rname?: string): string {
         }
     }
 
-    // A gentle nudge to Barry, Beatrice, and Betty
-    if (name.trim() == "") name = "f"+String(Math.random()).slice(2, 15);
-
     // Give node new name
     rename_lock = true;
     tree.rename_node(tnode, name);
@@ -133,6 +142,7 @@ export function fixName(node, pdata, rname?: string): string {
 
 export function getFileHeading(node, nodeText = null): string {
     const parents = getNodeParents(node);
+    if (!parents || parents.length <= 0) return "root";
 
     const [ftype, id] = oc.getTypedID(
         parents.slice(1).map(n => tree.get_text(n) + "/").join("") + (nodeText || node.text)
@@ -155,8 +165,9 @@ export function isFile(node) {
 }
 function isFree(node) {
     const tnode = getNode(node);
-    const type = tnode.type == "default" && tnode.parent == "#" && iconed.includes(tnode.text) ? tnode.text : tnode.type;
-    return type == "file" || type == "default" || !type;
+    return tnode.parent != "#" || tnode.type == "file";
+    // const type = tnode.type == "default" && tnode.parent == "#" && iconed.includes(tnode.text) ? tnode.text : tnode.type;
+    // return type == "file" || type == "default" || !type;
 }
 
 export function newFolder(node) {
@@ -198,7 +209,7 @@ export function copyNode(node) {
         tclipboard = JSON.stringify([tnode.text + (isFile(tnode) ? "" : "/"), getNodeData(tnode)]);
         localStorage.setItem("ocfc", tclipboard);
         // Visual Feedback
-        if (typeof node == "string") (document.querySelector(`#${node} > .jstree-anchor`) as HTMLElement)?.blur();
+        if (typeof node == "string") ($(`#${node} > .jstree-anchor`) as HTMLElement)?.blur();
     }
 }
 export function pasteNode(node) {
@@ -240,7 +251,7 @@ export function deleteNode(node) {
     const tnode = getNode(node);
     if (tnode.id !== edited && tnode.type != "meta") {
         // Deselect node if self or parent deleted
-        const p = [];
+        const p: any = [];
         for (const n of tree.get_selected()) {
             p.push(n);
             p.push(...getNodeParents(getNode(n)));
@@ -265,13 +276,13 @@ export function deleteNode(node) {
 }
 
 export function genTree(data: any, root: boolean = true): any {
-    const out = [];
+    const out: any[] = [];
     if (root) {
         for (const [k, v] of Object.entries(data)) {
             const folder = k.charAt(k.length-1) == "/";
             let name = folder ? k.slice(0, -1) : k;
 
-            let type = name;
+            let type: any = name;
             if (!iconed.includes(type)) type = folder ? undefined : "file";
 
             const obj: any = {
@@ -302,7 +313,9 @@ export function refresh() {
 }
 
 export function makeTree(elem: string) {
-    const ftree = $(elem);
+    let unmove = false;
+
+    const ftree = jquery(elem);
     ftree.jstree({
         core: {
             themes: {
@@ -312,7 +325,9 @@ export function makeTree(elem: string) {
             },
             force_text: true,
             multiple: false,
-            check_callback: (operation, node) => isFree(node) || operation == "delete_node" && node.type != "meta"
+            check_callback: (operation, node) => {
+                return unmove && operation == "move_node" || isFree(node) || operation == "delete_node" && node.type != "meta";
+            }
         },
         types: {
             file: {icon: "i/file.png", max_depth: 0},
@@ -335,7 +350,7 @@ export function makeTree(elem: string) {
             is_draggable: (node) => isFree(node[0]),
             large_drop_target: true,
             copy: false,
-            // use_html5: true
+            use_html5: true
         },
         sort: (a, b) => {
             const na = getNode(a);
@@ -365,8 +380,15 @@ export function makeTree(elem: string) {
                     // a is locked and comes before unlocked b
                     return -1;
                 } else {
-                    // both are locked, so return whatever is first in iconed
-                    return Math.sign(iconed.indexOf(na.text)-iconed.indexOf(nb.text));
+                    // both are locked, so return whatever is first in iconed.
+                    let ia = iconed.indexOf(na.text);
+                    let ib = iconed.indexOf(nb.text);
+                    // uniconed folders are sorted by name at the end.
+                    if (ia < 0 && ib < 0) return na.text.localeCompare(nb.text);
+                    if (ia < 0) ia = Infinity;
+                    if (ib < 0) ib = Infinity;
+
+                    return Math.sign(ia-ib);
                 }
             }
         },
@@ -448,31 +470,13 @@ export function makeTree(elem: string) {
         if (node.type == "meta") {
             PROJECT.parent = PROJECT.data;
             PROJECT.active = "meta";
-
-            if (localStorage.getItem("ocdur") == null) {
-                if (!("meta" in PROJECT.changeTrees)) {
-                    PROJECT.changeTrees["meta"] = new ChangeTree(PROJECT.data["meta"]);
-                }
-                PROJECT.changeTree = PROJECT.changeTrees["meta"];
-            }
-
-            loadEditor("meta", "meta");
+            loadEditor("meta", "Project Metadata");
         } else {
-            const heading: string = getFileHeading(node);
-            const parents = getNodeParents(node);
-
             PROJECT.parent = getNodeData(node, true);
             PROJECT.active = node.text;
-            if (parents.length < 2) {
-                // Root node
-                loadEditor("other", heading);
-            } else {
-                // This is undone in loadEditor if the editor is "other"
-                PROJECT.changeTree = getNodeChangeTree(node, false, true);
-
-                // Other nodes
-                loadEditor(getNode(parents[1]).text, heading);
-            }
+            const path = getNodePath(node);
+            if (!path) return;
+            loadEditor(path, getFileHeading(node));
         }
     });
 
@@ -517,7 +521,7 @@ export function makeTree(elem: string) {
             }
 
             // If the currently selected item is in the path, update the heading
-            const p = [];
+            const p: any[] = [];
             const sel = tree.get_selected();
             for (const n of sel) {
                 p.push(n);
@@ -525,7 +529,8 @@ export function makeTree(elem: string) {
             }
             if (p.includes(node.id)) {
                 PROJECT.active = name;
-                document.querySelector("h2").textContent = getFileHeading(getNode(sel[0]));
+                const h2 = $("h2");
+                if (h2) h2.textContent = getFileHeading(getNode(sel[0]));
             }
 
             save();
@@ -535,7 +540,6 @@ export function makeTree(elem: string) {
         }
     });
 
-    let unmove = false;
     ftree.on("move_node.jstree", (_, data) => {
         if (unmove) {
             unmove = false;
@@ -549,7 +553,7 @@ export function makeTree(elem: string) {
             if (!newLoc) {
                 // If the new location is at the root, don't let the move occur
                 unmove = true;
-                tree.move_node(data.node, data.old_parent, false);
+                tree.move_node(data.node.id, data.old_parent);
                 return;
             }
 
@@ -570,7 +574,7 @@ export function makeTree(elem: string) {
             delete oldLoc[oldName];
 
             // Reselect self or child node if necessary (to reload it, because it's type may have changed)
-            const p = [];
+            const p: any[] = [];
             const sel = tree.get_selected();
             for (const n of sel) {
                 p.push(n);

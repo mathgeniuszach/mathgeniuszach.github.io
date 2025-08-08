@@ -13,7 +13,7 @@ const htmls = {};
 const redirects = {};
 
 let appending = false;
-let flowData: JSZip = null;
+let flowData: JSZip = null as any;
 
 async function parseText(text?: string, p: boolean = false): Promise<string> {
     if (!text) return "";
@@ -31,7 +31,7 @@ async function parseText(text?: string, p: boolean = false): Promise<string> {
             .replace(/[^\w/-]+|^\//g, "");
         const fullSrc = "i/" + src + ".png";
         
-        elem.src = URL.createObjectURL(await flowData.file(fullSrc).async("blob"));
+        elem.src = URL.createObjectURL(await flowData.file(fullSrc)!.async("blob"));
     }
     // Open in-text links in another tab
     document.querySelectorAll("a").forEach((elem: HTMLAnchorElement) => {
@@ -53,7 +53,9 @@ globalThis.openPage = (page: string) => {
 
 globalThis.loadPage = (page: string) => {
     const map = document.getElementById("map");
+    if (!map) throw Error("map element missing");
     const content = document.getElementById("content");
+    if (!content) throw Error("content element missing");
 
     let ppage = page in redirects ? redirects[page] : page || "index";
     if (!(ppage in htmls)) ppage = "undefined";
@@ -68,7 +70,7 @@ globalThis.loadPage = (page: string) => {
         // If not in appending mode, delete all html that's not the home button (to prevent generating weird chains)
         if (!appending) {
             pageMapElem = map.querySelector("#map-index");
-            while (pageMapElem.nextSibling) pageMapElem.nextSibling.remove();
+            while (pageMapElem?.nextSibling) pageMapElem?.nextSibling?.remove();
         }
 
         // If not, add the page to the map.
@@ -88,11 +90,13 @@ window.addEventListener("DOMContentLoaded", async () => {
     } catch (err) {
         const message = "Could not fetch flow data from github. Try again later.";
         console.error(message, err);
-        document.getElementById("load").innerHTML = message;
+        const loadPage = document.getElementById("load");
+        if (!loadPage) throw Error("missing load element");
+        loadPage.innerHTML = message;
         return;
     }
 
-    const meta = yaml.load(await flowData.file("index.yaml").async("text"));
+    const meta = yaml.load(await flowData.file("index.yaml")!.async("text"));
 
     const files = typeof(meta.data) == "string" ? meta.data.split(" ") : meta.data;
     Object.assign(redirects, meta.redirects);
@@ -102,7 +106,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     // Grab yaml data
     await Promise.all(files.map(async file => {
         try {
-            Object.assign(datamap, yaml.load(await flowData.file(file).async("text")));
+            Object.assign(datamap, yaml.load(await flowData.file(file)!.async("text")));
         } catch (err) {
             console.error(`Error parsing "${file['path']}";`, err);
         }

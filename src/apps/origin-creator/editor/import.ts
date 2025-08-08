@@ -1,5 +1,5 @@
 import JSZip from "jszip";
-import { fixBarry, IMAGE_FILES, viewSection } from "..";
+import { IMAGE_FILES, viewSection } from "..";
 import { block, unblock } from "../component/backdrop";
 import { refresh } from "../component/jstree";
 import { iconed } from "../component/sidebar";
@@ -27,19 +27,21 @@ export async function extract(zip: JSZip, updateMetadata: boolean = true, includ
 
         const licenseFilename = Object.keys(zip.files).find(v => v.toUpperCase().includes("LICENSE") && !v.includes("/"));
         if (licenseFilename) {
-            const license = zip.file(licenseFilename);
+            const license = zip.file(licenseFilename)!;
             set(pmeta, "license_text", await license.async("text"));
         }
 
         try {
-            let meta = null;
-            let supermeta = null;
+            let meta: any = null;
+            let supermeta: any = null;
             if ("fabric.mod.json" in zip.files) {
                 // Fabric mod
-                meta = JSON.parse(await zip.file("fabric.mod.json").async("text"));
-            } else {
+                const modjson = zip.file("fabric.mod.json")!;
+                meta = JSON.parse(await modjson.async("text"));
+            } else if ("pack.mcmeta" in zip.files) {
                 // Forge mod or vanilla datapack
-                supermeta = JSON.parse(await zip.file("pack.mcmeta").async("text"));
+                const mcmeta = zip.file("pack.mcmeta")!;
+                supermeta = JSON.parse(await mcmeta.async("text"));
                 meta = supermeta.pack;
             }
 
@@ -121,10 +123,6 @@ export async function extract(zip: JSZip, updateMetadata: boolean = true, includ
             ext = id.substring(di);
             id = id.substring(0, di);
         }
-
-        // A gentle nudge to Barry, Beatrice, and Betty
-        if (!id) id = "f"+String(Math.random()).slice(2, 15);
-
         if (names[1] != pid) id = names[1] + ":" + id; // Check if namespace is needed
         if (names[0] != "assets" && names[2] == "functions") {
             if (ext != ".mcfunction") id += ext;
@@ -158,7 +156,6 @@ export async function extract(zip: JSZip, updateMetadata: boolean = true, includ
     }
 
     viewSection("projects");
-    fixBarry();
     save();
     refresh();
     unblock();
@@ -173,12 +170,11 @@ async function loadFiledata(data: any, type: string, folders: string[], key: str
         if (loc["assets/"] == undefined) loc["assets/"] = {};
         loc = loc["assets/"];
     }
-    if (type.length > 0) {
+    if (type) {
         if (loc[type+"/"] == undefined) loc[type+"/"] = {};
         loc = loc[type+"/"];
     }
-    for (const folderi of folders) {
-        const folder = folderi.trim() || "f"+String(Math.random()).slice(2, 15);
+    for (const folder of folders) {
         if (loc[folder+"/"] === undefined) loc[folder+"/"] = {};
         loc = loc[folder+"/"];
     }
@@ -231,6 +227,7 @@ async function loadFiledata(data: any, type: string, folders: string[], key: str
     }
 }
 
+// TODO: swap this function out with something better
 function guess_type(ext: string, content: string): string {
     if (ext == ".mcfunction") return "functions/";
     if (IMAGE_FILES.includes(ext)) return "textures/";
@@ -248,28 +245,31 @@ function guess_type(ext: string, content: string): string {
             const ver = get(PROJECT.data.meta, "pack_format");
             const type = data["type"];
 
-            // Ensure that this is not a special recipe
-            for (let i = ver; i >= 6; --i) {
-                const k = "recipes-" + ver;
-                if (k in JSONED.schemas) {
-                    const cschema = resolve(JSONED.schemas[k], k);
-                    if (cschema.type != "or") break;
-
-                    for (const obj of cschema.or) {
-                        if (obj.type != "object") continue;
-
-                        const tschema = obj.props["type"];
-                        if (!tschema || tschema.type != "enum") continue;
-
-                        if (tschema.enum.includes(type)) return "recipes/";
-                    }
-
-                    break;
-                }
-            }
-
-            // Non-special recipe type field objects are powers
+            // Probably powers?
             return "powers/";
+
+            // TODO: Ensure that this is not a special recipe
+            // for (let i = ver; i >= 6; --i) {
+            //     const k = "recipes-" + ver;
+            //     if (k in JSONED.schemas) {
+            //         const cschema = resolve(JSONED.schemas[k], k);
+            //         if (cschema.type != "or") break;
+
+            //         for (const obj of cschema.or) {
+            //             if (obj.type != "object") continue;
+
+            //             const tschema = obj.props["type"];
+            //             if (!tschema || tschema.type != "enum") continue;
+
+            //             if (tschema.enum.includes(type)) return "recipes/";
+            //         }
+
+            //         break;
+            //     }
+            // }
+
+            // // Non-special recipe type field objects are powers
+            // // return "powers/";
         }
         if (Array.isArray(data) && data.length > 0 && "function" in data[0] || "function" in data) return "item_modifiers";
         if ("condition" in data) return "predicates/";
@@ -303,6 +303,7 @@ export async function bufferToBase64(buffer) {
         reader.onload = () => r(reader.result);
         reader.readAsDataURL(new Blob([buffer]));
     });
+    console.log(buffer.length, base64url.length);
     // remove the `data:...;base64,` part from the start
     return base64url.slice(base64url.indexOf(',') + 1);
 }
@@ -316,12 +317,29 @@ export async function include(file: File, loc?: {[k: string]: any}) {
     let ext   = extloc == -1 ? ""   : name.substring(extloc);
     name      = extloc == -1 ? name : name.substring(0, extloc);
 
+    // Read entire file
+    const stream = (await file.stream()).getReader();
+    let size = 0;
+    const chunks: Uint8Array[] = [];
+    for (;;) {
+        const bytes = await stream.read();
+        if (bytes.done) break;
+        chunks.push(bytes.value);
+        size += bytes.value.length;
+    }
 
-    // Why the heck can't I just do "await file.array()" here?
-    let t = await encodeRawFiledata((await (await file.stream()).getReader().read()).value, ext);
+    // Combine chunks into one big array
+    let offset = 0;
+    const out = new Uint8Array(size);
+    for (const chunk of chunks) {
+        out.set(chunk, offset);
+        offset += chunk.length;
+    }
+
+    let t = await encodeRawFiledata(out, ext);
 
     // Get location to place import
-    let pdata: {[k: string]: any} = loc;
+    let pdata: {[k: string]: any} = loc as any;
     if (!pdata) {
         const type = guess_type(ext, t);
         if (type == "functions/" && ext == ".mcfunction" || ext == ".json") ext = "";

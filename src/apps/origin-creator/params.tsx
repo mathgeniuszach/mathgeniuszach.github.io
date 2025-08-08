@@ -8,9 +8,9 @@ export const urlParams: URLSearchParams = new URLSearchParams(location.search);
 export const ghuser = clean(urlParams.get("u") || "");
 export const ghrepo = clean(urlParams.get("r") || "");
 export const ghbranch = clean(urlParams.get("b") || "");
-export const savecount = parseInt(urlParams.get("saves")) || 5;
+export const savecount = parseInt(urlParams.get("saves") as any) || 5;
 
-export const ocrepo = `github://${ghuser || "mathgeniuszach"}/${ghrepo || "origin-creator-schemas"}/${ghbranch || "main"}`;
+export const ocrepo = `github://${ghuser || "mathgeniuszach"}/${ghrepo || "origin-creator-schemas"}/${ghbranch || "dev"}`;
 export const flowrepo = `github://${ghuser || "mathgeniuszach"}/${ghrepo || "origins-flow-help"}/${ghbranch || "main"}`;
 
 const MAX_TRIES = 3;
