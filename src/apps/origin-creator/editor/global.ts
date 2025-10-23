@@ -118,6 +118,16 @@ export const JSONED = {
         dependents: {} as {[key: string]: string[]}
     },
 
+    getSchema(ver: number): MSchema {
+        if (ver < 1) return JSONED.mschemas[1];
+        while (!(ver in JSONED.mschemas)) ver--;
+        return JSONED.mschemas[ver];
+    },
+
+    getCurrentSchema(): MSchema {
+        return JSONED.getSchema(get(PROJECT.data.meta, "pack_format") ?? 1);
+    },
+
     setOptionValue(optionName: string, value: boolean) {
         let optionValues = JSON.parse(localStorage.getItem("oc-opts") as any);
         if (typeof optionValues != "object") optionValues = {};

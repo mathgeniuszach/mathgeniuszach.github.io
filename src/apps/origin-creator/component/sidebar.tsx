@@ -6,10 +6,28 @@ import { Dialog, DialogActions, DialogTitle, DialogContent, Button, Radio, Radio
 
 import { $, DEFAULT_FORMAT, Icon, viewSection } from "..";
 import { PROJECT, save, updateName } from "../projects";
-import { refresh, makeTree, newFolder } from "./jstree";
+import { refreshTree, makeTree, newFolder } from "./jstree";
 import { archive } from "../editor/export";
 import { extract, include } from "../editor/import";
 import { oc } from "../editor/api";
+import { JSONED } from "../editor/global";
+import { PresetSchema } from "../editor/schema";
+
+// NOTE: Could possibly be added to API.
+function touchItem(item: string) {
+    let loc = PROJECT.data;
+    for (const folder of item.split("/")) {
+        if (folder == "") continue;
+        if (!(folder in loc)) loc[folder] = {};
+        loc = loc[folder];
+    }
+}
+function usePreset(preset: PresetSchema, optional: boolean = false) {
+    for (const item of preset.items) touchItem(item);
+    if (optional && preset.optional) {
+        for (const item of preset.optional) touchItem(item);
+    }
+}
 
 function ProjectsButton(props) {
     return <button title="Open the projects panel." onClick={() => viewSection("projects")}>
@@ -29,7 +47,6 @@ function AddTypeButton(props) {
 }
 
 let importZip: JSZip = null as any;
-let importZipOrigined: boolean = false;
 
 function ImportButton(props) {
     const [importOpen, setImportMenuOpen] = React.useState(false);
@@ -147,7 +164,6 @@ function ImportButton(props) {
 
                 try {
                     importZip = zip;
-                    importZipOrigined = (Object.keys(zip.files).findIndex(v => v.split("/")[1] == "origins")) > -1;
                     handleImportMenuOpen();
                 } catch (err) {
                     console.error(err);
@@ -177,8 +193,8 @@ function ImportButton(props) {
                     <FormControl>
                         <FormLabel component="legend" style={{marginBottom: "6px"}}>Import Mode</FormLabel>
                         <RadioGroup aria-label="mode" name="mode" value={mode} onChange={modeChange}>
-                            <FormControlLabel value="minimal" control={<Radio/>} label="Replace (Minimal)"/>
                             <FormControlLabel value="replace" control={<Radio/>} label="Replace"/>
+                            <FormControlLabel value="minimal" control={<Radio/>} label="Replace (Minimal)"/>
                             <FormControlLabel value="merge" control={<Radio/>} label="Merge"/>
                         </RadioGroup>
                     </FormControl>
@@ -211,25 +227,30 @@ function ImportButton(props) {
                         PROJECT.data = {meta: pmeta};
                     }
 
-                    if (mode == "replace") {
-                        // Add basic folders if not in minimal mode
-                        for (const k of iconed.slice(importZipOrigined ? 1 : 4)) PROJECT.data[k+"/"] = {};
-                        const tags = PROJECT.data["tags/"];
-                        for (const tag of ["blocks", "entity_types", "fluids", "functions", "items"]) tags[tag+"/"] = {};
-                        if (assetz) {
-                            const assets = PROJECT.data["assets/"];
-                            for (const asset of ["lang", "textures"]) assets[asset+"/"] = {};
-                        } else {
-                            delete PROJECT.data["assets/"];
-                        }
-
-                        if (importZipOrigined) PROJECT.data["origin_layers/"]["origins:origin"] = {};
-                    }
-
                     PROJECT.changeTrees = {};
                     PROJECT.changeTree = null;
 
                     extract(importZip, mode != "merge", assetz, renameMerge);
+
+                    if (mode == "replace") {
+                        // Automatically figure out which preset best fits the imported pack
+                        const mschema = JSONED.getCurrentSchema();
+                        let use_preset = Object.values(mschema.items.presets)[0];
+                        presetLoop:
+                        for (const preset of Object.values(mschema.items.presets)) {
+                            if (!preset.identifiers) continue;
+                            for (const identifier of preset.identifiers) {
+                                // TODO: make the identifiers regular expressions or something.
+                                // Could become expensive for larger zips.
+                                if (identifier in importZip.files) {
+                                    use_preset = preset;
+                                    break presetLoop;
+                                }
+                            }
+                        }
+                        usePreset(use_preset);
+                    }
+
                     handleImportMenuClose();
                 }} color="primary">Import</Button>
             </DialogActions>
@@ -476,6 +497,14 @@ function ResetButton(props) {
     const [assetz, setAssetz] = React.useState(true);
     const assetzChange = (e) => setAssetz(e.target.checked);
 
+    const pack_format = parseInt(ver as any);
+    const mschema = JSONED.getSchema(pack_format);
+
+    const presets = [];
+    for (const [value, preset] of Object.entries(mschema.items.presets)) {
+        presets.push(<FormControlLabel value={value} control={<Radio/>} label={preset.name}/>);
+    }
+
     return (<>
         <button title="Delete the whole project and start anew." onClick={handleOpen}>
             <Icon type="arrow-counterclockwise"/>
@@ -497,15 +526,21 @@ function ResetButton(props) {
                             <MenuItem value={15}>1.20.0-1</MenuItem>
                             <MenuItem value={18}>1.20.2</MenuItem>
                             <MenuItem value={26}>1.20.3-4</MenuItem>
+                            <MenuItem value={41}><span style={{color: "red"}}>1.20.5-6*</span></MenuItem>
+                            <MenuItem value={48}><span style={{color: "red"}}>1.21.0-1*</span></MenuItem>
+                            <MenuItem value={57}><span style={{color: "red"}}>1.21.2-3*</span></MenuItem>
+                            <MenuItem value={61}><span style={{color: "red"}}>1.21.4*</span></MenuItem>
+                            <MenuItem value={71}><span style={{color: "red"}}>1.21.5*</span></MenuItem>
+                            <MenuItem value={80}><span style={{color: "red"}}>1.21.6*</span></MenuItem>
+                            <MenuItem value={81}><span style={{color: "red"}}>1.21.7-8*</span></MenuItem>
                         </Select>
                     </FormControl>
                 </Box>
                     <FormControl>
                         <FormLabel component="legend">Type</FormLabel>
                         <FormGroup>
-                            <RadioGroup aria-label="type" name="type" value={type} onChange={typeChange}>
-                                <FormControlLabel value="vanilla" control={<Radio/>} label="Vanilla Datapack"/>
-                                <FormControlLabel value="origins" control={<Radio/>} label="Origins Datapack"/>
+                            <RadioGroup aria-label="type" name="type" value={type in mschema.items.presets ? type : "blank"} onChange={typeChange}>
+                                {presets}
                                 <FormControlLabel value="blank" control={<Radio/>} label="Blank Project"/>
                             </RadioGroup>
                             <FormControlLabel control={<Checkbox checked={assetz && type != "blank"} disabled={type == "blank"} onChange={assetzChange}/>} label="Include Assets"/>
@@ -527,22 +562,13 @@ function ResetButton(props) {
                         meta: {
                             name: thename,
                             id: snakeCase(thename).replace(/[^A-Za-z0-9_]+/g, "").replace(/^\d/, "d"),
-                            pack_format: parseInt(ver as any),
+                            pack_format: pack_format,
                             version: "1.0.0"
                         }
                     };
-                    if (type !== "blank") {
-                        for (const k of iconed.slice(type == "vanilla" ? 4 : 1)) PROJECT.data[k+"/"] = {};
-                        const tags = PROJECT.data["tags/"];
-                        for (const tag of ["blocks", "entity_types", "fluids", "functions", "items"]) tags[tag+"/"] = {};
-                        if (assetz) {
-                            const assets = PROJECT.data["assets/"];
-                            for (const asset of ["lang", "textures"]) assets[asset+"/"] = {};
-                        } else {
-                            delete PROJECT.data["assets/"];
-                        }
+                    if (type !== "blank" && type in mschema.items.presets) {
+                        usePreset(mschema.items.presets[type], assetz);
                     }
-                    if (type == "origins") PROJECT.data["origin_layers/"]["origins:origin"] = {};
 
                     PROJECT.changeTrees = {};
                     PROJECT.changeTree = null;
@@ -551,7 +577,7 @@ function ResetButton(props) {
                     save();
 
                     // Update tree
-                    refresh();
+                    refreshTree();
 
                     // Close
                     handleClose();
@@ -561,7 +587,6 @@ function ResetButton(props) {
     </>);
 }
 
-export const iconed = ["meta", "origin_layers", "origins", "powers", "tags", "functions", "predicates", "recipes", "loot_tables", "advancements", "item_modifiers"/*, "scripts"*/, "assets"];
 export class Sidebar extends React.Component {
     componentDidMount() {
         window["filetree"] = makeTree("#filetree");

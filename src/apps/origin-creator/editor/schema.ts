@@ -118,14 +118,45 @@ export type EditorSchema = {
     link?: string
 }
 
+export type PresetSchema = {
+    name: string
+    items: string[]
+    optional: string[],
+    identifiers?: string[]
+}
+export type ItemsSchema = {
+    root: string
+    roots: string[]
+    presets: {[key: string]: PresetSchema}
+    icons: {[key: string]: string}
+    // sort: {[key: string]: number}
+    aliases: {[key: string]: string}
+}
+
 export type MSchema = {
     editors: EditorSchema[]
     links: {[key: string]: ISchema}
     temp: {[key: string]: any}
     options: {[key: string]: boolean | null}
+    items: ItemsSchema
 }
 
-export const DEFAULT_MSCHEMA: MSchema = {editors: [], links: {}, temp: {}, options: {}};
+export const DEFAULT_ITEMS: ItemsSchema = {
+    root: "data",
+    roots: ["data", "assets"],
+    presets: {},
+    icons: {},
+    // sort: {},
+    aliases: {}
+};
+
+export const DEFAULT_MSCHEMA: MSchema = {
+    editors: [],
+    links: {},
+    temp: {},
+    options: {},
+    items: JSON.parse(JSON.stringify(DEFAULT_ITEMS))
+};
 
 class JSONLocation {
     parent: {[k: string]: any} | null = null;
@@ -1059,13 +1090,83 @@ export function checkSchemas(): string[] {
     for (const [ver, schema] of Object.entries(JSONED.mschemas)) {
         schema.temp = {};
 
+        if (typeof schema.items != "object") {
+            checkErrors.push(`"${ver}/items" is missing or an invalid object`);
+            schema.items = JSON.parse(JSON.stringify(DEFAULT_ITEMS));
+        }
         if (typeof schema.editors != "object") {
-            checkErrors.push(`"${ver}/editors" is an invalid object`);
+            checkErrors.push(`"${ver}/editors" is missing or an invalid object`);
             schema.editors = [];
         }
         if (typeof schema.links != "object") {
-            checkErrors.push(`"${ver}/links" is an invalid object`);
+            checkErrors.push(`"${ver}/links" is missing or an invalid object`);
             schema.links = {};
+        }
+
+        // Verify that the items are valid
+        if (typeof schema.items.root != "string") {
+            checkErrors.push(`"${ver}/items/root" is not a string`);
+            schema.items.root = "data";
+        }
+        if (
+            !Array.isArray(schema.items.roots) ||
+            schema.items.roots.findIndex(v => typeof v != "string") >= 0
+        ) {
+            checkErrors.push(`"${ver}/items/roots" is not an array of strings`);
+            schema.items.roots = ["data", "assets"];
+        }
+        if (typeof schema.items.presets != "object") {
+            checkErrors.push(`"${ver}/items/presets" is missing or an invalid object`);
+            schema.items.presets = {};
+        }
+        let presets_failed = false;
+        for (const [id, preset] of Object.entries(schema.items.presets)) {
+            if (typeof id != "string") {
+                checkErrors.push(`"${ver}/items/presets" has non-string key`);
+                presets_failed = true;
+                continue;
+            }
+            if (typeof preset.name != "string") {
+                checkErrors.push(`"${ver}/items/presets/${id}/name" is not a string`);
+                presets_failed = true;
+            }
+            if (
+                !Array.isArray(preset.items) ||
+                preset.items.findIndex(v => typeof v != "string") >= 0
+            ) {
+                checkErrors.push(`"${ver}/items/presets/${id}/items" is not an array of strings`);
+                presets_failed = true;
+            }
+            if (
+                !Array.isArray(preset.optional) ||
+                preset.optional.findIndex(v => typeof v != "string") >= 0
+            ) {
+                checkErrors.push(`"${ver}/items/presets/${id}/optional" is not an array of strings`);
+                presets_failed = true;
+            }
+            if (
+                preset.identifiers && (!Array.isArray(preset.identifiers) ||
+                preset.identifiers.findIndex(v => typeof v != "string") >= 0)
+            ) {
+                checkErrors.push(`"${ver}/items/presets/${id}/identifiers" is not an array of strings`);
+                presets_failed = true;
+            }
+        }
+        if (presets_failed) schema.items.presets = {};
+        for (const [field, type] of [
+            ["icons", "string"],
+            // ["sort", "number"],
+            ["aliases", "string"]
+        ]) {
+            if (
+                typeof schema.items[field] != "object" ||
+                Object.entries(schema.items[field]).findIndex(
+                    ([k, v]) => typeof k != "string" || typeof v != type
+                ) >= 0
+            ) {
+                checkErrors.push(`"${ver}/items/${field}" is not an object mapping strings to ${type}s`);
+                schema.items[field] = {};
+            }
         }
 
         // Verify that the editors are valid

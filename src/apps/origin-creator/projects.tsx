@@ -4,7 +4,7 @@ import jquery from "jquery"; // Necessary ONLY for jstree
 // import { decode } from "messagepack";
 import { Ace } from "./component/ace";
 
-import { genTree, refresh } from "./component/jstree";
+import { refreshTree } from "./component/jstree";
 import { get, keys, values } from "./editor/wrapper";
 import { savecount } from "./params";
 import { JSONED } from "./editor/global";
@@ -230,14 +230,6 @@ async function loadProject(key: string) {
     refreshTree();
 }
 
-export function refreshTree() {
-    const tree = jquery("#filetree").jstree(true);
-    tree.deselect_all(true);
-
-    tree.settings.core.data = genTree(PROJECT.data);
-    tree.refresh();
-}
-
 export function Projects(props) {
     const ocn = localStorage.getItem("ocn");
     let pnames: {[key: string]: any} | string[] = ocn ? JSON.parse(ocn) : {};
@@ -320,7 +312,7 @@ export function Projects(props) {
                     PROJECT.data = JSON.parse(await navigator.clipboard.readText());
                     fixBarry();
                     save();
-                    refresh();
+                    refreshTree();
                     alert("Import Successful");
                 } catch (err) {
                     alert("Import Failed; " + err);

@@ -1,16 +1,17 @@
 import jquery from "jquery"; // Necessary ONLY for jstree
 import "jstree";
 
-import { $, IMAGE_FILES, loadEditor, viewSection } from "..";
+import { $, loadEditor, viewSection } from "..";
 import { ChangeTree, PROJECT, save } from "../projects";
-import { iconed } from "./sidebar";
-import { simplify } from "../editor/wrapper";
+import { get, simplify } from "../editor/wrapper";
 import { oc } from "../editor/api";
 import { startCase } from "lodash";
+import { JSONED } from "../editor/global";
 
 let tree;
 let edited = null;
 let rename_lock = false;
+let sort_icons = [];
 
 export function getTree(): any {
     return tree;
@@ -111,8 +112,7 @@ export function fixName(node, pdata, rname?: string): string {
 
     // Do first cleaning of name
     let name = (rname ?? tnode.text).toLowerCase().trim().replace(/\s+/g, "_").replace(/[^a-z0-9:._-]+/g, "");
-
-    if (!name) name = "_";
+    if (!name) name = "item";
 
     // Ensure that name is unique
     if (isFile(node)) {
@@ -129,8 +129,9 @@ export function fixName(node, pdata, rname?: string): string {
         while (name+"/" in pdata) name += "_";
 
         // If a root item needs a type, give it one
-        if (pdata == PROJECT.data && iconed.includes(name)) {
-            tree.set_type(tnode, name);
+        const icons = JSONED.getCurrentSchema().items.icons;
+        if (pdata == PROJECT.data && name in icons) {
+            tree.set_type(tnode, icons[name]);
         }
     }
 
@@ -166,8 +167,6 @@ export function isFile(node) {
 function isFree(node) {
     const tnode = getNode(node);
     return tnode.parent != "#" || tnode.type == "file";
-    // const type = tnode.type == "default" && tnode.parent == "#" && iconed.includes(tnode.text) ? tnode.text : tnode.type;
-    // return type == "file" || type == "default" || !type;
 }
 
 export function newFolder(node) {
@@ -227,7 +226,7 @@ export function pasteNode(node) {
             save();
 
             // Reload tree
-            refresh();
+            refreshTree();
         }
     }
 }
@@ -244,7 +243,7 @@ export function cloneNode(node) {
     save();
 
     // Reload tree
-    refresh();
+    refreshTree();
 }
 
 export function deleteNode(node) {
@@ -275,41 +274,36 @@ export function deleteNode(node) {
     }
 }
 
-export function genTree(data: any, root: boolean = true): any {
+export function genTree(data: any, root: boolean = true, icons: {[k: string]: string} = {}): any {
     const out: any[] = [];
-    if (root) {
-        for (const [k, v] of Object.entries(data)) {
-            const folder = k.charAt(k.length-1) == "/";
-            let name = folder ? k.slice(0, -1) : k;
+    for (const [k, v] of Object.entries(data)) {
+        const folder = k.charAt(k.length-1) == "/";
+        let name = folder ? k.slice(0, -1) : k;
 
-            let type: any = name;
-            if (!iconed.includes(type)) type = folder ? undefined : "file";
+        let type: any = folder ? undefined : "file";
+        if (root && folder && name in icons) type = icons[name];
 
-            const obj: any = {
-                text: name,
-                type: type
-            };
-            if (folder) obj.children = genTree(v, false);
-            out.push(obj);
-        }
-    } else {
-        for (const [k, v] of Object.entries(data)) {
-            const folder = k.charAt(k.length-1) == "/";
-            let name = folder ? k.slice(0, -1) : k;
-
-            const obj: any = {
-                text: name,
-                type: folder ? undefined : "file"
-            };
-            if (folder) obj.children = genTree(v, false);
-            out.push(obj);
-        }
+        const obj: any = {
+            text: name,
+            type: type
+        };
+        if (folder) obj.children = genTree(v, false, icons);
+        out.push(obj);
     }
     return out;
 }
-export function refresh() {
-    tree.settings.core.data = genTree(PROJECT.data);
+export function refreshTree() {
+    const sel = oc.active;
+
+    const icons = JSONED.getCurrentSchema().items.icons;
+    sort_icons = Object.values(icons);
+    tree.deselect_all(true);
+    tree.settings.core.data = genTree(PROJECT.data, true, icons);
     tree.refresh();
+    
+    try {
+        oc.active = sel;
+    } catch (err) {}
 }
 
 export function makeTree(elem: string) {
@@ -380,11 +374,11 @@ export function makeTree(elem: string) {
                     // a is locked and comes before unlocked b
                     return -1;
                 } else {
-                    // both are locked, so return whatever is first in iconed.
-                    let ia = iconed.indexOf(na.text);
-                    let ib = iconed.indexOf(nb.text);
-                    // uniconed folders are sorted by name at the end.
-                    if (ia < 0 && ib < 0) return na.text.localeCompare(nb.text);
+                    // both are locked, so return whatever is first in sort_icons.
+                    let ia = sort_icons.indexOf(na.type);
+                    let ib = sort_icons.indexOf(nb.type);
+                    // folders without an icon are sorted by name after folders with icons.
+                    if (ia < 0 && ib < 0) return na.name.localeCompare(nb.name);
                     if (ia < 0) ia = Infinity;
                     if (ib < 0) ib = Infinity;
 

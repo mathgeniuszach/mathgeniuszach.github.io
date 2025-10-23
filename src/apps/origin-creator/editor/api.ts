@@ -1,6 +1,6 @@
 import { snakeCase, startCase } from "lodash";
 import { IMAGE_FILES } from "..";
-import { getTree, getNode, getNodeParents, isFile, refresh, getNodeFromPath, deleteNode } from "../component/jstree";
+import { getTree, getNode, getNodeParents, refreshTree, getNodeFromPath, deleteNode } from "../component/jstree";
 import { ChangeTree, PROJECT } from "../projects";
 import { JSONED } from "./global";
 import { get, set, simplify } from "./wrapper";
@@ -51,7 +51,7 @@ function setFileData(path: string, data: any = null) {
 
     if (ctree && key in ctree && !key.endsWith("/")) ctree[key].clear();
 
-    if (needsRefresh) refresh();
+    if (needsRefresh) refreshTree();
     update();
 
     if (loc == PROJECT.parent && key == PROJECT.active) JSONED.refresh();
@@ -125,7 +125,12 @@ function getActive(): string | null {
     return parents.slice(1).map(n => tree.get_text(n) + "/").join("") + node.text;
 }
 
-function setActive(path: string) {
+function setActive(path: string | null) {
+    if (path == null) {
+        getTree()?.deselect_all(true);
+        return;
+    }
+
     const data = getFileData(path);
     if (data === null || path.endsWith("/")) throw Error(`Cannot activate folder "${path}"`);
     else if (data === undefined) throw Error(`Cannot activate non-existant file "${path}"`);
@@ -149,7 +154,7 @@ export const oc = {
     get active(): string | null {
         return getActive();
     },
-    set active(path: string) {
+    set active(path: string | null) {
         setActive(path);
     },
 

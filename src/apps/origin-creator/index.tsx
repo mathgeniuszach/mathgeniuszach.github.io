@@ -5,9 +5,9 @@ import { saveAs } from "file-saver";
 import { block, Blocker, unblock } from "./component/backdrop";
 import { Sidebar } from "./component/sidebar";
 import { Ace } from "./component/ace";
-import { PROJECT, Projects, refreshTree, save, setProjectSettings, updateName, updatePRaw, updateUsedSize } from "./projects";
+import { PROJECT, Projects, save, setProjectSettings, updateName, updatePRaw, updateUsedSize } from "./projects";
 
-import { copyNode, cutNode, cloneNode, deleteNode, pasteNode, getTree } from "./component/jstree";
+import { copyNode, cutNode, cloneNode, deleteNode, pasteNode, getTree, refreshTree } from "./component/jstree";
 import { JSONED } from "./editor/global";
 import { del, get, set } from "./editor/wrapper";
 
@@ -24,6 +24,7 @@ export const $$: (query: string) => NodeListOf<HTMLElement> = document.querySele
 export const DEFAULT_FORMAT = 10;
 export const UNDO_TREE_LENGTH = 20;
 export const IMAGE_FILES = [".png", ".jpg", ".jpeg", ".gif", ".webp"];
+export const BINARY_FILES = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".ogg", ".mp3", ".mp4", ".obj"];
 export const KNOWN_FILES = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".mcmeta", ".json", ".txt", ".mcfunction", ".ogg", ".md", ".obj", ".mcshader", ".glsl", ".vs", ".fs"];
 
 export function Icon(props) {
@@ -293,6 +294,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     await loadAndBuildSchemas();
 
     fixBarry();
+    refreshTree();
 
     unblock();
 });

@@ -76,14 +76,6 @@ export async function archive(type: string) {
         return;
     }
 
-    let origined = false;
-    for (const f of ["origin_layers/", "origins/", "powers/"]) {
-        if (f in PROJECT.data && hasFile(PROJECT.data[f])) {
-            origined = true;
-            break;
-        }
-    }
-
     const zip = new JSZip();
 
     // Create icon
@@ -163,15 +155,7 @@ ${pmeta.description.replace(/\\/g, "\\\\").replace(/'''/g, "\\'\\'\\'")}
     mandatory=true
     versionRange="${ver}"
     ordering="NONE"
-    side="BOTH"
-${origined ?
-`[[dependencies.${fid}]]
-    modId="origins"
-    mandatory=true
-    versionRange="[0.1.0,)"
-    ordering="NONE"
-    side="BOTH"
-` : ""}`);
+    side="BOTH"`);
 
         // To improve forge mod export support, add a mod entry point that does nothing.
         // Most versions of forge require a class file that registers the mod id.
@@ -263,33 +247,14 @@ function hasFile(data: any): boolean {
 function makeData(izip: JSZip, data: any, path: string = "", ext?: string) {
     const pmeta = simplify(PROJECT.data.meta);
     const id = pmeta.id;
+    const pack_format = pmeta.pack_format || 6;
 
     for (const [k, v] of Object.entries(data)) {
         // Skip assets folder (also skips assets/assets/ in resource pack)
         if (path == "assets/") continue;
 
         if (k.endsWith("/")) {
-            // Remove s from folders that don't need it
-            // Because Mojang made this change for some awful reason
-            let nk = k;
-            if (
-                (path == "data/" && k != "tags/" && k.endsWith("s/") &&
-                !(pmeta.pack_format < 43 && k == "decorated_pot_patterns/") &&
-                !(pmeta.pack_format < 45 && [
-                    "structures/", "advancements/", "recipes/", "loot_tables/",
-                    "predicates/", "item_modifiers/", "functions/"
-                ].includes(k))) ||
-
-                (path == "data/tags/" && k.endsWith("s/") &&
-                !(pmeta.pack_format < 45 && k == "functions/") &&
-                !(pmeta.pack_format < 43 && [
-                    "items/", "blocks/", "entity_types/",
-                    "fluids/", "game_events/"
-                ].includes(k)))
-            ) {
-                nk = k.slice(-2)+"/";
-            }
-            makeData(izip, v, path + nk, ext || (k == "functions/" ? ".mcfunction" : ".json"));
+            makeData(izip, v, path, ext || (k == "functions/" || k == "function/" ? ".mcfunction" : ".json"));
         } else {
             if (!ext && path === "") continue; // Root level files do not get extracted in datapacks
 

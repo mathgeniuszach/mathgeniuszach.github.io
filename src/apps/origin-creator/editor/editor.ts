@@ -1,5 +1,6 @@
 import { viewSection, $, $$ } from "..";
-import { ChangeTree, PROJECT, refreshTree, save } from "../projects";
+import { refreshTree } from "../component/jstree";
+import { ChangeTree, PROJECT, save } from "../projects";
 import { JSONED } from "./global";
 import { load, updatePanels } from "./load";
 import { del, set } from "./wrapper";
