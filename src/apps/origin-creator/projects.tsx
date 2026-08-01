@@ -257,7 +257,7 @@ export function Projects(props) {
     const LocalStorageWarning = globalThis.offline ? <>
         <p>(Note: keep filesize low or program may slow down)</p>
     </> : <>
-        <p>(Warning! Do not go above the <a href="/response/local-storage" target="_blank">localStorage limit!</a>)</p>
+        <p>(Warning! Do not go above the <a href="/response/tech/local-storage" target="_blank">localStorage limit!</a>)</p>
     </>;
 
     return (<>
