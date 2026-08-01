@@ -13,6 +13,7 @@ const isOnlineUrl = (url) => (
 
 const isLiveUrl = (url) => (
     url.startsWith("https://www.mathgeniuszach.com") ||
+    url.startsWith("https://api.mathgeniuszach.com") ||
     url.startsWith("https://img.youtube.com") ||
     url.startsWith("https://raw.githubusercontent.com") ||
     url.startsWith("https://cdn.jsdelivr.net") ||
@@ -39,7 +40,7 @@ function createWindow() {
     protocol.handle('file', (request) => {
         // console.log(request.url);
         let path = request.url.slice(7);
-        if (!path.slice(path.lastIndexOf("/")).includes(".")) path += "/index.html";
+        if (!path.includes("api.mathgeniuszach.com") && !path.slice(path.lastIndexOf("/")).includes(".")) path += "/index.html";
         return fetch("file://" + __dirname + "/app" + path);
     });
 
@@ -56,7 +57,7 @@ function createWindow() {
             // These urls can be loaded from the internet if available.
             if (hasInternet) {
                 const resp = fetch(request);
-                // Files grabbed from the internet are cached into the live directory.
+                // TODO: Files grabbed from the internet are cached into the live directory.
                 return resp;
             }
 

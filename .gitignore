@@ -3,3 +3,4 @@
 node_modules
 live
 dist
+electron/app

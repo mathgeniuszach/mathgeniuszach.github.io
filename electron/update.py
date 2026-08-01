@@ -9,9 +9,8 @@ import requests
 PARENT = Path(__file__).parent.absolute()
 DIST = PARENT / "live/www.mathgeniuszach.com"
 LIVE = PARENT / "live"
+APP = PARENT / "app"
 URLS = PARENT / "urls.txt"
-SCHEMAS = LIVE / "raw.githubusercontent.com/mathgeniuszach/origin-creator-schemas/main"
-FLOW_HELP = LIVE / "raw.githubusercontent.com/mathgeniuszach/origins-flow-help/main"
 DOCS = LIVE / "origins.readthedocs.io/en/"
 
 with open(PARENT / "flyout.html") as file:
@@ -20,7 +19,7 @@ with open(PARENT / "flyout.html") as file:
 os.chdir(PARENT)
 
 # Clean and initialize folders
-for path in (DIST, LIVE):
+for path in (DIST, LIVE, APP):
     if path.is_dir():
         shutil.rmtree(path)
     elif path.exists():
@@ -28,8 +27,6 @@ for path in (DIST, LIVE):
 
 LIVE.mkdir(parents=True)
 DIST.mkdir(parents=True, exist_ok=True)
-SCHEMAS.mkdir(parents=True, exist_ok=True)
-FLOW_HELP.mkdir(parents=True, exist_ok=True)
 
 # Clone website files
 if (PARENT.parent / "dist").is_dir():
@@ -41,24 +38,20 @@ else:
 for path in ("bin", "portfolio", "random", "apps/fpclib", ".git"):
     shutil.rmtree(DIST / path)
 for path in (".gitattributes", ".gitignore", ".gitmodules", "CNAME", "portfolio.css", "README.md"):
-    (DIST / path).unlink()
+    (DIST / path).unlink(missing_ok=True)
 for path in DIST.glob("**/*.mp4"):
     path.unlink()
 
-# Get raw github user content
-subprocess.run(["git", "clone", "https://github.com/mathgeniuszach/origin-creator-schemas.git", str(SCHEMAS)])
-subprocess.run(["git", "clone", "https://github.com/mathgeniuszach/origins-flow-help.git", str(FLOW_HELP)])
+# Copy dist of website into app directly
+shutil.copytree(DIST, APP)
 
-# Delete unnecessary files
-for path in (SCHEMAS, FLOW_HELP):
-    for file in (path / ".git",):
-        shutil.rmtree(file)
-    for file in (path / ".gitattributes", path / "README.md"):
-        file.unlink()
-
-(FLOW_HELP / ".gitignore").unlink()
-shutil.rmtree(FLOW_HELP / "flow-bot")
-shutil.rmtree(SCHEMAS / "scripts")
+# Get github zips
+for repo in ("origin-creator-schemas", "origins-flow-help"):
+    with requests.get(f"https://api.mathgeniuszach.com/repo/mathgeniuszach/{repo}/main") as resp:
+        ZIP_DEST = LIVE / f"api.mathgeniuszach.com/repo/mathgeniuszach/{repo}"
+        ZIP_DEST.mkdir(parents=True, exist_ok=True)
+        with open(ZIP_DEST / "main", "wb") as file:
+            file.write(resp.content)
 
 # Read and download basic urls
 with open(URLS) as file:
