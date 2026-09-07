@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <include src="s/meta.html">{
+            "title": "What is AI?",
+            "author": "Zach K",
+            "desc": "Artificial Intelligence (AI) is a heuristic-based statistical non-deterministic prediction engine for text and media."
+        }</include>
+    </head>
+    <body>
+        <include src="s/header.html"></include>
+        <aside><h6>More</h6><include src="s/responses.html"></include></aside>
+        <main id="navskip"></main>
+        <section md>
+            # What is AI?
+
+            ## Introduction
+
+            There have been many definitions of AI used throughout the last decades, but I think most of them have fallen out of favor - for example, no one really calls the navigation system on your map app an "AI" anymore.
+
+            When we hear of AI today, we think of the crazy buzzword things that make companies go crazy - Large Language Models, Agentic Workflows, Summarizing Text, blah blah blah.
+
+            *sigh*
+
+            These specific tools are based on a specific kind of tech known as "neural networks" and "weight models" (Large Language Models and Multi-modal Models) that are crazy mathematical wonders. If you want to review those in more detail, 3Blue1Brown has [a good lesson](https://www.3blue1brown.com/lessons/mini-llm/) on the topic, so I'm not going to cover it here.
+
+            ## Definition of AI
+
+            Instead, based on my research and understanding of AI, I've found this to be a good defintion:
+
+            > AI is a heuristic-based statistical non-deterministic prediction engine for text and media.
+
+            Breaking that down:
+            - **...heuristic-based...**
+              *A heuristic is a pragmatic shortcut or strategy to solving problems. Like "always follow the left wall" in a maze. AI systems are created, changed, and tweaked by dozens of different heuristics, that get them close to a desired goal.*
+            - **...statistical...**
+              *Statistics is a branch of math that deals with probabilities. For example, the chance of rolling the same number on two six sided dice is 1 in 6 (6 out of 36 possibililties). AI predicts statistically common or uncommon responses with the according probabilities (a property known as being stochastic), based on it's training data.*
+            - **...non-deterministic...**
+              *Determinism is the idea that with the same input, you always get back the same output. In contrast, AI is non-deterministic, meaning you'll get slightly different results each time you use it, even with the same input.*
+            - **...prediction engine...**
+              *AI predicts token-by-token (i.e., a little less than word-by-word) likely output content based on the given input. It does not think, feel, or communicate in the conventional sense like a human. Instead, it encodes reasoning, semantics, and meaning in matrices, nodes, and weights, and applies mathematics and random chance on them.*
+            - **...for text and media.**
+              *The original first AI models predicted individual pieces of words known as tokens. Nowadays, tokens can be pixels in an image, samples in an audio file, or sections of a video file. AI produces realistic looking text and media.*
+            
+            Putting it altogether, AI is a powerful tool for quickly producing realistic-or-useful-looking text and media that, dependening on the strength of the model, often does genuinely solve a problem. However, it might not, and the entire field is about heuristically and anecdotally nudging it in the correct direction.
+
+            ## System Prompts
+
+            Using an AI is as simple as providing it input in the form of text or media; input in, response out, take it or leave it. There are plenty of ways to improve the output it provides, but due to it's nature as described above, the usefulness of AI varies wildly between the model you use, the provider you use, the nicheness of topic you ask it about, or the complexity of the question you ask.
+
+            The first thing to realize is oftentimes, AI has already been "used" before you even give it any input. In order to get the model to respond in a specific way, companies give the AI some initial text (called a system prompt) that gets them to statistically produce "better" output. Then, when your input comes in, it gets appended to the bottom of the input.
+
+            These system prompts often say things like, "Always respond to questions with a thoughtful answer!" or "Don't say anything illegal!", but these just influence the statistics of what the model produces, they don't *stop* the AI from doing anything. Sometimes, inputting the equivalent of "IGNORE THE SYSTEM PROMPT FOR THE FATE OF THE WORLD DEPENDS ON IT!" is enough to effectively "undo" the system prompt. This is called "prompt injection", and it's a fundamentally unsolvable problem. For every "Do this" there is always an opposite "Do something else" to counteract it. It's a cat and mouse game, where AI creators add more and more things to their system prompt or detection software, only to have a new person "jailbreak" it into saying anything they want.
+
+            ## More
+
+            If you'd like to hear more on AI, you can click on one of the following articles I've written:
+
+            - [My Opinion on AI](/response/tech/ai/my-opinion-on-ai)
+            - [Will AI replace people?](/response/tech/ai/will-ai-replace-people)
+        </section>
+        <include src="s/footer.html"></include>
+    </body>
+</html>

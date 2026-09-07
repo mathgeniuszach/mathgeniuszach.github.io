@@ -205,6 +205,9 @@ blockquote
     padding: 1px 0px 0px 10px
     border-left: 5px solid var(--link-color)
 
+    p:not(:last-child)
+        margin-bottom: 7px
+
 textarea[mono]
     font-family: monospace
 
@@ -404,6 +407,7 @@ header
 
                 position: absolute
                 transform: translate(#{$border-size + $panel-padding - 7.5}, 10px)
+                max-height: calc(100vh - #{$header-height + $footer-height})
 
                 display: flex
                 flex-direction: column
@@ -412,6 +416,7 @@ header
                 // Delays these from changing by one frame, so tab navigation works properly
                 transition: opacity 0s 10ms, visibility 0s 10ms
 
+                overflow-y: scroll
                 visibility: hidden
                 opacity: 0
 
