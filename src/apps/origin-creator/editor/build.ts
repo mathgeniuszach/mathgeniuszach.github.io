@@ -17,6 +17,7 @@ function t(text: string): string {
 }
 
 let n = 0;
+const MAX_MORE_DEPTH = 32;
 
 const lbuilds = new Map();
 function buildList(s: SList & SGeneral, id: string, show: boolean = false, named: string | boolean = false, illegal?: string[]) {
@@ -414,7 +415,7 @@ export function build(s: ISchema, id: string, show?: boolean, nopanel?: boolean)
                     return aliases;
                 }
 
-                function genProps(html: string[], props: {[key: string]: ISchema}, more: boolean = true) {
+                function genProps(html: string[], props: {[key: string]: ISchema}, depth: number = 0) {
                     for (const [k, vs] of Object.entries(props) as [string, ISchema][]) {
                         (s as any).ikeys.add(k);
 
