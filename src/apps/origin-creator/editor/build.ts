@@ -448,30 +448,28 @@ export function build(s: ISchema, id: string, show?: boolean, nopanel?: boolean)
 
                         // Insert more fields
                         if (tvs.type == "enum" && tvs.more) {
-                            if (more) {
-                                const nn = n++;
+                            if (depth >= MAX_MORE_DEPTH) throw Error(`Enums with "more" are nested more than ${MAX_MORE_DEPTH} deep (at "${k}")`);
 
-                                Object.keys(tvs.more).forEach((e) => (s as any).ikeys.add(e));
-                                Object.keys(tvs.more).forEach((e) => (s as any).more.add(e));
+                            const nn = n++;
 
-                                html.push(`<div jmore="${nn}">`);
+                            Object.keys(tvs.more).forEach((e) => (s as any).ikeys.add(e));
+                            Object.keys(tvs.more).forEach((e) => (s as any).more.add(e));
 
-                                // Loop over extra properties and generate html for each
-                                for (const [part, is] of Object.entries(tvs.more as {[key: string]: {[field: string]: ISchema}})) {
-                                    // Loop over properties inside enum
-                                    const khtml = [];
-                                    if (!tvs.talias) tvs.talias = {};
-                                    tvs.talias[part] = getAliases(is);
-                                    genProps(khtml, is, false);
+                            html.push(`<div jmore="${nn}">`);
 
-                                    // Uses a special id for findSchema. This specific jid is detected by a space.
-                                    JSONED.htmls[`more-${nn}-${part}`] = `<div jtype="more" jid="${escape(k)} ${escape(part)}">${khtml.join("")}</div>`;
-                                }
+                            // Loop over extra properties and generate html for each
+                            for (const [part, is] of Object.entries(tvs.more as { [key: string]: { [field: string]: ISchema } })) {
+                                // Loop over properties inside enum
+                                const khtml = [];
+                                if (!tvs.talias) tvs.talias = {};
+                                tvs.talias[part] = getAliases(is);
+                                genProps(khtml, is, depth + 1);
 
-                                html.push(`</div>`);
-                            } else {
-                                throw Error("more enum inside more");
+                                // Uses a special id for findSchema. This specific jid is detected by a space.
+                                JSONED.htmls[`more-${nn}-${part}`] = `<div jtype="more" jid="${escape(k)} ${escape(part)}">${khtml.join("")}</div>`;
                             }
+
+                            html.push(`</div>`);
                         }
                     }
                 }
