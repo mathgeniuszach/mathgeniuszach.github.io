@@ -110,8 +110,10 @@ export const JSONED = {
         if (target.tagName == "SELECT") {
             if (y !== false) {
                 // If y is defined, then this is an enum with "more" fields
-                const sparent = target.parentElement.parentElement.parentElement;
-                const jmore = target.parentElement.nextElementSibling;
+                let sparent = target.parentElement.parentElement.parentElement;
+                while (!sparent.hasAttribute("jtype") || sparent.getAttribute("jtype") == "more") sparent = sparent.parentElement;
+                let jmore = target.parentElement.nextElementSibling;
+                while (jmore.tagName == "HR") jmore = jmore.nextElementSibling;
                 jmore.innerHTML = JSONED.htmls[`more-${y}-${val}`];
 
                 // Load parent object (to delete now unused fields)
