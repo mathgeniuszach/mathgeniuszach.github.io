@@ -179,40 +179,9 @@ export function isValid(id: string, ssor: ISchema, v: any): boolean {
             return false;
         } else if (sor.type == "object") {
             const more = {};
-            // Get all more fields and schemas from set values
-            // NOTE: currently only works one level deep
+            // Get all more fields and schemas from set values (this goes through enums nested at any depth)
             if (sor.props) {
-                for (const kk of keys(v)) {
-                    // Transform key with alias if necessary
-                    const k = kk in sor.talias ? sor.talias[kk] : kk;
-
-                    const s = sor.props[k];
-                    if (s?.type == "enum" && s.more) {
-                        // Only check enum types that have a more field
-                        // Get the value and use it to find a schema
-                        let nv = get(v, kk);
-
-                        const idvo = `${typeof nv}-${nv}`;
-                        if (typeof nv == "string") {
-                            nv = nv.includes(":") ? nv.replace("apoli:", "origins:") : s.ns ? s.ns + ":" + nv : nv;
-                        }
-                        const idv = `${typeof nv}-${nv}`;
-
-                        // Get the more schema referenced by the set value
-                        const tidv = idv in s.more ? idv : idvo in s.more ? idvo : null;
-                        if (tidv == null) return false; // If no more schema can be found, this is an invalid value
-
-                        Object.assign(more, s.more[tidv]);
-
-                        // Also set any aliases
-                        if (s.talias && tidv in s.talias) {
-                            const entries: [string, string][] = Object.entries(s.talias[tidv]);
-                            for (const [oldk, newk] of entries) {
-                                more[oldk] = more[newk];
-                            }
-                        }
-                    }
-                }
+                if (!gatherMore(id, sor.props, sor.talias, v, more)) return false;
             }
 
             // Check all current keys
@@ -240,6 +209,37 @@ export function isValid(id: string, ssor: ISchema, v: any): boolean {
     }
 
     return t === sor.type || t == "number" && sor.type == "integer";
+}
+
+function loadMore(id: string, v: any, item: ISchema, out: string, ielem: HTMLElement, ok: Set<string>, nkeys: string[]) {
+    item = resolve(item, id);
+    if (item.type != "enum" || !item.more) return;
+
+    let melem = ielem.nextElementSibling as HTMLElement;
+    while (melem.tagName == "HR") melem = melem.nextElementSibling as HTMLElement;
+    melem.innerHTML = JSONED.htmls[`more-${melem.getAttribute("jmore")}-${out}`];
+
+    const morez = item.more[out];
+    if (!morez) return;
+
+    if (item.talias && item.talias[out]) {
+        for (const [oldk, newk] of Object.entries(item.talias[out])) {
+            if (has(v, oldk)) {
+                set(v, newk, get(v, oldk));
+                del(v, oldk, true);
+            }
+        }
+    }
+
+    for (const [mk, mitem] of Object.entries(morez)) {
+        ok.add(mk);
+        nkeys.push(mk);
+
+        const mielem: HTMLElement = melem.querySelector(`:scope > div > [jid="${escape(mk)}"]`);
+        const mout = load(id, v, mk, mielem, mitem as any);
+
+        loadMore(id, v, mitem as any, mout, mielem, ok, nkeys);
+    }
 }
 
 export function load(id: string, p: any, k: string | number, elem: HTMLElement, schema?: ISchema, r: boolean = false): any {
@@ -341,33 +341,7 @@ export function load(id: string, p: any, k: string | number, elem: HTMLElement, 
                         const out = load(id, v, k, ielem, item as any);
                         nkeys.push(k);
 
-                        // Load extra enum fields
-                        if (item.type == "enum" && item.more) {
-                            // console.log(ielem);
-                            let melem = ielem.nextElementSibling;
-                            while (melem.tagName == "HR") melem = melem.nextElementSibling;
-                            melem.innerHTML = JSONED.htmls[`more-${melem.getAttribute("jmore")}-${out}`];
-
-                            const morez = item.more[out];
-                            if (morez) {
-                                // Transform more aliases
-                                if (item.talias && item.talias[out]) {
-                                    for (const [oldk, newk] of Object.entries(item.talias[out])) {
-                                        if (has(v, oldk)) {
-                                            set(v, newk, get(v, oldk));
-                                            del(v, oldk, true);
-                                        }
-                                    }
-                                }
-
-                                for (const [mk, mitem] of Object.entries(morez)) {
-                                    ok.add(mk);
-                                    nkeys.push(mk);
-                                    // console.log(mk, mitem, melem);
-                                    load(id, v, mk, melem.querySelector(`:scope > div > [jid="${escape(mk)}"]`), mitem as any);
-                                }
-                            }
-                        }
+                        loadMore(id, v, item, out, ielem, ok, nkeys);
                     }
 
                     // Then leftover keys are loaded into extra if available, or are deleted when unused
