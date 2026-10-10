@@ -48,15 +48,25 @@ export function findSchema(elem: HTMLElement, id: string): ISchema {
     let s = JSONED.schemas[id];
 
     for (let i = path.length - 1; i > 0; i--) {
-        s = resolve(s, id);
-
         const k = path[i-1][1];
         const type = path[i][0];
 
+        // A "more" element holds a plain map of fields (not a schema), so it must not be resolved like one.
+        if (type != "more") s = resolve(s, id);
+
         if (k.includes(" ")) {
-            if (s.type != "object") throw Error("Schema doesn't match html");
-            const parts = k.split(" ");
-            s = (s.props[parts[0]] as any).more[parts[1]];
+        // This is a "more" element: its jid is "<field> <enum value>"
+            const sp = k.indexOf(" ");
+            const field = k.substring(0, sp);
+            const part = k.substring(sp + 1);
+
+            let owner: any;
+            if (type == "more") owner = (s as any)[field];
+            else if (s.type == "object") owner = s.props?.[field];
+            else throw Error("Schema doesn't match html");
+
+            if (!owner) throw Error("Schema doesn't match html");
+            s = (resolve(owner, id) as any).more[part];
             continue;
         }
 
@@ -89,6 +99,47 @@ export function findSchema(elem: HTMLElement, id: string): ISchema {
 
     s = resolve(s, id);
     return s;
+}
+
+function gatherMore(id: string, props: {[key: string]: any}, talias: {[key: string]: string} | undefined, v: any, more: {[key: string]: any}): boolean {
+    for (const kk of keys(v)) {
+   
+        const k = talias && kk in talias ? talias[kk] : kk;
+
+        const p = props[k];
+        if (!p) continue;
+        const s = resolve(p, id);
+
+        if (s?.type == "enum" && s.more) {
+            // Only check enum types that have a more field
+            // Get the value and use it to find a schema
+            let nv = get(v, kk);
+
+            const idvo = `${typeof nv}-${nv}`;
+            if (typeof nv == "string") {
+                nv = nv.includes(":") ? nv.replace("apoli:", "origins:") : s.ns ? s.ns + ":" + nv : nv;
+            }
+            const idv = `${typeof nv}-${nv}`;
+
+
+            const tidv = idv in s.more ? idv : idvo in s.more ? idvo : null;
+            if (tidv == null) return false; 
+
+            const fields = s.more[tidv];
+            Object.assign(more, fields);
+
+            if (s.talias && tidv in s.talias) {
+                const entries: [string, string][] = Object.entries(s.talias[tidv]);
+                for (const [oldk, newk] of entries) {
+                    more[oldk] = more[newk];
+                }
+            }
+
+            // The extra fields may contain enums with extra fields of their own
+            if (!gatherMore(id, fields, s.talias?.[tidv], v, more)) return false;
+        }
+    }
+    return true;
 }
 
 export function isValid(id: string, ssor: ISchema, v: any): boolean {
