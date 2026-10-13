@@ -9,7 +9,7 @@ import { Helper } from "./types";
 const helper: Helper = {
     id: "damage-type",
     title: "Damage types",
-    match: ({ link }) => link === "damage_type",
+    match: ({ link, key, schema }) => link === "damage_type" || (key === "damage_type" && schema?.type === "string"),
     sections: () => [
         {
             label: "Damage types",

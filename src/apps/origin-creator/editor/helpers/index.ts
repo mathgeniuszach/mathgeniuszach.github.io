@@ -2,3 +2,4 @@
 import "./ui";
 
 export { helperButton } from "./registry";
+export { setScope } from "./scope";

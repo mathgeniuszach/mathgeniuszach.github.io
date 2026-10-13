@@ -7,7 +7,7 @@ import { Helper } from "./types";
 const helper: Helper = {
     id: "damage-tag",
     title: "Damage tags",
-    match: ({ link }) => link === "damage_type_tag",
+    match: ({ link, key, scope, path }) => link === "damage_type_tag" || (key === "tag" && scope === "damage_cond" && path[path.length - 1] === "string-origins:in_tag"),
     sections: () => [
         {
             label: "Damage tags",

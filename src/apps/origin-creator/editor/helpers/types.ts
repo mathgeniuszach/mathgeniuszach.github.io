@@ -2,6 +2,8 @@ export type HelperContext = {
     link?: string;
     key: string;
     schema: any;
+    scope: string;
+    path: string[];
 };
 
 export type HelperItem = {

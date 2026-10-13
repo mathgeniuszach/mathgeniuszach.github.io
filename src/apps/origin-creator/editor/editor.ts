@@ -3,6 +3,7 @@ import { JSONED } from "./global";
 import { load, updatePanels } from "./load";
 import { $, update } from "..";
 import { PROJECT } from "../projects";
+import { setScope } from "./helpers";
 
 // Primitives
 type SString = {
@@ -141,8 +142,10 @@ export class Editor {
 
         // Build all htmls so we can use them
         for (const [link, data] of Object.entries(schema.links ?? {})) {
-            JSONED.htmls[id+"-link-"+link] = build(data, id);
+            setScope(link);
+            JSONED.htmls[id + "-link-" + link] = build(data, id);
         }
+        setScope("");
         JSONED.htmls[id + "-root"] = build(schema, id);
 
         // Remove all links (Actually handled by index.tsx now for external link safety)

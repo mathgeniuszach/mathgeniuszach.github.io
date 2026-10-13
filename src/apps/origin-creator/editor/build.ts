@@ -4,6 +4,7 @@ import { PROJECT } from "../projects";
 import { Schema, ISchema, SList, SGeneral } from "./editor";
 import { JSONED } from "./global";
 import { helperButton } from "./helpers";
+import { getScope } from "./helpers/scope";
 
 export function regescape(s: string) {
     return s.replace(/\\/g, "\\\\").replace(/\]/g, "\\]").replace(/\//g, "\\/");
@@ -416,7 +417,7 @@ export function build(s: ISchema, id: string, show?: boolean, nopanel?: boolean)
                     return aliases;
                 }
 
-                function genProps(html: string[], props: {[key: string]: ISchema}, depth: number = 0) {
+                function genProps(html: string[], props: {[key: string]: ISchema}, depth: number = 0, path: string[] = []) {
                     for (const [k, vs] of Object.entries(props) as [string, ISchema][]) {
                         (s as any).ikeys.add(k);
 
@@ -444,7 +445,7 @@ export function build(s: ISchema, id: string, show?: boolean, nopanel?: boolean)
 
                         html.push(ihtml);
                         // add Helper button
-                        html.push(helperButton({link: (vs as any).link, key: k, schema: tvs})); 
+                        html.push(helperButton({link: (vs as any).link, key: k, schema: tvs, scope: getScope(), path}));
                         html.push("</div>");
 
                         if (gap == true || gap == "after" || gap == "both") html.push("<hr/>");
@@ -466,7 +467,7 @@ export function build(s: ISchema, id: string, show?: boolean, nopanel?: boolean)
                                 const khtml = [];
                                 if (!tvs.talias) tvs.talias = {};
                                 tvs.talias[part] = getAliases(is);
-                                genProps(khtml, is, depth + 1);
+                                 genProps(khtml, is, depth + 1, [...path, part]);
 
                                 // Uses a special id for findSchema. This specific jid is detected by a space.
                                 JSONED.htmls[`more-${nn}-${part}`] = `<div jtype="more" jid="${escape(k)} ${escape(part)}">${khtml.join("")}</div>`;
