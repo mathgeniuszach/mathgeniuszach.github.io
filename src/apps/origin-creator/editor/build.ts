@@ -3,6 +3,7 @@ import { PROJECT } from "../projects";
 
 import { Schema, ISchema, SList, SGeneral } from "./editor";
 import { JSONED } from "./global";
+import { helperButton } from "./helpers";
 
 export function regescape(s: string) {
     return s.replace(/\\/g, "\\\\").replace(/\]/g, "\\]").replace(/\//g, "\\/");
@@ -442,6 +443,8 @@ export function build(s: ISchema, id: string, show?: boolean, nopanel?: boolean)
                         html.push("</span>");
 
                         html.push(ihtml);
+                        // add Helper button
+                        html.push(helperButton({link: (vs as any).link, key: k, schema: tvs})); 
                         html.push("</div>");
 
                         if (gap == true || gap == "after" || gap == "both") html.push("<hr/>");
