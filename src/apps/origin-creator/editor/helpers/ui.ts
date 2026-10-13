@@ -72,6 +72,28 @@ function applyValue(button: HTMLElement, value: string): boolean {
     return false;
 }
 
+// Helper panel resize
+const EDGE = 8;
+function place() {
+    if (!panel || !anchor) return;
+    if (!anchor.isConnected) { close(); return; }
+
+    const r = anchor.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > window.innerHeight) { close(); return; } // button scrolled out of view
+
+    const below = window.innerHeight - r.bottom - EDGE;
+    const above = r.top - EDGE;
+    const flip = below < 200 && above > below;
+
+    
+    panel.style.maxHeight = Math.min(340, Math.max(120, flip ? above : below)) + "px";
+    const top = flip ? r.top - panel.offsetHeight - 4 : r.bottom + 4;
+    const left = Math.min(r.left, window.innerWidth - panel.offsetWidth - EDGE);
+
+    panel.style.left = Math.max(4, left) + "px";
+    panel.style.top = Math.max(4, top) + "px";
+}
+
 function open(button: HTMLElement) {
     const helper = getHelper(button.getAttribute("data-helper") || "");
     if (!helper) return;
@@ -142,7 +164,7 @@ function open(button: HTMLElement) {
             list.appendChild(none);
         }
     };
-    search.addEventListener("input", render);
+        search.addEventListener("input", () => { render(); place(); });
 
     list.addEventListener("click", (e) => {
         const b = (e.target as Element).closest(".jhelper-item") as HTMLElement | null;
@@ -159,11 +181,7 @@ function open(button: HTMLElement) {
     document.body.appendChild(el);
     panel = el;
 
-    // Place it just under the button, kept inside the window
-    const r = button.getBoundingClientRect();
-    const left = Math.max(4, Math.min(r.left, window.innerWidth - el.offsetWidth - 8));
-    el.style.left = (left + window.scrollX) + "px";
-    el.style.top = (r.bottom + window.scrollY + 4) + "px";
+        place();
 
     search.focus();
 }
@@ -186,6 +204,11 @@ if (typeof document !== "undefined") {
         if (panel && !target.closest(".jhelper-panel")) close();
     });
 
+    window.addEventListener("scroll", (e) => {
+        if (panel && !panel.contains(e.target as Node)) place();
+    }, true);
+    window.addEventListener("resize", place);
+    
     document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") close();
     });
