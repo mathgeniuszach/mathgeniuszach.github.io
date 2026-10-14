@@ -1,8 +1,5 @@
 import { getHelper } from "./registry";
 
-// The helper menu: a small popover with a search box and the helper's lists.
-// Clicking an item puts its value into the field the "+" button belongs to.
-// One delegated click listener handles every "+" button, so nothing needs to be wired up per field.
 
 let panel: HTMLElement | null = null;
 let anchor: HTMLElement | null = null;
@@ -13,30 +10,25 @@ function close() {
     anchor = null;
 }
 
-// A field can be a plain dropdown, a text box, or an "or" of both (for example "built-in" | "custom"),
-// which has a chooser dropdown on top. These find the right control inside a field.
 const isChooser = (s: HTMLSelectElement) => Array.from(s.options).some(o => o.hasAttribute("key"));
 const valueSelect = (f: Element) => Array.from(f.querySelectorAll("select")).find(s => !isChooser(s)) as HTMLSelectElement | undefined;
 const chooserSelect = (f: Element) => Array.from(f.querySelectorAll("select")).find(isChooser) as HTMLSelectElement | undefined;
 const textInput = (f: Element) => f.querySelector("input[type=text], textarea") as HTMLInputElement | HTMLTextAreaElement | null;
 
-// Sets a control and fires its "change" event, so the editor's normal handling saves the data.
 function fire(el: HTMLElement) {
     el.dispatchEvent(new Event("change", { bubbles: true }));
 }
 
-// Puts a value in the field that owns the button. Returns false if the field can't take that value.
 function applyValue(button: HTMLElement, value: string): boolean {
     const field = button.closest(".field");
     if (!field) return false;
 
-    // If the field is switched off (an optional field), switch it on first
     if (!valueSelect(field) && !chooserSelect(field) && !textInput(field)) {
         const toggle = field.querySelector("button[key]") as HTMLElement | null;
         if (toggle) toggle.click();
     }
 
-    // 1. A dropdown of built-in values. These may be listed with or without "minecraft:", so try both.
+    // can be with or without minecraft:
     const select = valueSelect(field);
     if (select) {
         const bare = value.replace(/^minecraft:/, "");
@@ -49,10 +41,8 @@ function applyValue(button: HTMLElement, value: string): boolean {
         }
     }
 
-    // 2. A text box
     let input = textInput(field);
 
-    // 3. Not in the dropdown, but the field also allows custom text: switch it to the text option
     if (!input) {
         const chooser = chooserSelect(field);
         const custom = chooser && Array.from(chooser.options).find(o => o.getAttribute("type") === "string");
