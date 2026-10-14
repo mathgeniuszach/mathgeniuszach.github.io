@@ -10,6 +10,7 @@ import { refresh, makeTree, newFolder } from "./jstree";
 import { archive } from "../editor/export";
 import { extract, include } from "../editor/import";
 import { oc } from "../editor/api";
+import { UpdaterButton } from "./updater";
 
 function ProjectsButton(props) {
     return <button title="Open the projects panel." onClick={() => viewSection("projects")}>
@@ -133,7 +134,6 @@ function ImportButton(props) {
                     return;
                 }
 
-                // It's a zip file, see if it's a pack. If not, we throw an error to import it as a file.
                 let zip = await JSZip.loadAsync(file);
                 if (!(
                     "fabric.mod.json" in zip.files ||
@@ -582,6 +582,7 @@ export class Sidebar extends React.Component {
                 <ProjectsButton/>
                 <WorkspaceButton/>
                 <HelpButton/>
+                <UpdaterButton/>
             </div>
             <div className="panel">
                 <div id="filetree"></div>
