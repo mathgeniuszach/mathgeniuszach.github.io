@@ -1,4 +1,4 @@
-import { getHelper } from "./registry";
+import { getHelper, helperSections } from "./registry";
 
 
 let panel: HTMLElement | null = null;
@@ -117,12 +117,14 @@ function open(button: HTMLElement) {
     const note = document.createElement("div");
     note.className = "jhelper-note";
 
+    const all = helperSections(helper);
+
     const render = () => {
         const q = search.value.trim().toLowerCase();
         list.textContent = "";
         let shown = 0;
 
-        for (const section of helper.sections()) {
+        for (const section of all) {
             const items = section.items.filter(i => !q || i.value.toLowerCase().includes(q) || (i.desc || "").toLowerCase().includes(q));
             if (items.length === 0) continue;
 

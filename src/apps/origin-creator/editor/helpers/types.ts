@@ -1,9 +1,9 @@
-export type HelperContext = {
-    link?: string;
-    key: string;
-    schema: any;
-    scope: string;
-    path: string[];
+// Read from a schema's "helper:" key
+export type HelperSpec = {
+    title: string;
+    list: string[];
+    id: string;
+    folder: string[];
 };
 
 export type HelperItem = {
@@ -14,11 +14,4 @@ export type HelperItem = {
 export type HelperSection = {
     label: string;
     items: HelperItem[];
-};
-
-export type Helper = {
-    id: string;
-    title: string;
-    match: (ctx: HelperContext) => boolean;
-    sections: () => HelperSection[];
 };
