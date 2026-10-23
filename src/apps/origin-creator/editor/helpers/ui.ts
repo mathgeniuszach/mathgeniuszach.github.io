@@ -1,4 +1,5 @@
 import { getHelper, helperSections } from "./registry";
+import { spritePicker } from "./sprites";
 
 
 let panel: HTMLElement | null = null;
@@ -106,6 +107,16 @@ function open(button: HTMLElement) {
     x.addEventListener("click", close);
     head.append(title, x);
 
+    // Sprite pickers
+    if (helper.kind == "sprites") {
+        el.classList.add("jhelper-sprites");
+        el.append(head, spritePicker(helper, button, place));
+        document.body.appendChild(el);
+        panel = el;
+        place();
+        return;
+    }
+
     const search = document.createElement("input");
     search.type = "text";
     search.className = "jhelper-search";
@@ -193,7 +204,7 @@ if (typeof document !== "undefined") {
             return;
         }
 
-        if (panel && !target.closest(".jhelper-panel")) close();
+        if (panel && !e.composedPath().includes(panel)) close();
     });
 
     window.addEventListener("scroll", (e) => {

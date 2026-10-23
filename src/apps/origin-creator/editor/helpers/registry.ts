@@ -2,7 +2,7 @@ import { startCase } from "lodash";
 
 import { locateLink } from "../build";
 import { oc } from "../api";
-import { HelperSpec, HelperItem, HelperSection } from "./types";
+import { HelperSpec, HelperItem, HelperSection, SpriteSheet } from "./types";
 
 const specs: HelperSpec[] = [];
 
@@ -13,20 +13,35 @@ export function helperButton(schema: any, fileId: string): string {
     const h = schema?.helper;
     if (!h || typeof h != "object") return "";
 
+    const sprites = h.kind == "sprites";
     const spec: HelperSpec = {
+        kind: sprites ? "sprites" : "list",
         title: String(h.title ?? "Helper"),
         list: arr(h.list),
         id: String(h.id ?? fileId.split("-")[0]),
         folder: arr(h.folder),
+        tab: String(h.tab ?? "bar"),
+        fields: { sprite: String(h.sprite ?? "sprite_location"), bar: String(h.bar ?? "bar_index"), icon: String(h.icon ?? "icon_index") },
+        sheets: sprites && Array.isArray(h.sheets) ? h.sheets.map(sheetOf) : [],
     };
-    if (spec.list.length == 0 && spec.folder.length == 0) return "";
+    if (sprites ? spec.sheets.length == 0 : spec.list.length == 0 && spec.folder.length == 0) return "";
 
     const key = JSON.stringify(spec);
     let i = specs.findIndex(s => JSON.stringify(s) == key);
     if (i < 0) i = specs.push(spec) - 1;
 
-    return `<button type="button" class="jhelper" data-helper="${i}" title="${spec.title.replace(/"/g, "&quot;")}: show list"><i class="bi bi-plus-circle"></i></button>`;
+    return `<button type="button" class="jhelper" data-helper="${i}" title="${spec.title.replace(/"/g, "&quot;")}: show list"><i class="bi bi-${sprites ? "image" : "plus-circle"}"></i></button>`;
 }
+
+const sheetOf = (s: any): SpriteSheet => ({
+    title: String(s.title ?? s.sprite),
+    sprite: String(s.sprite),
+    image: String(s.image),
+    bars: parseInt(s.bars) || 0,
+    icons: Array.isArray(s.icons) ? s.icons.map((n: any) => parseInt(n) || 0) : Array(parseInt(s.bars) || 0).fill(parseInt(s.icons) || 1),
+    height: parseInt(s.height) || 5,
+    default: s.default === true,
+});
 
 export function getHelper(index: string): HelperSpec | undefined {
     return specs[parseInt(index)];
