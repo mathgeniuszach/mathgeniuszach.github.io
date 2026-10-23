@@ -366,3 +366,84 @@ html[theme=dark]
 .jhelper-none, .jhelper-note
     font-size: smaller
     opacity: 0.8
+
+.jhelper-panel.jhelper-sprites
+    width: 330px
+
+.jsprites
+    display: flex
+    flex-direction: column
+    gap: 4px
+    min-height: 0
+
+.jsprites-preview
+    display: flex
+    align-items: center
+    gap: 8px
+    padding: 4px
+    background-color: #777
+
+.jsprites-bar
+    position: relative
+    display: inline-block
+
+    .jsprite
+        position: absolute
+        left: 0
+        top: 0
+    .jsprites-fill
+        clip-path: inset(0 40% 0 0)
+
+.jsprite
+    display: inline-block
+    flex: none
+    image-rendering: pixelated
+
+.jsprites-pick .jsprite, .jsprites-sheet .jsprite
+    background-color: #777
+
+.jsprites-tabs
+    display: flex
+    gap: 4px
+
+.jsprites-tab
+    flex: 1
+    padding: 2px 0px
+    cursor: pointer
+
+.jsprites-body
+    overflow-y: auto
+    display: flex
+    flex-direction: column
+    min-height: 0
+
+    .jsprites-grid
+        display: flex
+        flex-wrap: wrap
+        gap: 2px
+
+.jsprites-pick, .jsprites-sheet
+    flex-direction: row
+    align-items: center
+    gap: 8px
+
+.jsprites-iconpick
+    width: auto
+    padding: 2px
+
+.jsprites-sheet
+    justify-content: space-between
+
+.jsprites-num
+    min-width: 20px
+    text-align: right
+    font-size: smaller
+
+.jsprites-more
+    margin-left: auto
+    font-size: smaller
+    opacity: 0.7
+
+.jsprites-on
+    outline: 2px solid var(--link-color, #09a)
+    outline-offset: -2px
