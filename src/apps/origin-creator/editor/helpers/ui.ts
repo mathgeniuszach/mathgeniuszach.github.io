@@ -20,9 +20,19 @@ function fire(el: HTMLElement) {
     el.dispatchEvent(new Event("change", { bubbles: true }));
 }
 
+function addToList(field: Element, value: string): boolean {
+    const area = field.querySelector("textarea.tlist") as HTMLTextAreaElement | null;
+    if (!area) return false;
+
+    area.value = area.value.trim() ? area.value.replace(/\s+$/, "") + "\n" + value : value;
+    fire(area);
+    return true;
+}
+
 function applyValue(button: HTMLElement, value: string): boolean {
     const field = button.closest(".field");
     if (!field) return false;
+    if (field.getAttribute("jtype") == "list") return addToList(field, value);
 
     if (!valueSelect(field) && !chooserSelect(field) && !textInput(field)) {
         const toggle = field.querySelector("button[key]") as HTMLElement | null;
