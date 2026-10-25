@@ -16,18 +16,18 @@ $inner-margin: 20px
 $mobile-inner-margin: 50px
 $scrollbar-size: 10px
 
-$light-link-color: #09a
-$light-hover-link-color: #1ce
-$light-sel-fill-color: #8ee
-$light-sel-border-color: #6bb
+$light-link-color: #75b
+$light-hover-link-color: #97e
+$light-sel-fill-color: #a8f
+$light-sel-border-color: #86d
 $light-fill-color: #eee
 $light-border-color: #bbb
 $light-fill-color-t: #ddd8
 
-$dark-link-color: #09a
-$dark-hover-link-color: #1ce
-$dark-sel-fill-color: #177
-$dark-sel-border-color: #155
+$dark-link-color: #75b
+$dark-hover-link-color: #97e
+$dark-sel-fill-color: #65a
+$dark-sel-border-color: #547
 $dark-fill-color: #333
 $dark-border-color: #666
 $dark-fill-color-t: #3338
@@ -76,7 +76,7 @@ html
     margin: 0
     width: 100%
     height: 100%
-    
+
     position: fixed
     overflow: hidden
 body
@@ -258,7 +258,7 @@ div.hr
         transform: translate(0px, 5px)
 
     &:hover, &:focus-within
-        color: darkcyan
+        color: purple
         border-image: url("/i/button_hovered.png") 12 fill
 
         &~div
@@ -270,7 +270,7 @@ div.hr
     &~div:hover, &~div:focus-within
         opacity: 1
         visibility: visible
-    
+
     &:hover ~ div, & ~ div:hover
         z-index: 1050
 
@@ -314,7 +314,7 @@ header
     align-items: center
 
     background-color: var(--header-color)
-        
+
     user-select: none
 
     hr, br
@@ -447,6 +447,9 @@ footer
 
     font-family: monospace
     color: white
+
+    a
+        font-family: monospace
 
 section
     position: fixed
